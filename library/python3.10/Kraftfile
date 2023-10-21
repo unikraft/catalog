@@ -1,0 +1,75 @@
+spec: v0.6
+
+name: python3.10
+
+rootfs: ./Dockerfile
+
+cmd: ["/helloworld.py"]
+
+unikraft:
+  version: staging
+  kconfig:
+    CONFIG_LIBDEVFS_AUTOMOUNT: 'y'
+    CONFIG_LIBDEVFS: 'y'
+    CONFIG_LIBPOSIX_LIBDL: 'y'
+    CONFIG_LIBPOSIX_PROCESS: 'y'
+    CONFIG_LIBPOSIX_USER: 'y'
+    CONFIG_LIBRAMFS: 'y'
+    CONFIG_LIBUK9P: 'y'
+    CONFIG_LIBUKBUS: 'y'
+    CONFIG_LIBUKCPIO: 'y'
+    CONFIG_LIBUKDEBUG_ANSI_COLOR: 'y'
+    CONFIG_LIBUKLIBPARAM: 'y'
+    CONFIG_LIBUKMMAP: 'y'
+    CONFIG_LIBUKSCHEDCOOP: 'y'
+    CONFIG_LIBUKSIGNAL: 'y'
+    CONFIG_LIBUKTIME: 'y'
+    CONFIG_LIBVFSCORE_AUTOMOUNT_ROOTFS: 'y'
+    CONFIG_LIBVFSCORE_FSTAB: 'y'
+    CONFIG_LIBVFSCORE_ROOTDEV: "fs0"
+    CONFIG_LIBVFSCORE_ROOTFS_INITRD: 'y'
+    CONFIG_STACK_SIZE_PAGE_ORDER: 10
+    CONFIG_UKSYSINFO: 'y'
+    CONFIG_VIRTIO_PCI: 'y'
+    # Debug options
+    # CONFIG_LIBUKDEBUG_PRINTD: 'y'
+    # CONFIG_LIBUKDEBUG_PRINTK_INFO: 'y'
+
+targets:
+- plat: qemu
+  arch: x86_64
+  kconfig:
+    CONFIG_KVM_PCI: 'y'
+- plat: fc
+  arch: x86_64
+  kconfig:
+    CONFIG_KVM_PCI: 'y'
+
+libraries:
+  musl: staging
+  lwip:
+    version: staging
+    kconfig:
+      CONFIG_LWIP_UKNETDEV: 'y'
+      CONFIG_LWIP_TCP: 'y'
+      CONFIG_LWIP_WND_SCALE: 'y'
+      CONFIG_LWIP_TCP_KEEPALIVE: 'y'
+      CONFIG_LWIP_THREADS: 'y'
+      CONFIG_LWIP_SOCKET: 'y'
+      CONFIG_LWIP_AUTOIFACE: 'y'
+      CONFIG_LWIP_IPV4: 'y'
+      CONFIG_LWIP_DHCP: 'y'
+      CONFIG_LWIP_DNS: 'y'
+  zlib: staging
+  libuuid: staging
+  compiler-rt: staging
+  python3:
+    version: staging
+    kconfig:
+      CONFIG_LIBPYTHON3: 'y'
+      CONFIG_LIBPYTHON3_EXTENSIONS: 'y'
+      CONFIG_LIBPYTHON3_EXTENSION_EXPAT: 'y'
+      CONFIG_LIBPYTHON3_EXTENSION_LIBMPDEC: 'y'
+      CONFIG_LIBPYTHON3_EXTENSION_UUID: 'y'
+      CONFIG_LIBPYTHON3_EXTENSION_ZLIB: 'y'
+      CONFIG_LIBPYTHON3_MAIN_FUNCTION: 'y'
