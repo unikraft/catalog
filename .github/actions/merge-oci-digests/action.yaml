@@ -1,0 +1,39 @@
+name: Merge KraftKit OCI digests
+
+description: |
+  Combine the results of multiple jobs which produce OCI artifact manifests
+  into a single OCI index manifest.
+
+inputs:
+  name:
+    required: true
+    description: Name of the OCI Index manifest to generate.
+  push:
+    required: false
+    description: Whether to push the OCI index manifest.
+
+runs:
+  using: composite
+  steps:
+  - name: Retrieve OCI digests
+    uses: actions/download-artifact@v3
+    with:
+      path: ${{ github.workspace }}/.kraftkit/downloads
+
+  - name: Merge OCI digests
+    shell: bash
+    run: .github/actions/merge-oci-digests/merge.sh ${{ github.workspace }}/.kraftkit/downloads ${{ github.workspace }}/.kraftkit/runtime/oci ${{ inputs.name }}
+
+  - name: Push OCI digests
+    if: ${{ inputs.push }}
+    shell: bash
+    env:
+      KRAFTKIT_RUNTIME_DIR: ${{ github.workspace }}/.kraftkit/runtime
+      KRAFTKIT_LOG_LEVEL: debug
+      KRAFTKIT_LOG_TYPE: basic
+    run: |
+      STAGING_RELEASE=$(curl https://api.github.com/repos/unikraft/kraftkit/releases | jq -r 'map(select(.prerelease)) | first | .tag_name');
+      wget https://github.com/unikraft/kraftkit/releases/download/${STAGING_RELEASE}/kraftkit_${STAGING_RELEASE:1}_linux_amd64.deb;
+      sudo dpkg -i kraftkit_${STAGING_RELEASE:1}_linux_amd64.deb;
+      kraft pkg ls --apps;
+      kraft pkg push ${{ inputs.name }};
