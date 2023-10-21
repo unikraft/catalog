@@ -1,0 +1,19 @@
+spec: v0.6
+
+name: helloworld
+
+unikraft: stable
+
+targets:
+- plat: qemu
+  arch: x86_64
+- plat: qemu
+  arch: arm64
+- plat: fc
+  arch: x86_64
+- plat: xen
+  arch: x86_64
+- plat: linuxu
+  arch: x86_64
+- plat: linuxu
+  arch: arm64
