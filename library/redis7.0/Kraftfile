@@ -1,0 +1,61 @@
+spec: v0.6
+
+name: redis
+
+rootfs: ./rootfs
+
+cmd: ["/redis.conf"]
+
+unikraft:
+  version: staging
+  kconfig:
+    CONFIG_LIBDEVFS_AUTOMOUNT: 'y'
+    CONFIG_LIBDEVFS: 'y'
+    CONFIG_LIBPOSIX_LIBDL: 'y'
+    CONFIG_LIBPOSIX_PROCESS: 'y'
+    CONFIG_LIBPOSIX_USER: 'y'
+    CONFIG_LIBRAMFS: 'y'
+    CONFIG_LIBUK9P: 'y'
+    CONFIG_LIBUKBUS: 'y'
+    CONFIG_LIBUKCPIO: 'y'
+    CONFIG_LIBUKDEBUG_ANSI_COLOR: 'y'
+    CONFIG_LIBUKLIBPARAM: 'y'
+    CONFIG_LIBUKMMAP: 'y'
+    CONFIG_LIBUKSCHEDCOOP: 'y'
+    CONFIG_LIBUKSIGNAL: 'y'
+    CONFIG_LIBUKTIME: 'y'
+    CONFIG_LIBVFSCORE_AUTOMOUNT_ROOTFS: 'y'
+    CONFIG_LIBVFSCORE_FSTAB: 'y'
+    CONFIG_LIBVFSCORE_ROOTDEV: "fs0"
+    CONFIG_LIBVFSCORE_ROOTFS_INITRD: 'y'
+    CONFIG_UKSYSINFO: 'y'
+    CONFIG_VIRTIO_PCI: 'y'
+
+targets:
+- qemu/x86_64
+- qemu/arm64
+- fc/x86_64
+- fc/arm64
+
+libraries:
+  musl: staging
+  lwip:
+    version: staging
+    kconfig:
+      CONFIG_LWIP_UKNETDEV: 'y'
+      CONFIG_LWIP_TCP: 'y'
+      CONFIG_LWIP_WND_SCALE: 'y'
+      CONFIG_LWIP_TCP_KEEPALIVE: 'y'
+      CONFIG_LWIP_THREADS: 'y'
+      CONFIG_LWIP_SOCKET: 'y'
+      CONFIG_LWIP_AUTOIFACE: 'y'
+      CONFIG_LWIP_IPV4: 'y'
+      CONFIG_LWIP_DHCP: 'y'
+      CONFIG_LWIP_DNS: 'y'
+  redis:
+    version: staging
+    kconfig:
+      CONFIG_LIBREDIS_SERVER: 'y'
+      CONFIG_LIBREDIS_COMMON: 'y'
+      CONFIG_LIBREDIS_LIBREDIS_LUA: 'y'
+      CONFIG_LIBREDIS_SERVER_MAIN_FUNCTION: 'y'
