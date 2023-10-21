@@ -1,0 +1,7 @@
+spec: v0.6
+
+runtime: unikraft.org/python:3.10
+
+rootfs: ./Dockerfile
+
+cmd: ["/server.py"]
