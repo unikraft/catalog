@@ -7,6 +7,20 @@ In addition to supported applications, this repository contains templates and
 examples of user-level programs built on top of runtimes that are available in
 the catalog.
 
+To get started using these pre-built Unikraft unikernel images, start by [installing the companion command-line toolchain `kraft`](https://unikraft.org/docs/cli):
+
+```
+curl --proto '=https' --tlsv1.2 -sSf https://get.kraftkit.sh | sh
+```
+
+You can view all the up-to-date images which are built in this repository directly in the CLI by running:
+
+```
+kraft pkg ls --apps --update
+```
+
+## Library
+
 | Status | Image |
 |-|-|
 | ![](https://github.com/unikraft/catalog/actions/workflows/library-helloworld.yaml/badge.svg) | [`unikraft.org/helloworld:latest`](library/helloworld) |
