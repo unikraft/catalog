@@ -19,6 +19,12 @@ You can view all the up-to-date images which are built in this repository direct
 kraft pkg ls --apps --update
 ```
 
+## Examples
+
+| | Example |
+|-|:-|
+| ![](https://raw.githubusercontent.com/unikraft/catalog/main/icons/python3.svg) | [Simple Python 3.10 HTTP Web Server with `http.server.HTTPServer`](https://github.com/unikraft/catalog/tree/main/examples/http-python3.10) |
+
 ## Library
 
 | Status | Image |
