@@ -1,0 +1,13 @@
+spec: v0.6
+
+name: helloworld
+
+unikraft: stable
+
+targets:
+- fc/arm64
+- fc/x86_64
+- linuxu/x86_64
+- qemu/arm64
+- qemu/x86_64
+- xen/x86_64
