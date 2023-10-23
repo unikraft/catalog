@@ -11,6 +11,8 @@ unikraft:
   kconfig:
     CONFIG_LIBDEVFS_AUTOMOUNT: 'y'
     CONFIG_LIBDEVFS: 'y'
+    CONFIG_LIBPOSIX_ENVIRON: 'y'
+    CONFIG_LIBPOSIX_ENVIRON_ENVP0: "PYTHONPATH=/usr/local/lib/python3.10:/usr/local/lib/python3.10/site-packages"
     CONFIG_LIBPOSIX_LIBDL: 'y'
     CONFIG_LIBPOSIX_PROCESS: 'y'
     CONFIG_LIBPOSIX_USER: 'y'
