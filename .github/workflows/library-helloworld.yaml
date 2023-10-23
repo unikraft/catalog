@@ -60,7 +60,7 @@ jobs:
         if-no-files-found: error
 
   push:
-    if: ${{ github.event_name == 'push' }}
+    if: ${{ github.event_name == 'push' || github.event_name == 'schedule' }}
     needs: [ build ]
     runs-on: ubuntu-latest
 
