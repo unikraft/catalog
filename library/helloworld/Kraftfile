@@ -5,15 +5,9 @@ name: helloworld
 unikraft: stable
 
 targets:
-- plat: qemu
-  arch: x86_64
-- plat: qemu
-  arch: arm64
-- plat: fc
-  arch: x86_64
-- plat: xen
-  arch: x86_64
-- plat: linuxu
-  arch: x86_64
-- plat: linuxu
-  arch: arm64
+- qemu/x86_64
+- qemu/arm64
+- fc/x86_64
+- xen/x86_64
+- linuxu/x86_64
+- linuxu/arm64

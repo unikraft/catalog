@@ -33,19 +33,14 @@ unikraft:
     CONFIG_STACK_SIZE_PAGE_ORDER: 10
     CONFIG_UKSYSINFO: 'y'
     CONFIG_VIRTIO_PCI: 'y'
+    CONFIG_KVM_PCI: 'y'
     # Debug options
     # CONFIG_LIBUKDEBUG_PRINTD: 'y'
     # CONFIG_LIBUKDEBUG_PRINTK_INFO: 'y'
 
 targets:
-- plat: qemu
-  arch: x86_64
-  kconfig:
-    CONFIG_KVM_PCI: 'y'
-- plat: fc
-  arch: x86_64
-  kconfig:
-    CONFIG_KVM_PCI: 'y'
+- qemu/x86_64
+- fc/x86_64
 
 libraries:
   musl: staging

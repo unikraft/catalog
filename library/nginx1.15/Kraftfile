@@ -38,14 +38,10 @@ unikraft:
     CONFIG_VIRTIO_PCI: 'y'
 
 targets:
-- plat: qemu
-  arch: x86_64
-- plat: qemu
-  arch: arm64
-- plat: fc
-  arch: x86_64
-- plat: fc
-  arch: arm64
+- qemu/x86_64
+- qemu/arm64
+- fc/x86_64
+- fc/arm64
 
 libraries:
   musl: staging
