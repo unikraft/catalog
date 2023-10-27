@@ -1,0 +1,25 @@
+name: Linter Actions
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  super-linter:
+    name: Super Linter
+    runs-on: ubuntu-latest
+    steps:
+      - name: Super Linter
+        uses: open-education-hub/actions/super-linter@main
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  spellcheck:
+    name: Spellcheck
+    runs-on: ubuntu-latest
+    steps:
+      - name: Spellcheck
+        uses: open-education-hub/actions/spellcheck@main
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
