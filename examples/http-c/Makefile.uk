@@ -1,0 +1,3 @@
+$(eval $(call addlib,apphttpreply))
+
+APPHTTPREPLY_SRCS-y += $(APPHTTPREPLY_BASE)/main.c
