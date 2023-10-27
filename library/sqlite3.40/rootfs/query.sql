@@ -1,0 +1,4 @@
+.headers on
+SELECT * FROM ALBUM;
+SELECT * FROM ARTIST;
+SELECT A.Name, B.Title FROM ARTIST A, ALBUM B WHERE A.ArtistId == B.ArtistId;
