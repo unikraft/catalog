@@ -35,5 +35,5 @@ runs:
       STAGING_RELEASE=$(curl https://api.github.com/repos/unikraft/kraftkit/releases | jq -r 'map(select(.prerelease)) | first | .tag_name');
       wget https://github.com/unikraft/kraftkit/releases/download/${STAGING_RELEASE}/kraftkit_${STAGING_RELEASE:1}_linux_amd64.deb;
       sudo dpkg -i kraftkit_${STAGING_RELEASE:1}_linux_amd64.deb;
-      kraft pkg ls --apps;
+      kraft pkg ls --apps --all;
       kraft pkg push ${{ inputs.name }};
