@@ -7,14 +7,14 @@ on:
   push:
     branches: [main]
     paths:
-    - 'library/redis7.0/**'
+    - 'library/redis/7.0/**'
     - '.github/workflows/library-redis7.0.yaml'
 
   pull_request:
     types: [opened, synchronize, reopened]
     branches: [main]
     paths:
-    - 'library/redis7.0/**'
+    - 'library/redis/7.0/**'
     - '.github/workflows/library-redis7.0.yaml'
 
 jobs:
@@ -41,7 +41,7 @@ jobs:
       uses: unikraft/kraftkit@staging
       with:
         loglevel: debug
-        workdir: library/redis7.0
+        workdir: library/redis/7.0
         runtimedir: /github/workspace/.kraftkit
         plat: ${{ matrix.plat }}
         arch: ${{ matrix.arch }}
