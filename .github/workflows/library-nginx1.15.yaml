@@ -7,14 +7,14 @@ on:
   push:
     branches: [main]
     paths:
-    - 'library/nginx1.15/**'
+    - 'library/nginx/1.15/**'
     - '.github/workflows/library-nginx1.15.yaml'
 
   pull_request:
     types: [opened, synchronize, reopened]
     branches: [main]
     paths:
-    - 'library/nginx1.15/**'
+    - 'library/nginx/1.15/**'
     - '.github/workflows/library-nginx1.15.yaml'
 
 jobs:
@@ -41,7 +41,7 @@ jobs:
       uses: unikraft/kraftkit@staging
       with:
         loglevel: debug
-        workdir: library/nginx1.15
+        workdir: library/nginx/1.15
         runtimedir: /github/workspace/.kraftkit
         plat: ${{ matrix.plat }}
         arch: ${{ matrix.arch }}

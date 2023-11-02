@@ -7,14 +7,14 @@ on:
   push:
     branches: [main]
     paths:
-    - 'library/lua5.4/**'
+    - 'library/lua/5.4/**'
     - '.github/workflows/library-lua5.4.yaml'
 
   pull_request:
     types: [opened, synchronize, reopened]
     branches: [main]
     paths:
-    - 'library/lua5.4/**'
+    - 'library/lua/5.4/**'
     - '.github/workflows/library-lua5.4.yaml'
 
 jobs:
@@ -41,7 +41,7 @@ jobs:
       uses: unikraft/kraftkit@staging
       with:
         loglevel: debug
-        workdir: library/lua5.4
+        workdir: library/lua/5.4
         runtimedir: /github/workspace/.kraftkit
         plat: ${{ matrix.plat }}
         arch: ${{ matrix.arch }}

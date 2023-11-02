@@ -7,14 +7,14 @@ on:
   push:
     branches: [main]
     paths:
-    - 'library/sqlite3.40/**'
+    - 'library/sqlite/3.40/**'
     - '.github/workflows/library-sqlite3.40.yaml'
 
   pull_request:
     types: [opened, synchronize, reopened]
     branches: [main]
     paths:
-    - 'library/sqlite3.40/**'
+    - 'library/sqlite/3.40/**'
     - '.github/workflows/library-sqlite3.40.yaml'
 
 jobs:
@@ -41,7 +41,7 @@ jobs:
       uses: unikraft/kraftkit@staging
       with:
         loglevel: debug
-        workdir: library/sqlite3.40
+        workdir: library/sqlite/3.40
         runtimedir: /github/workspace/.kraftkit
         plat: ${{ matrix.plat }}
         arch: ${{ matrix.arch }}
