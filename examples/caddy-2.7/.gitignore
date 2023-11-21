@@ -1,0 +1,6 @@
+/rootfs/
+/rootfs.cpio
+/run-qemu*
+/run-fc*
+/kraft-run-*
+/fc*.json
