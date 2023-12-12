@@ -1,0 +1,12 @@
+spec: v0.6
+
+name: helloworld
+
+unikraft: stable
+
+libraries:
+  musl: stable
+  lwip: stable
+
+targets:
+- qemu/x86_64
