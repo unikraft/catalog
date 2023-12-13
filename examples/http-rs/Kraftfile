@@ -1,0 +1,21 @@
+spec: v0.6
+
+name: http-rs
+
+unikraft: stable
+
+libraries:
+  musl: stable
+  lwip:
+    version: stable
+    kconfig:
+      CONFIG_LWIP_UKNETDEV: 'y'
+      CONFIG_LWIP_TCP: 'y'
+      CONFIG_LWIP_THREADS: 'y'
+      CONFIG_LWIP_SOCKET: 'y'
+      CONFIG_LWIP_AUTOIFACE: 'y'
+      CONFIG_LWIP_IPV4: 'y'
+      CONFIG_LWIP_DHCP: 'y'
+
+targets:
+- qemu/x86_64
