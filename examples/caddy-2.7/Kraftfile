@@ -1,0 +1,9 @@
+spec: v0.6
+
+name: caddy
+
+runtime: index.unikraft.io/unikraft.org/base:latest
+
+rootfs: ./rootfs
+
+cmd: ["/usr/local/bin/caddy", "run", "--config", "/etc/caddy/Caddyfile"]

@@ -1,0 +1,3 @@
+networking: True
+accel: True
+memory: 512
