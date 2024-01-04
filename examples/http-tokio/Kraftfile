@@ -1,0 +1,12 @@
+specification: '0.6'
+name: http-tokio
+
+unikraft: stable
+
+libraries:
+  musl: stable
+  lwip: stable
+
+targets:
+  - architecture: x86_64
+    platform: linuxu
