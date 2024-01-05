@@ -1,0 +1,7 @@
+spec: v0.6
+
+runtime: unikraft.org/node:18
+
+rootfs: ./Dockerfile
+
+cmd: ["/usr/bin/node", "/usr/src/server.js"]
