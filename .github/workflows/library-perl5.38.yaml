@@ -1,0 +1,75 @@
+name: library/perl5.38
+
+on:
+  schedule:
+  - cron: '0 0 * * *' # Everyday at 12AM
+
+  push:
+    branches: [main]
+    paths:
+    - 'library/perl/5.38/**'
+    - '.github/workflows/library-perl5.38.yaml'
+    - '!library/perl/5.38/README.md'
+
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [main]
+    paths:
+    - 'library/perl/5.38/**'
+    - '.github/workflows/library-perl5.38.yaml'
+    - '!library/perl/5.38/README.md'
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+        - plat: qemu
+          arch: x86_64
+        - plat: fc
+          arch: x86_64
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Build perl5.38
+      uses: unikraft/kraftkit@staging
+      with:
+        loglevel: debug
+        workdir: library/perl/5.38
+        runtimedir: /github/workspace/.kraftkit
+        plat: ${{ matrix.plat }}
+        arch: ${{ matrix.arch }}
+        push: false
+        output: oci://index.unikraft.io/unikraft.org/perl:5.38
+
+    - name: Archive OCI digests
+      uses: actions/upload-artifact@v3
+      with:
+        name: oci-digests-${{ matrix.arch }}-${{ matrix.plat }}
+        path: ${{ github.workspace }}/.kraftkit/oci/digests
+        if-no-files-found: error
+
+  push:
+    if: ${{ github.event_name == 'push' || github.event_name == 'schedule' }}
+    needs: [ build ]
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Login to OCI registry
+      uses: docker/login-action@v2
+      with:
+        registry: index.unikraft.io
+        username: ${{ secrets.REG_USERNAME }}
+        password: ${{ secrets.REG_TOKEN }}
+
+    - name: Retrieve, merge and push OCI digests
+      uses: ./.github/actions/merge-oci-digests
+      with:
+        name: index.unikraft.io/unikraft.org/perl:5.38
+        push: true
