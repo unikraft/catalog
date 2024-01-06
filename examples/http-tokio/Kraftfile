@@ -1,0 +1,11 @@
+spec: v0.6
+
+runtime: unikraft.org/base:latest
+
+rootfs: ./Dockerfile
+
+cmd: ["/server"]
+
+targets:
+- qemu/x86_64
+- fc/x86_64
