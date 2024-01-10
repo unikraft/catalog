@@ -6,6 +6,7 @@ unikraft:
   version: stable
   kconfig:
     CONFIG_LIBUKBUS: 'y'
+    CONFIG_LIBPOSIX_FDIO: 'y'
 
 targets:
 - qemu/x86_64
