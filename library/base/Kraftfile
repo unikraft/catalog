@@ -4,8 +4,11 @@ template:
   source: https://github.com/unikraft/app-elfloader.git
   version: staging
 
+rootfs: ./Dockerfile
+
+cmd: ["/fallback"]
+
 unikraft:
-  source: https://github.com/unikraft/unikraft.git
   version: staging
   kconfig:
     # Configurations options for app-elfloader
@@ -82,8 +85,14 @@ unikraft:
     CONFIG_LIBUKVMEM_DEMAND_PAGE_IN_SIZE: 12
     CONFIG_LIBUKVMEM_PAGEFAULT_HANDLER_PRIO: 4
     CONFIG_LIBUKVMEM: 'y'
-    CONFIG_LIBVFSCORE_AUTOMOUNT_ROOTFS: 'n'
-    CONFIG_LIBVFSCORE_FSTAB: 'y'
+    CONFIG_LIBVFSCORE_AUTOMOUNT_CI_EINITRD: 'y'
+    CONFIG_LIBVFSCORE_AUTOMOUNT_CI: 'y'
+    CONFIG_LIBVFSCORE_AUTOMOUNT_FB: 'y'
+    CONFIG_LIBVFSCORE_AUTOMOUNT_FB0_DEV: "embedded"
+    CONFIG_LIBVFSCORE_AUTOMOUNT_FB0_DRIVER: "extract"
+    CONFIG_LIBVFSCORE_AUTOMOUNT_FB0_MP: "/"
+    CONFIG_LIBVFSCORE_AUTOMOUNT_UP: 'y'
+    CONFIG_LIBVFSCORE_AUTOMOUNT: 'y'
     CONFIG_LIBVFSCORE_NONLARGEFILE: 'y'
     CONFIG_LIBVFSCORE: 'y'
     CONFIG_OPTIMIZE_DEADELIM: 'y'
