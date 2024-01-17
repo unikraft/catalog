@@ -36,6 +36,7 @@ unikraft:
     CONFIG_LIBVFSCORE_ROOTFS_INITRD: 'y'
     CONFIG_UKSYSINFO: 'y'
     CONFIG_VIRTIO_PCI: 'y'
+    CONFIG_LIBUKNETDEV_EINFO_LIBPARAM: 'y'
 
 targets:
 - qemu/x86_64
