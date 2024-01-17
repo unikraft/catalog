@@ -34,6 +34,8 @@ unikraft:
     CONFIG_UKSYSINFO: 'y'
     CONFIG_VIRTIO_PCI: 'y'
     CONFIG_KVM_PCI: 'y'
+    CONFIG_LIBUKNETDEV_EINFO_LIBPARAM: 'y'
+
     # Debug options
     # CONFIG_LIBUKDEBUG_PRINTD: 'y'
     # CONFIG_LIBUKDEBUG_PRINTK_INFO: 'y'
