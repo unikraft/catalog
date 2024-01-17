@@ -11,7 +11,6 @@ template:
   version: staging
 
 unikraft:
-  source: https://github.com/unikraft/unikraft.git
   version: staging
   kconfig:
     # Configurations options for app-elfloader
@@ -88,9 +87,10 @@ unikraft:
     CONFIG_LIBUKVMEM_DEMAND_PAGE_IN_SIZE: 12
     CONFIG_LIBUKVMEM_PAGEFAULT_HANDLER_PRIO: 4
     CONFIG_LIBUKVMEM: 'y'
-    CONFIG_LIBVFSCORE_AUTOMOUNT_ROOTFS: 'y' # needed for einitrd
-    CONFIG_LIBVFSCORE_FSTAB: 'y'
-    CONFIG_LIBVFSCORE_INITRD_EXTRACT_WORKAROUND: 'y'
+    CONFIG_LIBVFSCORE_AUTOMOUNT_CI_EINITRD: 'y'
+    CONFIG_LIBVFSCORE_AUTOMOUNT_CI: 'y'
+    CONFIG_LIBVFSCORE_AUTOMOUNT_UP: 'y'
+    CONFIG_LIBVFSCORE_AUTOMOUNT: 'y'
     CONFIG_LIBVFSCORE_NONLARGEFILE: 'y'
     CONFIG_LIBVFSCORE_ROOTFS_EINITRD: 'y'
     CONFIG_LIBVFSCORE: 'y'
