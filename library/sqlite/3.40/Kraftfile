@@ -7,7 +7,7 @@ rootfs: ./rootfs
 cmd: ["/music.db", ".read query.sql"]
 
 unikraft:
-  version: stable
+  version: staging
   kconfig:
     CONFIG_LIBRAMFS: 'y'
     CONFIG_LIBUK9P: 'y'

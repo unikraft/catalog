@@ -7,7 +7,7 @@ rootfs: ./rootfs
 cmd: ["/helloworld.lua"]
 
 unikraft:
-  version: stable
+  version: staging
   kconfig:
     CONFIG_LIBRAMFS: 'y'
     CONFIG_LIBUK9P: 'y'
