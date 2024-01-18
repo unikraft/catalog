@@ -48,16 +48,24 @@ libraries:
   lwip:
     version: staging
     kconfig:
+      CONFIG_LWIP_LOOPIF: 'y'
       CONFIG_LWIP_UKNETDEV: 'y'
+      CONFIG_LWIP_LOOPBACK: 'y'
       CONFIG_LWIP_TCP: 'y'
+      CONFIG_LWIP_UDP: 'y'
+      CONFIG_LWIP_RAW: 'y'
       CONFIG_LWIP_WND_SCALE: 'y'
       CONFIG_LWIP_TCP_KEEPALIVE: 'y'
       CONFIG_LWIP_THREADS: 'y'
+      CONFIG_LWIP_HEAP: 'y'
       CONFIG_LWIP_SOCKET: 'y'
       CONFIG_LWIP_AUTOIFACE: 'y'
       CONFIG_LWIP_IPV4: 'y'
       CONFIG_LWIP_DHCP: 'y'
       CONFIG_LWIP_DNS: 'y'
+      CONFIG_LWIP_NUM_TCPCON: 64
+      CONFIG_LWIP_NUM_TCPLISTENERS: 64
+      CONFIG_LWIP_ICMP: 'y'
   nginx:
     version: staging
     kconfig:
