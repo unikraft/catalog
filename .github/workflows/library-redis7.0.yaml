@@ -1,4 +1,4 @@
-name: library/redis7.0
+name: library/redis:7.0
 
 on:
   schedule:

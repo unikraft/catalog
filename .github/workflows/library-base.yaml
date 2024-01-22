@@ -1,4 +1,4 @@
-name: library/base
+name: library/base:latest
 
 on:
   schedule:

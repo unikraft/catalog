@@ -1,4 +1,4 @@
-name: library/node18
+name: library/node:18
 
 on:
   schedule:

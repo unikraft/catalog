@@ -1,4 +1,4 @@
-name: library/lua5.4
+name: library/lua:5.4
 
 on:
   schedule:

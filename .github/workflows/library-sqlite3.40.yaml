@@ -1,4 +1,4 @@
-name: library/sqlite3.40
+name: library/sqlite:3.40
 
 on:
   schedule:

@@ -1,4 +1,4 @@
-name: library/helloworld
+name: library/helloworld:latest
 
 on:
   schedule:

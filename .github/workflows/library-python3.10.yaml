@@ -1,4 +1,4 @@
-name: library/python3.10
+name: library/python:3.10
 
 on:
   schedule:
