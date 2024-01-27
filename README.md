@@ -67,3 +67,4 @@ kraft pkg ls --apps --update
 | [![](https://github.com/unikraft/catalog/actions/workflows/library-redis7.2.yaml/badge.svg)](https://github.com/unikraft/catalog/actions/workflows/library-redis7.2.yaml) | [`unikraft.org/redis:7.2`](library/redis/7.2) |
 | [![](https://github.com/unikraft/catalog/actions/workflows/library-ruby3.2.yaml/badge.svg)](https://github.com/unikraft/catalog/actions/workflows/library-ruby3.2.yaml) | [`unikraft.org/ruby:3.2`](library/ruby/3.2) |
 | [![](https://github.com/unikraft/catalog/actions/workflows/library-skipper0.18.yaml/badge.svg)](https://github.com/unikraft/catalog/actions/workflows/library-skipper0.18.yaml) | [`unikraft.org/skipper:0.18`](library/skipper/0.18) |
+| [![](https://github.com/unikraft/catalog/actions/workflows/library-surreal1.1.yaml/badge.svg)](https://github.com/unikraft/catalog/actions/workflows/library-surreal1.1.yaml) | [`unikraft.org/surreal:1.1`](library/surreal/1.1) |
