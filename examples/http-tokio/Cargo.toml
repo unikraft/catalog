@@ -5,4 +5,4 @@ edition = "2021"
 
 
 [dependencies]
-tokio = {version = "1",  features = ["rt-multi-thread", "net", "time", "macros", "io-util"] }
+tokio = {version = "1",  features = ["full"] }

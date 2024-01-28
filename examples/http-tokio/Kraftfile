@@ -1,12 +1,25 @@
-specification: '0.6'
+specification: v0.7
 name: http-tokio
 
-unikraft: stable
+unikraft:
+  version: 0.16.1
+  kconfig:
+    CONFIG_LIBPOSIX_EVENTFD: 'y'
+    CONFIG_LIBPOSIX_UNIXSOCKET: 'y'
+    CONFIG_LIBUKNETDEV_EINFO_LIBPARAM: 'y'
 
 libraries:
-  musl: stable
-  lwip: stable
+  musl: staging
+  lwip:
+    version: staging
+    kconfig:
+      CONFIG_LWIP_UKNETDEV: 'y'
+      CONFIG_LWIP_TCP: 'y'
+      CONFIG_LWIP_THREADS: 'y'
+      CONFIG_LWIP_SOCKET: 'y'
+      CONFIG_LWIP_DHCP: 'y'
+      CONFIG_LWIP_IPV4: 'y'
+      CONFIG_LWIP_AUTOIFACE: 'y'
 
 targets:
-  - architecture: x86_64
-    platform: linuxu
+  - qemu/x86_64
