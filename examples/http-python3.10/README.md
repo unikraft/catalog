@@ -59,6 +59,10 @@ To do so, use the `kraft run`'s `-M` flag, for example:
 kraft run -p 8080:8080 --plat qemu --arch x86_64 -M 512M
 ```
 
+## kraft and sudo
+Mixing invocations of kraft and sudo can lead to unexpected behavior. 
+Read more about how to start kraft without sudo at [https://unikraft.org/sudoless](https://unikraft.org/sudoless).
+
 ## Learn More
 
 - [How to run unikernels locally](https://unikraft.org/docs/cli/running)
