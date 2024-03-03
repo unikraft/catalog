@@ -1,0 +1,9 @@
+spec: v0.6
+
+name: http-python
+
+runtime: python:3.12
+
+rootfs: ./Dockerfile
+
+cmd: ["/usr/bin/python3", "/app/server.py"]
