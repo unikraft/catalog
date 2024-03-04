@@ -1,12 +1,10 @@
-# Simple Python HTTP Server
+# Python HTTP Server
 
-This directory contains a simple [Python](https://www.python.org/) HTTP server running on Unikraft.
-It opens a Unikraft instance sunning simple HTTP server that provides a simple response to each request.
+This directory contains a [Python](https://www.python.org/) HTTP server running on Unikraft that provides a simple response to each request.
 
 ## Set Up
 
-To run this example, [install Unikraft's companion command-line toolchain `kraft`](https://unikraft.org/docs/cli).
-Then, clone this repository and `cd` into this directory.
+To run this example, [install Unikraft's companion command-line toolchain `kraft`](https://unikraft.org/docs/cli), clone this repository and `cd` into this directory.
 
 ## Run and Use
 
@@ -17,21 +15,20 @@ kraft run -p 8080:8080 --plat qemu --arch x86_64
 ```
 
 If the `--plat` argument is left out, it defaults to `qemu`.
-If the `--arch` argument is left out, it default to the CPU architecture of your system.
+If the `--arch` argument is left out, it defaults to your system's CPU architecture.
 
-Once executed, it will open port `8080` and wait for connections, and it can be queried.
-
-Query the Unikraft instance using:
+Once executed, it will open port `8080` and wait for connections. 
+To test it, you can use `curl`:
 
 ```bash
 curl localhost:8080
 ```
 
-It will print a "Hello, World!" message.
+You should see a "Hello, World!" message.
 
 ## Inspect and Close
 
-You can list information about the Unikraft instance, use:
+To list information about the Unikraft instance, use:
 
 ```bash
 kraft ps
@@ -48,12 +45,24 @@ To close the Unikraft instance, use:
 kraft rm nostalgic_snowflake
 ```
 
-Note that closing the `kraft run` command (such as using `Ctrl+c`) does not close the Unikraft instance.
+Note that closing the `kraft run` command (e.g., via `Ctrl+c`) does not kill the Unikraft instance.
 If you want the Unikraft instance closed when closing the `kraft run` command, use the `--rm` option:
 
 ```bash
 kraft run --rm -p 8080:8080 --plat qemu --arch x86_64
 ```
+
+Finally, note that depending on how you modify this example your instance **may** need more memory to run.
+To do so, use the `kraft run`'s `-M` flag, for example:
+
+```bash
+kraft run -p 8080:8080 --plat qemu --arch x86_64 -M 512M
+```
+
+## kraft and sudo
+
+Mixing invocations of kraft and sudo can lead to unexpected behavior. 
+Read more about how to start kraft without sudo at [https://unikraft.org/sudoless](https://unikraft.org/sudoless).
 
 ## Learn More
 
