@@ -17,8 +17,8 @@ kraft run -p 8080:8080 --plat qemu --arch x86_64
 If the `--plat` argument is left out, it defaults to `qemu`.
 If the `--arch` argument is left out, it defaults to your system's CPU architecture.
 
-Once executed, it will open port `8080` and wait for connections. To test it,
-you can use `curl`:
+Once executed, it will open port `8080` and wait for connections. 
+To test it, you can use `curl`:
 
 ```bash
 curl localhost:8080
@@ -52,7 +52,7 @@ If you want the Unikraft instance closed when closing the `kraft run` command, u
 kraft run --rm -p 8080:8080 --plat qemu --arch x86_64
 ```
 
-Finally, note that depending on how you modify this example your instance *may* need more memory to run.
+Finally, note that depending on how you modify this example your instance **may** need more memory to run.
 To do so, use the `kraft run`'s `-M` flag, for example:
 
 ```bash
@@ -60,6 +60,7 @@ kraft run -p 8080:8080 --plat qemu --arch x86_64 -M 512M
 ```
 
 ## kraft and sudo
+
 Mixing invocations of kraft and sudo can lead to unexpected behavior. 
 Read more about how to start kraft without sudo at [https://unikraft.org/sudoless](https://unikraft.org/sudoless).
 
