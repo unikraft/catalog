@@ -13,7 +13,7 @@ To get started using these pre-built Unikraft unikernel images, start by [instal
 curl --proto '=https' --tlsv1.2 -sSf https://get.kraftkit.sh | sh
 ```
 
-You can view all the up-to-date images which are built in this repository directly in the CLI by running:
+You can view all the up-to-date images which are built from this repository directly in the CLI by running:
 
 ```
 kraft pkg ls --apps --update
