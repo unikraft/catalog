@@ -1,6 +1,6 @@
-# Python HTTP Server
+# Rust/Rocket v0.5
 
-This directory contains a [Python](https://www.python.org/) HTTP server running on Unikraft that provides a simple response to each request.
+This example was derived from [Rocket's "hello" example](https://github.com/rwf2/Rocket/tree/v0.5/examples/hello).
 
 ## Set Up
 
@@ -18,13 +18,24 @@ If the `--plat` argument is left out, it defaults to `qemu`.
 If the `--arch` argument is left out, it defaults to your system's CPU architecture.
 
 Once executed, it will open port `8080` and wait for connections.
-To test it, you can use `curl`:
+To test it, you can use `curl`.
+Try one of these available endpoints:
 
 ```bash
-curl localhost:8080
+Then try visiting one of the available paths:
+- https://<NAME>.<METRO>.kraft.cloud/hello/world
+- https://<NAME>.<METRO>.kraft.cloud/hello/мир
+- https://<NAME>.<METRO>.kraft.cloud/wave/Rocketeer/100
+- https://<NAME>.<METRO>.kraft.cloud/?emoji
+- https://<NAME>.<METRO>.kraft.cloud/?name=Rocketeer
+- https://<NAME>.<METRO>.kraft.cloud/?lang=ру
+- https://<NAME>.<METRO>.kraft.cloud/?lang=ру&emoji
+- https://<NAME>.<METRO>.kraft.cloud/?emoji&lang=en
+- https://<NAME>.<METRO>.kraft.cloud/?name=Rocketeer&lang=en
+- https://<NAME>.<METRO>.kraft.cloud/?emoji&name=Rocketeer
+- https://<NAME>.<METRO>.kraft.cloud/?name=Rocketeer&lang=en&emoji
+- https://<NAME>.<METRO>.kraft.cloud/?lang=ru&emoji&name=Rocketeer
 ```
-
-You should see a "Hello, World!" message.
 
 ## Inspect and Close
 
@@ -33,9 +44,10 @@ To list information about the Unikraft instance, use:
 ```bash
 kraft ps
 ```
+
 ```text
 NAME                 KERNEL                          ARGS        CREATED         STATUS   MEM   PLAT
-nostalgic_snowflake  oci://unikraft.org/python:3.10  /server.py  46 seconds ago  running  0MiB  qemu/x86_64
+admiring_ndakasi     oci://unikraft.org/base:latest  /server     1 minute ago    running  64MiB  0.0.0.0:8080->8080/tcp  qemu/x86_64
 ```
 
 The instance name is `nostalgic_snowflake`.
@@ -60,4 +72,4 @@ Read more about how to start `kraft` without `sudo` at [https://unikraft.org/sud
 ## Learn More
 
 - [How to run unikernels locally](https://unikraft.org/docs/cli/running)
-- [Building `Dockerfile` Images with `BuildKit`](https://unikraft.org/docs/getting-started/integrations/buildkit)
+- [Building `Dockerfile` Images with `BuildKit`](https://unikraft.org/guides/building-dockerfile-images-with-buildkit)

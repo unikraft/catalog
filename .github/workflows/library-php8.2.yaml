@@ -1,4 +1,4 @@
-name: library/hugo:0.122
+name: library/php8.2
 
 on:
   schedule:
@@ -7,17 +7,15 @@ on:
   push:
     branches: [main]
     paths:
-    - 'library/hugo/0.122/**'
-    - '.github/workflows/library-hugo0.122.yaml'
-    - '!library/hugo/0.122/README.md'
+    - 'library/php/8.2/**'
+    - '.github/workflows/library-php8.2.yaml'
 
   pull_request:
     types: [opened, synchronize, reopened]
     branches: [main]
     paths:
-    - 'library/hugo/0.122/**'
-    - '.github/workflows/library-hugo0.122.yaml'
-    - '!library/hugo/0.122/README.md'
+    - 'library/php/8.2/**'
+    - '.github/workflows/library-php8.2.yaml'
 
 jobs:
   build:
@@ -35,16 +33,16 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    - name: Build hugo0.122
+    - name: Build php8.2
       uses: unikraft/kraftkit@staging
       with:
         loglevel: debug
-        workdir: library/hugo/0.122
+        workdir: library/php/8.2
         runtimedir: /github/workspace/.kraftkit
         plat: ${{ matrix.plat }}
         arch: ${{ matrix.arch }}
         push: false
-        output: oci://index.unikraft.io/unikraft.org/hugo:0.122
+        output: oci://index.unikraft.io/unikraft.org/php:8.2
 
     - name: Archive OCI digests
       uses: actions/upload-artifact@v3
@@ -71,5 +69,5 @@ jobs:
     - name: Retrieve, merge and push OCI digests
       uses: ./.github/actions/merge-oci-digests
       with:
-        name: index.unikraft.io/unikraft.org/hugo:0.122
+        name: index.unikraft.io/unikraft.org/php:8.2
         push: true

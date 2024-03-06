@@ -1,6 +1,6 @@
-# Python HTTP Server
+# Rust/Tokio Server
 
-This directory contains a [Python](https://www.python.org/) HTTP server running on Unikraft that provides a simple response to each request.
+This directory contains an [Tokio](https://tokio.rs/) server running on Unikraft.
 
 ## Set Up
 
@@ -11,7 +11,7 @@ To run this example, [install Unikraft's companion command-line toolchain `kraft
 Use `kraft` to run the image and start a Unikraft instance:
 
 ```bash
-kraft run --rm -p 8080:8080 --plat qemu --arch x86_64
+kraft run --rm -p 8080:8080 --plat qemu --arch x86_64 -M 512M
 ```
 
 If the `--plat` argument is left out, it defaults to `qemu`.
@@ -33,9 +33,10 @@ To list information about the Unikraft instance, use:
 ```bash
 kraft ps
 ```
+
 ```text
 NAME                 KERNEL                          ARGS        CREATED         STATUS   MEM   PLAT
-nostalgic_snowflake  oci://unikraft.org/python:3.10  /server.py  46 seconds ago  running  0MiB  qemu/x86_64
+admiring_ndakasi     oci://unikraft.org/base:latest  /server     1 minute ago    running  512MiB  0.0.0.0:8080->8080/tcp  qemu/x86_64
 ```
 
 The instance name is `nostalgic_snowflake`.
@@ -60,4 +61,4 @@ Read more about how to start `kraft` without `sudo` at [https://unikraft.org/sud
 ## Learn More
 
 - [How to run unikernels locally](https://unikraft.org/docs/cli/running)
-- [Building `Dockerfile` Images with `BuildKit`](https://unikraft.org/docs/getting-started/integrations/buildkit)
+- [Building `Dockerfile` Images with `BuildKit`](https://unikraft.org/guides/building-dockerfile-images-with-buildkit)
