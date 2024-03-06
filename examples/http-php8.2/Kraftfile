@@ -1,0 +1,7 @@
+spec: v0.6
+
+runtime: php:8.2
+
+rootfs: ./Dockerfile
+
+cmd: ["/usr/bin/php /usr/src/server.php"]
