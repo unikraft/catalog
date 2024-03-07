@@ -1,0 +1,7 @@
+spec: v0.6
+
+runtime: redis:7.2
+
+rootfs: ./Dockerfile
+
+cmd: ["/usr/bin/redis-server", "/etc/redis/redis.conf"]
