@@ -41,6 +41,7 @@ kraft pkg ls --apps --update
 |-|-|
 | [![](https://github.com/unikraft/catalog/actions/workflows/library-base.yaml/badge.svg)](https://github.com/unikraft/catalog/actions/workflows/library-base.yaml) | [`unikraft.org/base:latest`](library/base) |
 | [![](https://github.com/unikraft/catalog/actions/workflows/library-caddy2.7.yaml/badge.svg)](https://github.com/unikraft/catalog/actions/workflows/library-caddy2.7.yaml) | [`unikraft.org/caddy:2.7`](library/caddy/2.7) |
+| [![](https://github.com/unikraft/catalog/actions/workflows/library-grafana10.2.yaml/badge.svg)](https://github.com/unikraft/catalog/actions/workflows/library-grafana10.2.yaml) | [`unikraft.org/grafana:10.2`](library/grafana/10.2) |
 | [![](https://github.com/unikraft/catalog/actions/workflows/library-haproxy2.8.yaml/badge.svg)](https://github.com/unikraft/catalog/actions/workflows/library-haproxy2.8.yaml) | [`unikraft.org/haproxy:2.8`](library/haproxy/2.8) |
 | [![](https://github.com/unikraft/catalog/actions/workflows/library-helloworld.yaml/badge.svg)](https://github.com/unikraft/catalog/actions/workflows/library-helloworld.yaml) | [`unikraft.org/helloworld:latest`](library/helloworld) |
 | [![](https://github.com/unikraft/catalog/actions/workflows/library-hugo0.122.yaml/badge.svg)](https://github.com/unikraft/catalog/actions/workflows/library-hugo0.122.yaml) | [`unikraft.org/hugo:0.122`](library/hugo/0.122) |
