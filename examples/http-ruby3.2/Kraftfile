@@ -1,0 +1,7 @@
+spec: v0.6
+
+runtime: ruby:3.2
+
+rootfs: ./Dockerfile
+
+cmd: ["/usr/bin/ruby", "/src/server.rb"]
