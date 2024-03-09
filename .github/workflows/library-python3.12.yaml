@@ -1,6 +1,8 @@
 name: library/python3.12
 
 on:
+  workflow_dispatch:
+
   schedule:
   - cron: '0 0 * * *' # Everyday at 12AM
 

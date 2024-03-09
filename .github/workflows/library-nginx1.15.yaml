@@ -1,6 +1,8 @@
 name: library/nginx:1.15
 
 on:
+  workflow_dispatch:
+
   schedule:
   - cron: '0 0 * * *' # Everyday at 12AM
 

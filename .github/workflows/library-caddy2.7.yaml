@@ -1,6 +1,8 @@
 name: library/caddy2.7
 
 on:
+  workflow_dispatch:
+
   schedule:
   - cron: '0 0 * * *' # Everyday at 12AM
 

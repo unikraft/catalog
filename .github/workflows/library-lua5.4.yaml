@@ -1,6 +1,8 @@
 name: library/lua:5.4
 
 on:
+  workflow_dispatch:
+
   schedule:
   - cron: '0 0 * * *' # Everyday at 12AM
 
