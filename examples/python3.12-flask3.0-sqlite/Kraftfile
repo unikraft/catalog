@@ -1,0 +1,7 @@
+spec: v0.6
+
+runtime: python:3.12
+
+rootfs: ./Dockerfile
+
+cmd: ["/usr/bin/python3", "/app/server.py"]
