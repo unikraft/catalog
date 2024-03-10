@@ -1,0 +1,30 @@
+spec: v0.6
+
+name: http-c
+
+unikraft:
+  version: stable
+  kconfig:
+    CONFIG_LIBUKBUS: 'y'
+    CONFIG_LIBPOSIX_FDIO: 'y'
+    CONFIG_LIBUKNETDEV_EINFO_LIBPARAM: 'y'
+
+targets:
+- qemu/x86_64
+- qemu/arm64
+- fc/x86_64
+- xen/x86_64
+- linuxu/x86_64
+- linuxu/arm64
+
+libraries:
+  lwip:
+    version: stable
+    kconfig:
+      CONFIG_LWIP_UKNETDEV: 'y'
+      CONFIG_LWIP_TCP: 'y'
+      CONFIG_LWIP_THREADS: 'y'
+      CONFIG_LWIP_SOCKET: 'y'
+      CONFIG_LWIP_AUTOIFACE: 'y'
+      CONFIG_LWIP_IPV4: 'y'
+      CONFIG_LWIP_DHCP: 'y'

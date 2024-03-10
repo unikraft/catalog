@@ -1,6 +1,6 @@
-# C HTTP Web Server
+# C++ HTTP Web Server
 
-This directory contains a C HTTP server running on Unikraft.
+This directory contains a C++ HTTP server running on Unikraft.
 
 ## Set Up
 
@@ -35,15 +35,15 @@ kraft ps
 ```
 
 ```text
-NAME            KERNEL                          ARGS          CREATED       STATUS   MEM   PORTS                   PLAT
-elastic_flossi  oci://unikraft.org/base:latest  /http_server  1 second ago  running  0MiB  0.0.0.0:8080->8080/tcp  qemu/x86_64
+NAME            KERNEL                          ARGS          CREATED        STATUS   MEM   PORTS                   PLAT
+eloquent_jiggs  oci://unikraft.org/base:latest  /http_server  2 seconds ago  running  0MiB  0.0.0.0:8080->8080/tcp  qemu/x86_64
 ```
 
-The instance name is `elastic_flossi`.
+The instance name is `eloquent_jiggs`.
 To close the Unikraft instance, close the `kraft` process (e.g., via `Ctrl+c`) or run:
 
 ```bash
-kraft rm elastic_flossi
+kraft rm eloquent_jiggs
 ```
 
 Note that depending on how you modify this example your instance **may** need more memory to run.

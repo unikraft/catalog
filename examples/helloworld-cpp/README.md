@@ -1,27 +1,57 @@
-# Simple "Hello, world!" C++ Program on Unikraft
+# C++ "Hello, World!"
 
-This directory contains an example "Hello, world!" application written in C++.
+This directory contains a C++-based "Hello, World!" example running on Unikraft.
 
-To run this example, [install Unikraft's companion command-line toolchain `kraft`](https://unikraft.org/docs/cli).
+## Set Up
 
-Then, clone this repository and cd into this directory.
-You can then build the project with:
+To run this example, [install Unikraft's companion command-line toolchain `kraft`](https://unikraft.org/docs/cli), clone this repository and `cd` into this directory.
 
-```
-kraft build
-```
+## Run and Use
 
-In the above command, `kraft build` will prompt you with the target you wish to compile for.
-If you are unsure, select `qemu/` and your host's architecture, e.g. `qemu/x86_64`.
+Use `kraft` to run the image and start a Unikraft instance:
 
-Once built, you can execute the unikernel via:
-
-```
-kraft run
+```bash
+kraft run --rm --plat qemu --arch x86_64
 ```
 
-## Learn more
+If the `--plat` argument is left out, it defaults to `qemu`.
+If the `--arch` argument is left out, it defaults to your system's CPU architecture.
 
-- [How to build unikernels](https://unikraft.org/docs/cli/building)
+Once executed, you should see a "Hello, World!" message.
+
+## Inspect and Close
+
+To list information about the Unikraft instance, use:
+
+```bash
+kraft ps
+```
+
+```text
+NAME            KERNEL                          ARGS         CREATED       STATUS   MEM   PORTS  PLAT
+elegant_azalea  oci://unikraft.org/base:latest  /helloworld  1 second ago  running  0MiB         qemu/x86_64
+```
+
+The instance name is `elegant_azalea`.
+To close the Unikraft instance, close the `kraft` process (e.g., via `Ctrl+c`) or run:
+
+```bash
+kraft rm elegant_azalea
+```
+
+Note that depending on how you modify this example your instance **may** need more memory to run.
+To do so, use the `kraft run`'s `-M` flag, for example:
+
+```bash
+kraft run --rm --plat qemu --arch x86_64 -M 256M
+```
+
+## `kraft` and `sudo`
+
+Mixing invocations of `kraft` and `sudo` can lead to unexpected behavior.
+Read more about how to start `kraft` without `sudo` at [https://unikraft.org/sudoless](https://unikraft.org/sudoless).
+
+## Learn More
+
 - [How to run unikernels locally](https://unikraft.org/docs/cli/running)
-- [The `Kraftfile` specification](https://unikraft.org/docs/cli/reference/kraftfile/latest)
+- [Building `Dockerfile` Images with `BuildKit`](https://unikraft.org/guides/building-dockerfile-images-with-buildkit)

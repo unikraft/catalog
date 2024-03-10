@@ -1,0 +1,7 @@
+spec: v0.6
+
+runtime: skipper:0.18
+
+rootfs: ./Dockerfile
+
+cmd: ["/usr/bin/skipper", "-routes-file", "/etc/skipper/example.eskip"]

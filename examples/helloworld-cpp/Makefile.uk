@@ -1,3 +1,0 @@
-$(eval $(call addlib,apphelloworldcpp))
-
-APPHELLOWORLDCPP_SRCS-y += $(APPHELLOWORLDCPP_BASE)/main.cpp

@@ -1,26 +1,7 @@
 spec: v0.6
 
-name: helloworld
+runtime: base:latest
 
-unikraft:
-  version: stable
-  kconfig:
-    CONFIG_LIBPOSIX_SYSINFO: y
-    CONFIG_LIBUKSIGNAL: y
+rootfs: ./Dockerfile
 
-targets:
-- linuxu/x86_64
-- qemu/x86_64
-- xen/x86_64
-- qemu/arm64
-- fc/x86_64
-
-libraries:
-  libcxxabi: stable
-  libcxx: stable
-  libunwind: stable
-  compiler-rt:
-    version: stable
-    kconfig:
-      CONFIG_LIBCOMPILER_RT: 'y'
-  musl: stable
+cmd: ["/helloworld"]
