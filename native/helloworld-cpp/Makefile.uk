@@ -1,0 +1,3 @@
+$(eval $(call addlib,apphelloworldcpp))
+
+APPHELLOWORLDCPP_SRCS-y += $(APPHELLOWORLDCPP_BASE)/helloworld.cpp
