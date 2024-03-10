@@ -8,7 +8,7 @@ It implements a simple HTTP server running on Unikraft that provides a simple re
 Use `kraft` to run the image and start a Unikraft instance:
 
 ```bash
-kraft run --rm -M 512M -p 8080:8080 --plat qemu --arch x86_64 unikraft.org/node:19
+kraft run --rm -M 512M -p 8080:8080 --plat qemu --arch x86_64 unikraft.org/node:21
 ```
 
 If the `--plat` argument is left out, it defaults to `qemu`.
