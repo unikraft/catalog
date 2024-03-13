@@ -1,6 +1,6 @@
 spec: v0.6
 
-name: node
+name: nginx
 
 rootfs: ./Dockerfile
 
