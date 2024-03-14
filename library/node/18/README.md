@@ -5,7 +5,7 @@ This directory contains the definition for the `unikraft.org/node:18` image star
 To run this image, [install Unikraft's companion command-line toolchain `kraft`](https://unikraft.org/docs/cli) and then you can run:
 
 ```console
-kraft run -p 8080:8080 unikraft.org/node:18
+kraft run --rm -M 512M -p 8080:8080 unikraft.org/node:18
 ```
 
 Query the server using:
