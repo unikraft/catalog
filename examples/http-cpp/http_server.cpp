@@ -17,7 +17,7 @@ static std::string reply = "HTTP/1.1 200 OK\r\n" \
 			    "Content-Length: 14\r\n" \
 			    "Connection: close\r\n" \
 			    "\r\n" \
-			    "Hello, World!\n";
+			    "Bye, World!\n";
 
 #define BUFLEN 2048
 static char recvbuf[BUFLEN];

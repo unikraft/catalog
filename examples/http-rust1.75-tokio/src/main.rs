@@ -17,7 +17,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 let mut buffer = [0; 1024];
                 let _ = stream.read(&mut buffer).await;
 
-                let contents = "Hello, World!\r\n";
+                let contents = "Bye, World!\r\n";
                 let content_length = contents.len();
                 let response = format!("HTTP/1.1 200 OK\r\nContent-Length: {content_length}\r\n\r\n{contents}");
                 let _ = stream.write_all(response.as_bytes()).await;

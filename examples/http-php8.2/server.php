@@ -35,7 +35,7 @@ do {
         "Content-Length: 14\r\n" .
         "Connection: close\r\n" .
         "\r\n" .
-        "Hello, World!\n";
+        "Bye, World!\n";
     socket_write($msgsock, $msg, strlen($msg));
 
     socket_close($msgsock);

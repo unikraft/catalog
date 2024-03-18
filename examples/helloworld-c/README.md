@@ -11,13 +11,13 @@ To run this example, [install Unikraft's companion command-line toolchain `kraft
 Use `kraft` to run the image and start a Unikraft instance:
 
 ```bash
-kraft run --rm --plat qemu --arch x86_64
+kraft run --rm --plat qemu --arch x86_64 .
 ```
 
 If the `--plat` argument is left out, it defaults to `qemu`.
 If the `--arch` argument is left out, it defaults to your system's CPU architecture.
 
-Once executed, you should see a "Hello, World!" message.
+Once executed, you should see a "Bye, World!" message.
 
 ## Inspect and Close
 
@@ -28,22 +28,22 @@ kraft ps
 ```
 
 ```text
-NAME        KERNEL                          ARGS         CREATED         STATUS   MEM   PORTS  PLAT
-crazy_ramu  oci://unikraft.org/base:latest  /helloworld  11 seconds ago  running  0MiB         qemu/x86_64
+NAME       KERNEL                          ARGS         CREATED        STATUS   MEM  PORTS  PLAT
+crazy_gua  oci://unikraft.org/base:latest  /helloworld  9 seconds ago  running  64M         qemu/x86_64
 ```
 
-The instance name is `crazy_ramu`.
+The instance name is `crazy_gua`.
 To close the Unikraft instance, close the `kraft` process (e.g., via `Ctrl+c`) or run:
 
 ```bash
-kraft rm crazy_ramu
+kraft rm crazy_gua
 ```
 
 Note that depending on how you modify this example your instance **may** need more memory to run.
 To do so, use the `kraft run`'s `-M` flag, for example:
 
 ```bash
-kraft run --rm --plat qemu --arch x86_64 -M 256M
+kraft run --rm --plat qemu --arch x86_64 -M 256M .
 ```
 
 ## `kraft` and `sudo`
