@@ -25,7 +25,7 @@ To test it, you can use `curl`:
 curl localhost:9090
 ```
 
-You should see a "Hello, World!"-type message.
+You should see a "Bye, World!" message.
 
 ## Inspect and Close
 
@@ -36,15 +36,15 @@ kraft ps
 ```
 
 ```text
-NAME               KERNEL                           ARGS                                                      CREATED        STATUS   MEM   PORTS                   PLAT
-unruffled_harambe  oci://unikraft.org/skipper:0.18  /usr/bin/skipper -routes-file /etc/skipper/example.eskip  3 seconds ago  running  0MiB  0.0.0.0:9090->9090/tcp  qemu/x86_64
+NAME          KERNEL                           ARGS                                                      CREATED         STATUS   MEM   PORTS                   PLAT
+tender_manis  oci://unikraft.org/skipper:0.18  /usr/bin/skipper -routes-file /etc/skipper/example.eskip  11 seconds ago  running  488M  0.0.0.0:9090->9090/tcp  qemu/x86_64
 ```
 
-The instance name is `unruffled_harambe`.
+The instance name is `tender_manis`.
 To close the Unikraft instance, close the `kraft` process (e.g., via `Ctrl+c`) or run:
 
 ```bash
-kraft rm unruffled_harambe
+kraft rm tender_manis
 ```
 
 Note that depending on how you modify this example your instance **may** need more memory to run.

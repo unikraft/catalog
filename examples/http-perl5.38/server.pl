@@ -15,6 +15,6 @@ my $daemon = HTTP::Daemon->new(
 while (my $client_connection = $daemon->accept) {
 	my $request = $client_connection->get_request;
 	my $response = HTTP::Response->new(200);
-	$response->content("Hello, World!\n");
+	$response->content("Bye, World!\n");
 	$client_connection->send_response($response);
 }

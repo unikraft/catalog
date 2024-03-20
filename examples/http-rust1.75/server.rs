@@ -19,7 +19,7 @@ fn handle_read(mut stream: &TcpStream) {
 }
 
 fn handle_write(mut stream: TcpStream) {
-    let response = b"HTTP/1.1 200 OK\r\nContent-Type: text/plain; charset=UTF-8\r\n\r\nHello, World!\r\n";
+    let response = b"HTTP/1.1 200 OK\r\nContent-Type: text/plain; charset=UTF-8\r\n\r\nBye, World!\r\n";
     match stream.write(response) {
         Ok(_) => println!("Response sent"),
         Err(e) => println!("Failed sending response: {}", e),

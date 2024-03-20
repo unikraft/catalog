@@ -1,6 +1,6 @@
 # Python Flask SQLite
 
-This directory contains a `Python` [`Flask`](https://flask.palletsprojects.com/en/3.0.x/) server running on Unikraft.
+This directory contains a `Python` [`Flask`](https://flask.palletsprojects.com/en/3.0.x/) small website running on Unikraft and using [`SQLite`](https://www.sqlite.org/) as its database.
 
 ## Set Up
 
@@ -24,7 +24,7 @@ To test it, you can use `curl`:
 curl localhost:8080
 ```
 
-You should see a "Hello, World!" message.
+You should see the landing page for a blog system based on Flask and SQLite.
 
 ## Inspect and Close
 
@@ -35,22 +35,22 @@ kraft ps
 ```
 
 ```text
-NAME                 KERNEL                          ARGS               CREATED         STATUS   MEM   PLAT
-admiring_ndakasi     oci://unikraft.org/base:latest  /app/server.py     1 minute ago    running  64MiB  0.0.0.0:8080->8080/tcp  qemu/x86_64
+NAME                KERNEL                          ARGS                             CREATED         STATUS   MEM   PORTS                   PLAT
+condescending_moja  oci://unikraft.org/python:3.12  /usr/bin/python3 /app/server.py  23 minutes ago  running  488M  0.0.0.0:8080->8080/tcp  qemu/x86_64
 ```
 
-The instance name is `nostalgic_snowflake`.
+The instance name is `condescending_moja`.
 To close the Unikraft instance, close the `kraft` process (e.g., via `Ctrl+c`) or run:
 
 ```bash
-kraft rm nostalgic_snowflake
+kraft rm condescending_moja
 ```
 
 Note that depending on how you modify this example your instance **may** need more memory to run.
 To do so, use the `kraft run`'s `-M` flag, for example:
 
 ```bash
-kraft run -p 8080:8080 --plat qemu --arch x86_64 -M 1024M .
+kraft run --rm -p 8080:8080 --plat qemu --arch x86_64 -M 1024M .
 ```
 
 ## `kraft` and `sudo`

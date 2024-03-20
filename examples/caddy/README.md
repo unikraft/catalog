@@ -24,7 +24,7 @@ To test it, you can use `curl`:
 curl localhost:2015
 ```
 
-You should see a "Hello, World!" message.
+You should see a "Bye, World!" message.
 
 ## Inspect and Close
 
@@ -35,22 +35,22 @@ kraft ps
 ```
 
 ```text
-NAME         KERNEL                        ARGS                                              CREATED        STATUS   MEM   PORTS                   PLAT
-sweet_freud  oci://unikraft.org/caddy:2.7  /usr/bin/caddy run --config /etc/caddy/Caddyfile  3 seconds ago  running  0MiB  0.0.0.0:2015->2015/tcp  qemu/x86_64
+NAME              KERNEL                        ARGS                                              CREATED        STATUS   MEM   PORTS                   PLAT
+vigilant_michael  oci://unikraft.org/caddy:2.7  /usr/bin/caddy run --config /etc/caddy/Caddyfile  6 seconds ago  running  244M  0.0.0.0:2015->2015/tcp  qemu/x86_64
 ```
 
-The instance name is `sweet_freud`.
+The instance name is `vigilant_michael`.
 To close the Unikraft instance, close the `kraft` process (e.g., via `Ctrl+c`) or run:
 
 ```bash
-kraft rm sweet_freud
+kraft rm vigilant_michael
 ```
 
 Note that depending on how you modify this example your instance **may** need more memory to run.
 To do so, use the `kraft run`'s `-M` flag, for example:
 
 ```bash
-kraft run -p 2015:2015 --plat qemu --arch x86_64 -M 512M .
+kraft run --rm -p 2015:2015 --plat qemu --arch x86_64 -M 512M .
 ```
 
 ## `kraft` and `sudo`

@@ -35,22 +35,22 @@ kraft ps
 ```
 
 ```text
-NAME                 KERNEL                          ARGS        CREATED         STATUS   MEM   PLAT
-admiring_ndakasi     oci://unikraft.org/base:latest              1 minute ago    running  64MiB  0.0.0.0:8080->8080/tcp  qemu/x86_64
+NAME        KERNEL                          ARGS     CREATED         STATUS   MEM   PORTS                   PLAT
+sharp_jack  oci://unikraft.org/base:latest  /server  27 seconds ago  running  488M  0.0.0.0:8080->8080/tcp  qemu/x86_64
 ```
 
-The instance name is `nostalgic_snowflake`.
+The instance name is `sharp_jack`.
 To close the Unikraft instance, close the `kraft` process (e.g., via `Ctrl+c`) or run:
 
 ```bash
-kraft rm nostalgic_snowflake
+kraft rm sharp_jack
 ```
 
 Note that depending on how you modify this example your instance **may** need more memory to run.
 To do so, use the `kraft run`'s `-M` flag, for example:
 
 ```bash
-kraft run -p 8080:8080 --plat qemu --arch x86_64 -M 1024M .
+kraft run --rm -p 8080:8080 --plat qemu --arch x86_64 -M 1024M .
 ```
 
 ## `kraft` and `sudo`

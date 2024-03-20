@@ -24,7 +24,7 @@ To test it, you can use `curl`:
 curl localhost:8080
 ```
 
-You should see a "Hello, World!" message.
+You should see a "Bye, World!" message.
 
 ## Inspect and Close
 
@@ -35,15 +35,15 @@ kraft ps
 ```
 
 ```text
-NAME            KERNEL                          ARGS          CREATED        STATUS   MEM   PORTS                   PLAT
-eloquent_jiggs  oci://unikraft.org/base:latest  /http_server  2 seconds ago  running  0MiB  0.0.0.0:8080->8080/tcp  qemu/x86_64
+NAME                    KERNEL                          ARGS          CREATED        STATUS   MEM  PORTS                   PLAT
+friendly_pierrebrassau  oci://unikraft.org/base:latest  /http_server  2 minutes ago  running  64M  0.0.0.0:8080->8080/tcp  qemu/x86_64
 ```
 
-The instance name is `eloquent_jiggs`.
+The instance name is `friendly_pierrebrassau`.
 To close the Unikraft instance, close the `kraft` process (e.g., via `Ctrl+c`) or run:
 
 ```bash
-kraft rm eloquent_jiggs
+kraft rm friendly_pierrebrassau
 ```
 
 Note that depending on how you modify this example your instance **may** need more memory to run.

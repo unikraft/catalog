@@ -13,7 +13,7 @@ loop do
     "Content-type: text/html\r\n" \
     "Connection: close\r\n" \
     "\r\n" \
-    "Hello, World!"
+    "Bye, World!"
   client.puts(response)
 
   client.close

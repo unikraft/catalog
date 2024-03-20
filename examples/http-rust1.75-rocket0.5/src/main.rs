@@ -21,14 +21,14 @@ struct Options<'r> {
 //   http://127.0.0.1:8000/hello/world
 #[get("/world")]
 fn world() -> &'static str {
-    "Hello, World!"
+    "Hello, World!\n"
 }
 
 // Try visiting:
 //   http://127.0.0.1:8000/hello/мир
 #[get("/мир")]
 fn mir() -> &'static str {
-    "Привет, мир!"
+    "Привет, мир!\n"
 }
 
 // Try visiting:
@@ -60,7 +60,7 @@ fn hello(lang: Option<Lang>, opt: Options<'_>) -> String {
     match lang {
         Some(Lang::Russian) => greeting.push_str("Привет"),
         Some(Lang::English) => greeting.push_str("Hello"),
-        None => greeting.push_str("Hi"),
+        None => greeting.push_str("Hi\n"),
     }
 
     if let Some(name) = opt.name {

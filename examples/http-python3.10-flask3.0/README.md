@@ -11,14 +11,20 @@ To run this example, [install Unikraft's companion command-line toolchain `kraft
 Use `kraft` to run the image and start a Unikraft instance:
 
 ```bash
-kraft run --rm -p 8080:8080 --plat qemu --arch x86_64 -M 512M
+kraft run --rm -p 8080:8080 --plat qemu --arch x86_64 -M 512M .
 ```
 
 If the `--plat` argument is left out, it defaults to `qemu`.
 If the `--arch` argument is left out, it defaults to your system's CPU architecture.
 
 Once executed, it will open port `8080` and wait for connections.
-To test it, point your browser to http://localhost:8080
+To test it, you can use `curl`:
+
+```bash
+curl localhost:8080
+```
+
+You should see a "Bye, World!" message.
 
 ## Inspect and Close
 
@@ -29,22 +35,22 @@ kraft ps
 ```
 
 ```text
-NAME                 KERNEL                          ARGS        CREATED         STATUS   MEM   PLAT
-admiring_ndakasi     oci://unikraft.org/base:latest  /server     1 minute ago    running  64MiB  0.0.0.0:8080->8080/tcp  qemu/x86_64
+NAME             KERNEL                          ARGS            CREATED         STATUS   MEM   PORTS                   PLAT
+strange_harambe  oci://unikraft.org/python:3.10  /app/server.py  11 seconds ago  running  488M  0.0.0.0:8080->8080/tcp  qemu/x86_64
 ```
 
-The instance name is `nostalgic_snowflake`.
+The instance name is `strange_harambe`.
 To close the Unikraft instance, close the `kraft` process (e.g., via `Ctrl+c`) or run:
 
 ```bash
-kraft rm nostalgic_snowflake
+kraft rm strange_harambe
 ```
 
 Note that depending on how you modify this example your instance **may** need more memory to run.
 To do so, use the `kraft run`'s `-M` flag, for example:
 
 ```bash
-kraft run -p 8080:8080 --plat qemu --arch x86_64 -M 1024M
+kraft run --rm -p 8080:8080 --plat qemu --arch x86_64 -M 1024M .
 ```
 
 ## `kraft` and `sudo`

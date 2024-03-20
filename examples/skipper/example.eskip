@@ -1,10 +1,10 @@
 hello:
   Path("/")
   -> status(200)
-  -> inlineContent("Hello, World! from Skipper on Unikraft!")
+  -> inlineContent("Bye, World!\n")
   -> <shunt>;
 
 rest: *
   -> status(404)
-  -> inlineContent("No route entry")
+  -> inlineContent("No route entry\n")
   -> <shunt>;

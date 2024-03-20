@@ -46,15 +46,15 @@ kraft ps
 ```
 
 ```text
-NAME                 KERNEL                          ARGS        CREATED         STATUS   MEM   PLAT
-admiring_ndakasi     oci://unikraft.org/base:latest  /server     1 minute ago    running  64MiB  0.0.0.0:8080->8080/tcp  qemu/x86_64
+NAME             KERNEL                            ARGS                        CREATED         STATUS   MEM   PORTS                     PLAT
+admiring_pankun  oci://unikraft.org/memcached:1.6  /usr/bin/memcached -u root  54 seconds ago  running  244M  0.0.0.0:11211->11211/tcp  qemu/x86_64
 ```
 
-The instance name is `nostalgic_snowflake`.
+The instance name is `admiring_pankun`.
 To close the Unikraft instance, close the `kraft` process (e.g., via `Ctrl+c`) or run:
 
 ```bash
-kraft rm nostalgic_snowflake
+kraft rm admiring_pankun
 ```
 
 Note that depending on how you modify this example your instance **may** need more memory to run.

@@ -11,7 +11,7 @@ To run this example, [install Unikraft's companion command-line toolchain `kraft
 Use `kraft` to run the image and start a Unikraft instance:
 
 ```bash
-kraft run --rm -p 8080:8080 --plat qemu --arch x86_64 -M 256M
+kraft run --rm -p 8080:8080 --plat qemu --arch x86_64 -M 256M .
 ```
 
 If the `--plat` argument is left out, it defaults to `qemu`.
@@ -24,7 +24,7 @@ To test it, you can use `curl`:
 curl localhost:8080
 ```
 
-You should see a "Hello, World!" message.
+You should see a "Bye, World!" message.
 
 ## Inspect and Close
 
@@ -35,22 +35,22 @@ kraft ps
 ```
 
 ```text
-NAME                 KERNEL                          ARGS             CREATED         STATUS   MEM   PLAT
-admiring_ndakasi     oci://unikraft.org/base:latest  /src/server.rb   1 minute ago    running  64MiB  0.0.0.0:8080->8080/tcp  qemu/x86_64
+NAME          KERNEL                       ARGS                          CREATED         STATUS   MEM   PORTS                   PLAT
+zealous_ramu  oci://unikraft.org/ruby:3.2  /usr/bin/ruby /src/server.rb  14 minutes ago  running  244M  0.0.0.0:8080->8080/tcp  qemu/x86_64
 ```
 
-The instance name is `nostalgic_snowflake`.
+The instance name is `zealous_ramu`.
 To close the Unikraft instance, close the `kraft` process (e.g., via `Ctrl+c`) or run:
 
 ```bash
-kraft rm nostalgic_snowflake
+kraft rm zealous_ramu
 ```
 
 Note that depending on how you modify this example your instance **may** need more memory to run.
 To do so, use the `kraft run`'s `-M` flag, for example:
 
 ```bash
-kraft run -p 8080:8080 --plat qemu --arch x86_64 -M 256M .
+kraft run --rm -p 8080:8080 --plat qemu --arch x86_64 -M 512M .
 ```
 
 ## `kraft` and `sudo`

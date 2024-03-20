@@ -24,7 +24,7 @@ To test it, you can use `curl`:
 curl localhost:8080
 ```
 
-You should see a "Hello, Flask World!" message.
+You should see a "Bye, World!" message.
 
 ## Inspect and Close
 
@@ -35,22 +35,22 @@ kraft ps
 ```
 
 ```text
-NAME            KERNEL                          ARGS                             CREATED         STATUS   MEM   PORTS                   PLAT
-naughty_sultan  oci://unikraft.org/python:3.12  /usr/bin/python3 /app/server.py  14 seconds ago  running  0MiB  0.0.0.0:8080->8080/tcp  qemu/x86_64
+NAME           KERNEL                          ARGS                             CREATED         STATUS   MEM   PORTS                   PLAT
+nifty_bubbles  oci://unikraft.org/python:3.12  /usr/bin/python3 /app/server.py  11 seconds ago  running  488M  0.0.0.0:8080->8080/tcp  qemu/x86_64
 ```
 
-The instance name is `naughty_sultan`.
+The instance name is `nifty_bubbles`.
 To close the Unikraft instance, close the `kraft` process (e.g., via `Ctrl+c`) or run:
 
 ```bash
-kraft rm naughty_sultan
+kraft rm nifty_bubbles
 ```
 
 Note that depending on how you modify this example your instance **may** need more memory to run.
 To do so, use the `kraft run`'s `-M` flag, for example:
 
 ```bash
-kraft run -p 8080:8080 --plat qemu --arch x86_64 -M 1024M .
+kraft run --rm -p 8080:8080 --plat qemu --arch x86_64 -M 1024M .
 ```
 
 ## `kraft` and `sudo`
