@@ -1,6 +1,9 @@
 name: library/redis7.2
 
 on:
+  repository_dispatch:
+    types: [core_merge]
+
   workflow_dispatch:
 
   schedule:

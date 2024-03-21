@@ -1,6 +1,9 @@
 name: library/memcached:1.6
 
 on:
+  repository_dispatch:
+    types: [core_merge]
+
   workflow_dispatch:
 
   schedule:
