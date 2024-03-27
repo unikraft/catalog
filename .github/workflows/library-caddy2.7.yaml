@@ -1,6 +1,9 @@
 name: library/caddy2.7
 
 on:
+  repository_dispatch:
+    types: [core_merge]
+
   workflow_dispatch:
 
   schedule:

@@ -1,6 +1,9 @@
 name: library/hugo:0.122
 
 on:
+  repository_dispatch:
+    types: [core_merge]
+
   workflow_dispatch:
 
   schedule:

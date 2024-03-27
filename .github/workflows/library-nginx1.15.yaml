@@ -1,6 +1,9 @@
 name: library/nginx:1.15
 
 on:
+  repository_dispatch:
+    types: [core_merge]
+
   workflow_dispatch:
 
   schedule:

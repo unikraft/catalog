@@ -1,6 +1,9 @@
 name: library/python3.12
 
 on:
+  repository_dispatch:
+    types: [core_merge]
+
   workflow_dispatch:
 
   schedule:

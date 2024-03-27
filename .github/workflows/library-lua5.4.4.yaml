@@ -1,6 +1,9 @@
 name: library/lua5.4.4
 
 on:
+  repository_dispatch:
+    types: [core_merge]
+
   workflow_dispatch:
 
   schedule:

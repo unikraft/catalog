@@ -1,6 +1,9 @@
 name: library/sqlite:3.40
 
 on:
+  repository_dispatch:
+    types: [core_merge]
+
   workflow_dispatch:
 
   schedule:

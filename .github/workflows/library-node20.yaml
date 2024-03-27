@@ -1,6 +1,9 @@
 name: library/node:20
 
 on:
+  repository_dispatch:
+    types: [core_merge]
+
   schedule:
   - cron: '0 0 * * *' # Everyday at 12AM
 
