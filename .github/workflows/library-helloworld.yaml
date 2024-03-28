@@ -56,6 +56,12 @@ jobs:
         push: false
         execute: ${{ matrix.plat == 'qemu' && matrix.arch == 'x86_64' }}
         output: oci://index.unikraft.io/unikraft.org/helloworld:latest
+        before: |
+          set -xe
+
+          if [ ${{ github.event_name }} == 'repository_dispatch' ]; then
+            sed -i 's/stable/staging/g' Kraftfile
+          fi
 
     - name: Archive OCI digests
       uses: actions/upload-artifact@v3

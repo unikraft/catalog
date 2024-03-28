@@ -50,6 +50,12 @@ jobs:
         arch: ${{ matrix.arch }}
         push: false
         output: oci://index.unikraft.io/unikraft.org/memcached:1.6
+        before: |
+          set -xe
+
+          if [ ${{ github.event_name }} == 'repository_dispatch' ]; then
+            sed -i 's/stable/staging/g' Kraftfile
+          fi
 
     - name: Archive OCI digests
       uses: actions/upload-artifact@v3
