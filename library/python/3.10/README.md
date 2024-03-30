@@ -5,7 +5,7 @@ This directory contains the definition for the `unikraft.org/python:3.10` image.
 To run this image, [install Unikraft's companion command-line toolchain `kraft`](https://unikraft.org/docs/cli) and then you can run:
 
 ```
-kraft run unikraft.org/python:3.10
+kraft run -M 512M unikraft.org/python:3.10
 ```
 
 ## See also
