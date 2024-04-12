@@ -2,7 +2,7 @@ name: library/nginx:1.15
 
 on:
   repository_dispatch:
-    types: [core_merge]
+    types: [core_merge, lwip_merge, musl_merge, nginx_merge]
 
   workflow_dispatch:
 
