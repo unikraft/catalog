@@ -14,8 +14,6 @@ targets:
 - qemu/arm64
 - fc/x86_64
 - xen/x86_64
-- linuxu/x86_64
-- linuxu/arm64
 
 libraries:
   lwip:
