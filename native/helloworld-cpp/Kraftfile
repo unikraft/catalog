@@ -9,7 +9,6 @@ unikraft:
     CONFIG_LIBUKSIGNAL: y
 
 targets:
-- linuxu/x86_64
 - qemu/x86_64
 - xen/x86_64
 - qemu/arm64
