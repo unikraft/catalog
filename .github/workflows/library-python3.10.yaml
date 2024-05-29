@@ -2,7 +2,7 @@ name: library/python:3.10
 
 on:
   repository_dispatch:
-    types: [core_merge]
+    types: [core_merge, compiler-rt_merge, libuuid_merge, lwip_merge, musl_merge, python3_merge, zlib_merge]
 
   workflow_dispatch:
 
