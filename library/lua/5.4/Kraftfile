@@ -24,6 +24,7 @@ unikraft:
     CONFIG_LIBVFSCORE_AUTOMOUNT_UP: 'y'
     CONFIG_LIBVFSCORE_AUTOMOUNT: 'y'
     CONFIG_LIBVFSCORE: 'y'
+    CONFIG_LIBUK9P: 'y'
 
 targets:
 - qemu/x86_64
