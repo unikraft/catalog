@@ -140,7 +140,9 @@ libraries:
       CONFIG_LWIP_IPV4: 'y'
       CONFIG_LWIP_DHCP: 'y'
       CONFIG_LWIP_WAITIFACE: 'y'
-      CONFIG_LWIP_DNS: 'y'
+      # Lwip's DNS support is not used for bin compat programs (elfloader)
+      # HINT: Native builds with musl should set CONFIG_LIBMUSL_NETWORK_LWIP_DNS together with CONFIG_LWIP_DNS
+      CONFIG_LWIP_DNS: 'n'
       CONFIG_LWIP_NUM_TCPCON: 64
       CONFIG_LWIP_NUM_TCPLISTENERS: 64
       CONFIG_LWIP_ICMP: 'y'
