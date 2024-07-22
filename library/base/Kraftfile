@@ -109,6 +109,7 @@ unikraft:
     CONFIG_STACK_SIZE_PAGE_ORDER: 4 # 128 * 4K = 512K
     CONFIG_UKPLAT_KSP_SIZE: 32768
     CONFIG_UKPLAT_MEMREGION_MAX_COUNT: 64
+    CONFIG_LIBUKNETDEV: 'y'
     CONFIG_LIBUKNETDEV_EINFO_LIBPARAM: 'y'
 
     # Debug options
@@ -125,6 +126,8 @@ libraries:
       CONFIG_LWIP_LOOPIF: 'y'
       CONFIG_LWIP_UKNETDEV: 'y'
       CONFIG_LWIP_LOOPBACK: 'y'
+      # Fail booting without network interface
+      CONFIG_LWIP_FAILNOIFACE: 'y'
       CONFIG_LWIP_TCP: 'y'
       CONFIG_LWIP_UDP: 'y'
       CONFIG_LWIP_RAW: 'y'
@@ -136,6 +139,7 @@ libraries:
       CONFIG_LWIP_AUTOIFACE: 'y'
       CONFIG_LWIP_IPV4: 'y'
       CONFIG_LWIP_DHCP: 'y'
+      CONFIG_LWIP_WAITIFACE: 'y'
       CONFIG_LWIP_DNS: 'y'
       CONFIG_LWIP_NUM_TCPCON: 64
       CONFIG_LWIP_NUM_TCPLISTENERS: 64
