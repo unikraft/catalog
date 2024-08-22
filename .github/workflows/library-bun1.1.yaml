@@ -1,4 +1,4 @@
-name: library/bun1.1
+name: library/bun:1.1
 
 on:
   schedule:

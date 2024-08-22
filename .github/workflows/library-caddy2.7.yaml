@@ -1,4 +1,4 @@
-name: library/caddy2.7
+name: library/caddy:2.7
 
 on:
   repository_dispatch:

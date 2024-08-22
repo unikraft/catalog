@@ -1,4 +1,4 @@
-name: library/php8.2
+name: library/php:8.2
 
 on:
   repository_dispatch:

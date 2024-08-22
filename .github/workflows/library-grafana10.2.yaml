@@ -1,4 +1,4 @@
-name: library/grafana10.2
+name: library/grafana:10.2
 
 on:
   schedule:

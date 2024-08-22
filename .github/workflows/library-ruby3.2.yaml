@@ -1,4 +1,4 @@
-name: library/ruby3.2
+name: library/ruby:3.2
 
 on:
   repository_dispatch:
