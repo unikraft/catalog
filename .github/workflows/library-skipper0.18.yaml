@@ -1,4 +1,4 @@
-name: library/skipper0.18
+name: library/skipper:0.18
 
 on:
   repository_dispatch:

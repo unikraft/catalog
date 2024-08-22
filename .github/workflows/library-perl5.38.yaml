@@ -1,4 +1,4 @@
-name: library/perl5.38
+name: library/perl:5.38
 
 on:
   repository_dispatch:

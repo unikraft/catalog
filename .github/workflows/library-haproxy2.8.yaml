@@ -1,4 +1,4 @@
-name: library/haproxy2.8
+name: library/haproxy:2.8
 
 on:
   schedule:

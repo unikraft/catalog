@@ -1,4 +1,4 @@
-name: library/python3.12
+name: library/python:3.12
 
 on:
   repository_dispatch:

@@ -1,4 +1,4 @@
-name: library/nginx1.25
+name: library/nginx:1.25
 
 on:
   repository_dispatch:

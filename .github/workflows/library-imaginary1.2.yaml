@@ -1,4 +1,4 @@
-name: library/imaginary1.2
+name: library/imaginary:1.2
 
 on:
   schedule:
