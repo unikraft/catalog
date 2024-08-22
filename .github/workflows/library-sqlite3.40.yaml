@@ -22,6 +22,11 @@ on:
     - 'library/sqlite/3.40/**'
     - '.github/workflows/library-sqlite3.40.yaml'
 
+# Automatically cancel in-progress actions on the same branch
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request_target' && github.head_ref || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
     strategy:

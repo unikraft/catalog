@@ -24,6 +24,11 @@ on:
     - '.github/workflows/library-perl5.38.yaml'
     - '!library/perl/5.38/README.md'
 
+# Automatically cancel in-progress actions on the same branch
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request_target' && github.head_ref || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
     strategy:
