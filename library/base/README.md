@@ -1,6 +1,6 @@
 # Base Image
 
-Base image is a Unikraft runtime built from [app-elfloader]() that loads and runs Linux native binaries using the [binary-compatibility mode](https://unikraft.org/docs/concepts/compatibility).
+Base image is a Unikraft runtime built from [app-elfloader](https://github.com/unikraft/app-elfloader/) that loads and runs Linux native binaries using the [binary-compatibility mode](https://unikraft.org/docs/concepts/compatibility).
 
 This directory contains the definition for the `unikraft.org/base:latest` image.
 
