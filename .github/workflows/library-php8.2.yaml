@@ -1,4 +1,4 @@
-name: library/php8.2
+name: library/php:8.2
 
 on:
   repository_dispatch:
@@ -21,6 +21,11 @@ on:
     paths:
     - 'library/php/8.2/**'
     - '.github/workflows/library-php8.2.yaml'
+
+# Automatically cancel in-progress actions on the same branch
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request_target' && github.head_ref || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build:

@@ -1,4 +1,4 @@
-name: library/ruby3.2
+name: library/ruby:3.2
 
 on:
   repository_dispatch:
@@ -21,6 +21,11 @@ on:
     paths:
     - 'library/ruby/3.2/**'
     - '.github/workflows/library-ruby3.2.yaml'
+
+# Automatically cancel in-progress actions on the same branch
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request_target' && github.head_ref || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build:
