@@ -31,6 +31,7 @@ runs:
       KRAFTKIT_RUNTIME_DIR: ${{ github.workspace }}/.kraftkit/runtime
       KRAFTKIT_LOG_LEVEL: debug
       KRAFTKIT_LOG_TYPE: basic
+      KRAFTKIT_NO_CHECK_UPDATES: true
     run: |
       STAGING_RELEASE=$(curl https://api.github.com/repos/unikraft/kraftkit/releases | jq -r 'map(select(.prerelease)) | first | .tag_name');
       wget -nv https://github.com/unikraft/kraftkit/releases/download/${STAGING_RELEASE}/kraftkit_${STAGING_RELEASE:1}_linux_amd64.deb;
