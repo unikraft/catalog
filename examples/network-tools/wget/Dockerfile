@@ -5,8 +5,10 @@ RUN apk add --no-cache \
 
 FROM scratch
 
+# Binary
 COPY --from=build /usr/bin/wget /usr/bin/wget
 
+# Library dependencies
 COPY --from=build /etc/ssl /etc/ssl
 COPY --from=build /lib/ld-musl-x86_64.so.1 /lib/ld-musl-x86_64.so.1
 COPY --from=build /usr/lib/libpcre2-8.so.0 /usr/lib/libpcre2-8.so.0
