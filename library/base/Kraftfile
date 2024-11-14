@@ -126,8 +126,6 @@ libraries:
       CONFIG_LWIP_LOOPIF: 'y'
       CONFIG_LWIP_UKNETDEV: 'y'
       CONFIG_LWIP_LOOPBACK: 'y'
-      # Fail booting without network interface
-      CONFIG_LWIP_FAILNOIFACE: 'y'
       CONFIG_LWIP_TCP: 'y'
       CONFIG_LWIP_UDP: 'y'
       CONFIG_LWIP_RAW: 'y'
