@@ -1,0 +1,9 @@
+spec: v0.6
+
+name: cat 
+
+rootfs: ./Dockerfile
+
+cmd: ["/usr/bin/cat", "/test-files/lorem_ipsum.txt"]
+
+runtime: base:latest
