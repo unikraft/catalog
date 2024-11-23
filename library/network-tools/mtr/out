@@ -1,0 +1,62 @@
+level=debug msg="kraftkit 0.9.4"
+level=debug msg=using platform=qemu
+level=debug msg="determining how to proceed given provided input and context"
+level=debug msg="using compatible context" candidate=kraftfile-unikraft
+level=debug msg="qemu-system-x86_64 -version"
+level=debug msg="qemu-system-x86_64 -accel help"
+level=debug msg="qemu-system-x86_64 -append /usr/sbin/mtr  -cpu qemu64,+pdpe1gb,+rdrand,+rdseed,-vmx,-svm -daemonize -device pvpanic -display none -kernel /home/ty3r0x/Projects/unikraft/catalog/library/network-tools/mtr/.unikraft/build/mtr_qemu-x86_64 -machine pc -m size=512M -monitor unix:/home/ty3r0x/.local/share/kraftkit/runtime/4592f75f-9311-445b-bec4-1eb9affe7a2c/qemu_mon.sock,server,nowait -name 4592f75f-9311-445b-bec4-1eb9affe7a2c -nographic -no-reboot -S -parallel none -pidfile /home/ty3r0x/.local/share/kraftkit/runtime/4592f75f-9311-445b-bec4-1eb9affe7a2c/machine.pid -qmp unix:/home/ty3r0x/.local/share/kraftkit/runtime/4592f75f-9311-445b-bec4-1eb9affe7a2c/qemu_control.sock,server,nowait -qmp unix:/home/ty3r0x/.local/share/kraftkit/runtime/4592f75f-9311-445b-bec4-1eb9affe7a2c/qemu_events.sock,server,nowait -rtc base=utc -serial file:/home/ty3r0x/.local/share/kraftkit/runtime/4592f75f-9311-445b-bec4-1eb9affe7a2c/machine.log -smp cpus=1,threads=1,sockets=1 -vga none"
+arch_prctl(0x1002, 0x1000517b28, ...) = 0x0
+set_tid_address(0x1000517f90, 0x1000517b28, ...) = 0x1
+brk(NULL) = va:0x400200000
+brk(va:0x400202000) = va:0x400202000
+mmap(va:0x400200000, 4096, PROT_NONE, MAP_PRIVATE|MAP_ANONYMOUS|MAP_FIXED, fd:-1, 0) = va:0x400200000
+open("/usr/local/lib/libjansson.so.4", O_RDONLY|O_CLOEXEC|0x8000) = No such file or directory (-2)
+open("/usr/lib/libjansson.so.4", O_RDONLY|O_CLOEXEC|0x8000) = fd:3
+fcntl(0x3, 0x2, ...) = 0x0
+fstat(fd:3, <out>stat:{st_size=50976, st_mode=0100755, ...}) = OK
+read(fd:3, <out>"\x7FELF\x02\x01\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x03\x00>\x00\x01\x00\x00\x00"..., 960) = 960
+mmap(NULL, 57344, PROT_READ, MAP_PRIVATE, fd:3, 0) = va:0x100012d000
+mmap(va:0x100012f000, 28672, PROT_EXEC|PROT_READ, MAP_PRIVATE|MAP_FIXED, fd:3, 8192) = va:0x100012f000
+mmap(va:0x1000136000, 12288, PROT_READ, MAP_PRIVATE|MAP_FIXED, fd:3, 36864) = va:0x1000136000
+mmap(va:0x1000139000, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED, fd:3, 45056) = va:0x1000139000
+close(fd:3) = OK
+open("/usr/local/lib/libncursesw.so.6", O_RDONLY|O_CLOEXEC|0x8000) = No such file or directory (-2)
+open("/usr/lib/libncursesw.so.6", O_RDONLY|O_CLOEXEC|0x8000) = fd:3
+fcntl(0x3, 0x2, ...) = 0x0
+fstat(fd:3, <out>stat:{st_size=338888, st_mode=0100755, ...}) = OK
+read(fd:3, <out>"\x7FELF\x02\x01\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x03\x00>\x00\x01\x00\x00\x00"..., 960) = 960
+mmap(NULL, 344064, PROT_READ, MAP_PRIVATE, fd:3, 0) = va:0x10003d7000
+mmap(va:0x10003e5000, 167936, PROT_EXEC|PROT_READ, MAP_PRIVATE|MAP_FIXED, fd:3, 57344) = va:0x10003e5000
+mmap(va:0x100040e000, 94208, PROT_READ, MAP_PRIVATE|MAP_FIXED, fd:3, 225280) = va:0x100040e000
+mmap(va:0x1000425000, 24576, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED, fd:3, 315392) = va:0x1000425000
+close(fd:3) = OK
+mprotect(va:0x1000139000, 4096, PROT_READ) = OK
+mprotect(va:0x1000425000, 20480, PROT_READ) = OK
+mprotect(va:0x1000514000, 4096, PROT_READ) = OK
+mprotect(va:0x100014d000, 4096, PROT_READ) = OK
+geteuid(0x10001288f8, 0x0, ...) = 0x0
+getuid(0x10001288f8, 0x0, ...) = 0x0
+getegid(0x10001288f8, 0x0, ...) = 0x0
+getgid(0x10001288f8, 0x0, ...) = 0x0
+clock_gettime(CLOCK_REALTIME, <out>timespec:{tv_sec=1732373117, tv_nsec=112439302}) = OK
+getpid() = pid:1
+getuid(0x0, 0x10001283b0, ...) = 0x0
+uname(<out>utsname:{sysname="Unikraft", nodename="unikraft", ...}) = OK
+open("/etc/hosts", O_RDONLY|O_CLOEXEC|0x8000) = fd:3
+fcntl(0x3, 0x2, ...) = 0x0
+read(fd:3, <out>"127.0.0.1\x09localhost\x0A", 1024) = 20
+read(fd:3, <out>"", 1024) = 0
+close(fd:3) = OK
+pipe(0x1000128378, 0x100014ea20, ...) = 0x0
+pipe(0x1000128380, 0x100014ea20, ...) = 0x0
+rt_sigprocmask(0x0, 0x1000511858, ...) = 0x0
+rt_sigprocmask(0x0, 0x1000511860, ...) = 0x0
+fork(0x1000517f94, 0x1000511860, ...) = Function not implemented (-38)
+rt_sigprocmask(0x2, 0x1000128200, ...) = 0x0
+rt_sigprocmask(0x2, 0x10001282b0, ...) = 0x0
+mtr: writev(0x2, 0x1000128000, ...) = 0x5
+Unable to start net modulewritev(0x2, 0x10001280e0, ...) = 0x1a
+
+writev(0x2, 0x1000128270, ...) = 0x1
+close(fd:1) = OK
+close(fd:2) = OK
