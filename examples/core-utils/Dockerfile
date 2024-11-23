@@ -5,6 +5,7 @@ FROM scratch
 COPY --from=build /usr/bin/ls /usr/bin/ls 
 COPY --from=build /usr/bin/cat /usr/bin/cat  
 COPY --from=build /usr/bin/pwd /usr/bin/pwd
+COPY --from=build /usr/bin/uniq /usr/bin/uniq
 # Dependencies
 COPY --from=build /lib/x86_64-linux-gnu/libselinux.so.1 /lib/x86_64-linux-gnu/libselinux.so.1
 COPY --from=build /lib/x86_64-linux-gnu/libc.so.6 /lib/x86_64-linux-gnu/libc.so.6
