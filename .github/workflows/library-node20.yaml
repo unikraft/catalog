@@ -2,7 +2,7 @@ name: library/node:20
 
 on:
   repository_dispatch:
-    types: [core_merge]
+    types: [core_merge, elfloader_merge, libelf_merge, lwip_merge]
 
   schedule:
   - cron: '0 0 * * *' # Everyday at 12AM
