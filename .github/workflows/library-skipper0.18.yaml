@@ -1,4 +1,4 @@
-name: library/skipper0.18
+name: library/skipper:0.18
 
 on:
   repository_dispatch:
@@ -23,6 +23,11 @@ on:
     - 'library/skipper/0.18/**'
     - '.github/workflows/library-skipper0.18.yaml'
     - '!library/skipper/0.18/README.md'
+
+# Automatically cancel in-progress actions on the same branch
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request_target' && github.head_ref || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build:
