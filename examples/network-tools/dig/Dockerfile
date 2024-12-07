@@ -5,8 +5,10 @@ RUN apk add --no-cache \
 
 FROM scratch
 
+# Binary
 COPY --from=build /usr/bin/dig /usr/bin/dig
 
+# Library dependencies
 COPY --from=build /lib/ld-musl-x86_64.so.1 /lib/ld-musl-x86_64.so.1
 COPY --from=build /usr/lib/libisc-9.18.27.so /usr/lib/libisc-9.18.27.so
 COPY --from=build /usr/lib/libdns-9.18.27.so /usr/lib/libdns-9.18.27.so

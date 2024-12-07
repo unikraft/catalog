@@ -5,9 +5,10 @@ RUN apt update && apt install -y \
 
 FROM scratch
 
-COPY --from=build /usr/bin/host /usr/bin/host
+# Binary
+COPY --from=build /usr/bin/nslookup /usr/bin/nslookup
 
-# Wonder why does a simple damn DNS query utility need so many dynamic libs? Yeah, me too, me too...
+# Library dependencies
 COPY --from=build /lib/x86_64-linux-gnu/libjemalloc.so.2 /lib/x86_64-linux-gnu/libjemalloc.so.2
 COPY --from=build /lib/x86_64-linux-gnu/libisc-9.20.2-1-Debian.so /lib/x86_64-linux-gnu/libisc-9.20.2-1-Debian.so
 COPY --from=build /lib/x86_64-linux-gnu/libdns-9.20.2-1-Debian.so /lib/x86_64-linux-gnu/libdns-9.20.2-1-Debian.so

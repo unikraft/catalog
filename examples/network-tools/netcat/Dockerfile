@@ -5,8 +5,10 @@ RUN apt update && apt install -y \
 
 FROM scratch
 
+# Binary
 COPY --from=build /usr/bin/nc /usr/bin/nc
 
+# Library dependencies
 COPY --from=build /lib/x86_64-linux-gnu/libbsd.so.0 /lib/x86_64-linux-gnu/libbsd.so.0
 COPY --from=build /lib/x86_64-linux-gnu/libresolv.so.2 /lib/x86_64-linux-gnu/libresolv.so.2
 COPY --from=build /lib/x86_64-linux-gnu/libc.so.6 /lib/x86_64-linux-gnu/libc.so.6
