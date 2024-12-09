@@ -1,7 +1,7 @@
 FROM alpine:3.20.3 AS build
 
 RUN apk add --no-cache \
-    wget
+    wget=1.25.0-r0
 
 FROM scratch
 

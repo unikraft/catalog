@@ -1,7 +1,7 @@
 FROM alpine:latest AS build
 
 RUN apk add --no-cache \
-    bind-tools
+    bind-tools=9.18.31-r0
 
 FROM scratch
 

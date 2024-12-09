@@ -1,6 +1,6 @@
 FROM debian:trixie-slim AS build
 
-RUN apt update && apt install -y \
+RUN apt-get update && apt-get install -y \
   inetutils-ping
 
 FROM scratch
