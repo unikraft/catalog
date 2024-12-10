@@ -1,4 +1,4 @@
-# Linux Core Utils
+# Linux Coreutils
 
 This directory contains a minimal Debian instance featuring ore utils such as ls, cat, pwd, etc., running on Unikraft.
 
