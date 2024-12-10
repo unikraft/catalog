@@ -2,6 +2,7 @@ FROM debian:bookworm AS build
 
 FROM scratch
 
+# Binaries
 COPY --from=build /usr/bin/ls /usr/bin/ls 
 COPY --from=build /usr/bin/cat /usr/bin/cat  
 COPY --from=build /usr/bin/pwd /usr/bin/pwd
