@@ -1,0 +1,14 @@
+spec: v0.6
+
+name: cat 
+
+rootfs: ./Dockerfile
+
+cmd: ["/usr/bin/cat"]
+
+runtime: base:latest
+    version: staging
+
+targets:
+- fc/x86_64
+- qemu/x86_64
