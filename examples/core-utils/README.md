@@ -9,6 +9,7 @@ Use `kraft` to run the image and start a Unikraft instance:
 ```bash
 kraft run --rm --plat qemu --arch x86_64 -K Kraftfile.{`cmd`} .
 ```
+
 Where `cmd` is the command you want to execute.
 
 If the `--plat` argument is left out, it defaults to `qemu`.
