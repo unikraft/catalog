@@ -6,7 +6,7 @@ This directory contains a minimal Debian instance featuring ore utils such as ls
 
 Use `kraft` to run the image and start a Unikraft instance:
 
-```bash
+```console
 kraft run --rm --plat qemu --arch x86_64 -K Kraftfile.{`cmd`} .
 ```
 
