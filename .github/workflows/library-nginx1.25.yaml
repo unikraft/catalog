@@ -65,7 +65,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-      name: Execute Unikernel
+
+    - name: Execute Unikernel
       uses: unikraft/kraftkit@staging
       with:
         loglevel: debug
