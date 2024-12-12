@@ -58,6 +58,7 @@ jobs:
         path: ${{ github.workspace }}/.kraftkit/oci/digests
         if-no-files-found: error
 
+  # Adding the test
   test:
     needs: [build]
     runs-on: ubuntu-latest
