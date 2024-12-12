@@ -63,9 +63,15 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Start Test Environment
-      run: |
-        docker run -d -p 8080:80 index.unikraft.io/unikraft.org/nginx:1.25
+    - name: Execute Unikernel
+      uses: unikraft/kraftkit@staging
+      with:
+        loglevel: debug
+        workdir: library/nginx/1.25
+        runtimedir: /github/workspace/.kraftkit
+        plat: ${{ matrix.plat }}
+        arch: ${{ matrix.arch }}
+        execute: true
 
     - name: Run Tests
       run: |
