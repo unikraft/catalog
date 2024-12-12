@@ -64,7 +64,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Execute Unikernel
+    - uses: actions/checkout@v4
+      name: Execute Unikernel
       uses: unikraft/kraftkit@staging
       with:
         loglevel: debug
