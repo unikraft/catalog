@@ -52,8 +52,8 @@ jobs:
         output: oci://index.unikraft.io/unikraft.org/nginx:1.25
 
     - name: Run Tests
-        run: |
-          curl -f http://localhost:8080 || exit 1
+        run: kraft run -p 8080:80 unikraft.org/nginx:1.25
+        run: curl localhost:8080 || exit 1
 
     - name: Archive OCI digests
       uses: actions/upload-artifact@v4
@@ -61,25 +61,6 @@ jobs:
         name: oci-digests-${{ matrix.arch }}-${{ matrix.plat }}
         path: ${{ github.workspace }}/.kraftkit/oci/digests
         if-no-files-found: error
-
-  # Adding the test
-  # test:
-  #   needs: [build]
-  #   runs-on: ubuntu-latest
-
-  #   steps:
-  #   - uses: actions/checkout@v4
-
-  #   - name: Execute Unikernel
-  #     uses: unikraft/kraftkit@staging
-  #     with:
-  #       loglevel: debug
-  #       workdir: library/nginx/1.25
-  #       runtimedir: /github/workspace/.kraftkit
-  #       plat: ${{ matrix.plat }}
-  #       arch: ${{ matrix.arch }}
-  #       execute: true
-
 
   push:
     if: ${{ github.event_name == 'push' || github.event_name == 'schedule' }}
