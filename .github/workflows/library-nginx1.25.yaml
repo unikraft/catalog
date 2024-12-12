@@ -58,6 +58,19 @@ jobs:
         path: ${{ github.workspace }}/.kraftkit/oci/digests
         if-no-files-found: error
 
+  test:
+    needs: [build]
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Start Test Environment
+      run: |
+        docker run -d -p 8080:80 index.unikraft.io/unikraft.org/nginx:1.25
+
+    - name: Run Tests
+      run: |
+        curl -f http://localhost:8080 || exit 1
+
   push:
     if: ${{ github.event_name == 'push' || github.event_name == 'schedule' }}
     needs: [ build ]
