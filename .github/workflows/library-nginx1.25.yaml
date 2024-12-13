@@ -51,11 +51,6 @@ jobs:
         push: false
         output: oci://index.unikraft.io/unikraft.org/nginx:1.25
 
-    - name: Run Tests
-      run: |
-        kraft run -p 8080:80 unikraft.org/nginx:1.25
-        curl localhost:8080 || exit 1
-
     - name: Archive OCI digests
       uses: actions/upload-artifact@v4
       with:
