@@ -1,0 +1,17 @@
+#!/bin/bash
+
+download_range()
+{
+    start="$1"
+    end="$2"
+
+    for i in $(seq -f "%04g" "$start" "$end"); do
+        echo "file.tst" | nc localhost 42424 > /dev/null
+    done
+}
+
+mkdir out-data > /dev/null 2>&1
+for i in $(seq 0 10); do
+    download_range $((${i}*100)) $((${i}*100+99)) &
+done
+wait
