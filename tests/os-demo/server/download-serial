@@ -1,0 +1,6 @@
+#!/bin/bash
+
+mkdir out-data > /dev/null 2>&1
+for i in $(seq -f "%04g" 0 999); do
+    echo "file.tst" | nc localhost 42424 > /dev/null
+done

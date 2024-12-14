@@ -1,0 +1,20 @@
+.PHONY: all clean
+
+all: shellcode.bin shellcode-32.bin
+
+shellcode.bin: shellcode.asm
+	nasm -o $@ $^
+
+print: shellcode.bin
+	@hexdump -v -e '"\\" 1/1 "x%02x"' $^ ; echo
+
+shellcode-32.bin: shellcode-32.asm
+	nasm -o $@ $^
+
+print-32: shellcode-32.bin
+	@hexdump -v -e '"\\" 1/1 "x%02x"' $^ ; echo
+
+clean:
+	-rm -f shellcode.bin
+	-rm -f shellcode-32.bin
+	-rm -f *~
