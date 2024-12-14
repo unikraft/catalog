@@ -1,0 +1,9 @@
+spec: v0.6
+
+name: pwd 
+
+rootfs: ./Dockerfile
+
+cmd: ["/usr/bin/pwd"]
+
+runtime: base:latest

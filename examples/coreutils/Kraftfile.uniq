@@ -1,0 +1,9 @@
+spec: v0.6
+
+name: uniq 
+
+rootfs: ./Dockerfile
+
+cmd: ["/usr/bin/uniq", "/test-files/uniq_example.txt"]
+
+runtime: base:latest
