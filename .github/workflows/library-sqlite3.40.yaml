@@ -2,7 +2,7 @@ name: library/sqlite:3.40
 
 on:
   repository_dispatch:
-    types: [core_merge]
+    types: [core_merge, musl_merge, sqlite_merge]
 
   workflow_dispatch:
 
