@@ -1,0 +1,10 @@
+. {
+    hosts {
+      1.2.2.1 test
+    }
+    log
+    errors
+    chaos
+    debug
+}
+
