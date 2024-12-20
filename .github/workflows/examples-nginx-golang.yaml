@@ -1,0 +1,45 @@
+name: examples/nginx-golang
+
+on:
+  repository_dispatch:
+    types: [core_merge]
+
+  workflow_dispatch:
+
+  schedule:
+  - cron: '0 0 * * *' # Everyday at 12AM
+
+  push:
+    branches: [main]
+    paths:
+    - 'examples/nginx-golang/**'
+    - '.github/workflows/examples-nginx-golang.yaml'
+    - '!examples/nginx-golang/README.md'
+
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [main]
+    paths:
+    - 'examples/nginx-golang/**'
+    - '.github/workflows/examples-nginx-golang.yaml'
+    - '!examples/nginx-golang/README.md'
+
+jobs:
+  up:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: kraft compose up
+      uses: unikraft/kraftkit@staging
+      with:
+        loglevel: debug
+        workdir: examples/nginx-golang
+        runtimedir: /github/workspace/.kraftkit
+        privileged: true
+        run: |
+          set -xe
+
+          sudo KRAFTKIT_NO_WARN_SUDO=1 kraft compose up -d
+          curl -s localhost:8080
