@@ -1,4 +1,4 @@
-name: library/findtime
+name: library/findtime:latest
 
 on:
   schedule:
@@ -49,7 +49,7 @@ jobs:
         plat: ${{ matrix.plat }}
         arch: ${{ matrix.arch }}
         push: false
-        output: oci://index.unikraft.io/unikraft.org/findtime
+        output: oci://index.unikraft.io/unikraft.org/findtime:latest
 
     - name: Archive OCI digests
       uses: actions/upload-artifact@v4
@@ -76,5 +76,5 @@ jobs:
     - name: Retrieve, merge and push OCI digests
       uses: ./.github/actions/merge-oci-digests
       with:
-        name: index.unikraft.io/unikraft.org/findtime
+        name: index.unikraft.io/unikraft.org/findtime:latest
         push: true
