@@ -1,0 +1,7 @@
+spec: v0.6
+
+runtime: unikraft.org/base:latest
+
+rootfs: ./Dockerfile
+
+args: ["/helloworld"]
