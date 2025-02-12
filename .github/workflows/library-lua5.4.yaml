@@ -2,7 +2,7 @@ name: library/lua:5.4
 
 on:
   repository_dispatch:
-    types: [core_merge]
+    types: [core_merge, lua_merge, musl_merge]
 
   workflow_dispatch:
 

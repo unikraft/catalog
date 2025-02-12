@@ -2,7 +2,7 @@ name: library/redis:7.0
 
 on:
   repository_dispatch:
-    types: [core_merge]
+    types: [core_merge, lwip_merge, musl_merge, redis_merge]
 
   workflow_dispatch:
 
