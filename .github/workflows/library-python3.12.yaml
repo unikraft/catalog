@@ -1,4 +1,4 @@
-name: library/python3.12
+name: library/python:3.12
 
 on:
   repository_dispatch:
@@ -21,6 +21,11 @@ on:
     paths:
     - 'library/python/3.12/**'
     - '.github/workflows/library-python3.12.yaml'
+
+# Automatically cancel in-progress actions on the same branch
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request_target' && github.head_ref || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build:

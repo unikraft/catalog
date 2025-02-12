@@ -19,6 +19,11 @@ on:
     - '.github/workflows/library-mongo6.0.yaml'
     - '!library/mongo/6.0/README.md'
 
+# Automatically cancel in-progress actions on the same branch
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request_target' && github.head_ref || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
     strategy:
