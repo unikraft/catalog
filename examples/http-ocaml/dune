@@ -1,0 +1,4 @@
+(executable
+ (name server)
+ (public_name ocaml-http)
+ (libraries lwt lwt.unix cohttp-lwt-unix))

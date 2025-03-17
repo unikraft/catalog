@@ -1,0 +1,9 @@
+spec: v0.6
+
+name: http-ocaml
+
+runtime: base:latest
+
+cmd: ["/app/server.exe"]
+
+rootfs: ./Dockerfile
