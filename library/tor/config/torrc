@@ -1,0 +1,12 @@
+SocksPort 0
+RunAsDaemon 0
+
+DataDirectory /data
+
+## Required: what port to advertise for incoming Tor connections.
+ORPort 0.0.0.0:443
+
+Address SETME
+Nickname SETMET
+ContactInfo SETME
+#MyFamily SETME IF APPLICABLE $keyid,$keyid,...
