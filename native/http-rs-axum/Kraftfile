@@ -5,6 +5,7 @@ name: http-rs-axum
 unikraft:
   version: stable
   kconfig:
+    CONFIG_LIBPOSIX_TTY_STDIO: 'y'
     CONFIG_LIBPOSIX_EVENTFD: 'y'
     CONFIG_LIBPOSIX_UNIXSOCKET: 'y'
     CONFIG_LIBUKNETDEV_EINFO_LIBPARAM: 'y'
