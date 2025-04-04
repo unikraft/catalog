@@ -1,0 +1,77 @@
+name: library/wamrbc76sf
+
+on:
+  schedule:
+  - cron: '0 0 * * *' # Everyday at 12AM
+
+  push:
+    branches: [main]
+    paths:
+    - 'library/wamr/bc762f/**'
+    - '.github/workflows/library-wamrbc762f.yaml'
+
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [main]
+    paths:
+    - 'library/wamr/bc762f/**'
+    - '.github/workflows/library-wamrbc762f.yaml'
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+        - plat: qemu
+          arch: x86_64
+        - plat: qemu
+          arch: arm64
+        - plat: fc
+          arch: x86_64
+        - plat: fc
+          arch: arm64
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Build WAMR-bc762f
+      uses: unikraft/kraftkit@staging
+      with:
+        loglevel: debug
+        workdir: library/wamr/bc762f
+        runtimedir: /github/workspace/.kraftkit
+        plat: ${{ matrix.plat }}
+        arch: ${{ matrix.arch }}
+        push: false
+        output: oci://index.unikraft.io/unikraft.org/wamr:bc762f
+
+    - name: Archive OCI digests
+      uses: actions/upload-artifact@v3
+      with:
+        name: oci-digests-${{ matrix.arch }}-${{ matrix.plat }}
+        path: ${{ github.workspace }}/.kraftkit/oci/digests
+        if-no-files-found: error
+
+  push:
+    if: ${{ github.event_name == 'push' || github.event_name == 'schedule' }}
+    needs: [ build ]
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Login to OCI registry
+      uses: docker/login-action@v2
+      with:
+        registry: index.unikraft.io
+        username: ${{ secrets.REG_USERNAME }}
+        password: ${{ secrets.REG_TOKEN }}
+
+    - name: Retrieve, merge and push OCI digests
+      uses: ./.github/actions/merge-oci-digests
+      with:
+        name: index.unikraft.io/unikraft.org/wamr:bc762f
+        push: true
