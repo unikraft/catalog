@@ -1,2 +1,3 @@
 #!/bin/sh
-./curl --version
+curl --version
+
