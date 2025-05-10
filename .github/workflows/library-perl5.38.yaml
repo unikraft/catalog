@@ -83,3 +83,113 @@ jobs:
       with:
         name: index.unikraft.io/unikraft.org/perl:5.38
         push: true
+
+  run-remote:
+    name: Test Perl 5.38 (Remote OCI)
+    needs: [build, push]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Login to OCI registry
+        uses: docker/login-action@v3
+        with:
+          registry: index.unikraft.io
+          username: ${{ secrets.REG_USERNAME }}
+          password: ${{ secrets.REG_TOKEN }}
+
+      - name: Pull and start unikernel
+        id: start
+        run: |
+          set -euo pipefail
+          IMAGE=index.unikraft.io/unikraft.org/perl:5.38
+          docker pull "$IMAGE"
+          CONTAINER_ID=$(docker run --rm -d -p 8080:8080 "$IMAGE")
+          echo "CONTAINER_ID=$CONTAINER_ID" >> $GITHUB_OUTPUT
+
+      - name: Wait for port 8080
+        run: |
+          set -euo pipefail
+          TIMEOUT=10
+          START_TS=$(date +%s)
+          until nc -z localhost 8080; do
+            if [ $(( $(date +%s) - START_TS )) -ge $TIMEOUT ]; then
+              echo "ERROR: port 8080 did not open within ${TIMEOUT}s" >&2
+              docker logs "${{ steps.start.outputs.CONTAINER_ID }}" >&2 || true
+              exit 1
+            fi
+            sleep 1
+          done
+          echo "Port 8080 is now accepting connections"
+
+      - name: Validate HTTP response
+        run: |
+          set -euo pipefail
+          EXPECTED="Hello, World!"
+          RESPONSE=$(curl -fs http://localhost:8080/)
+          if [ "$RESPONSE" != "$EXPECTED" ]; then
+            echo "ERROR: expected '$EXPECTED' but got '$RESPONSE'" >&2
+            docker logs "${{ steps.start.outputs.CONTAINER_ID }}" >&2 || true
+            exit 1
+          fi
+          echo "Response is correct: '$RESPONSE'"
+
+      - name: Cleanup container
+        if: always()
+        run: |
+          set -euo pipefail
+          docker stop "${{ steps.start.outputs.CONTAINER_ID }}" || true
+
+  run-local:
+    name: Test Perl 5.38 (Local build)
+    needs: [build]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup kraftkit
+        uses: unikraft/kraftkit@staging
+        with:
+          loglevel: debug
+          runtimedir: /github/workspace/.kraftkit
+
+      - name: Build unikernel locally
+        run: |
+          cd library/perl/5.38
+          kraft build --no-cache --no-update --plat qemu --arch x86_64
+
+      - name: Run local unikernel
+        run: |
+          set -euo pipefail
+          cd library/perl/5.38
+          kraft run --rm -M 256M -p 8080:8080 --plat qemu --arch x86_64 . & echo "$!" > uk.pid
+          sleep 5
+
+      - name: Wait for port 8080
+        run: |
+          set -euo pipefail
+          TIMEOUT=10
+          START_TS=$(date +%s)
+          until nc -z localhost 8080; do
+            if [ $(( $(date +%s) - START_TS )) -ge $TIMEOUT ]; then
+              echo "ERROR: port 8080 did not open within ${TIMEOUT}s" >&2
+              exit 1
+            fi
+            sleep 1
+          done
+          echo "Port 8080 is now accepting connections"
+
+      - name: Validate HTTP response
+        run: |
+          set -euo pipefail
+          EXPECTED="Hello, World!"
+          RESPONSE=$(curl -fs http://localhost:8080/)
+          if [ "$RESPONSE" != "$EXPECTED" ]; then
+            echo "ERROR: expected '$EXPECTED' but got '$RESPONSE'" >&2
+            exit 1
+          fi
+          echo "Response is correct: '$RESPONSE'"
+
+      - name: Cleanup unikernel
+        if: always()
+        run: |
+          set -euo pipefail
+          cat library/perl/5.38/uk.pid | xargs kill || true
