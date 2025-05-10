@@ -81,3 +81,81 @@ jobs:
       with:
         name: index.unikraft.io/unikraft.org/python:3.12
         push: true
+
+  run-remote:
+    name: Test Python 3.12 (Remote OCI)
+    needs: [build, push]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Login to OCI registry
+        uses: docker/login-action@v3
+        with:
+          registry: index.unikraft.io
+          username: ${{ secrets.REG_USERNAME }}
+          password: ${{ secrets.REG_TOKEN }}
+
+      - name: Pull and start unikernel
+        id: start
+        run: |
+          set -euo pipefail
+          IMAGE=index.unikraft.io/unikraft.org/python:3.12
+          docker pull "$IMAGE"
+          CONTAINER_ID=$(docker run --rm -d "$IMAGE")
+          echo "CONTAINER_ID=$CONTAINER_ID" >> $GITHUB_OUTPUT
+
+      - name: Validate unikernel startup
+        run: |
+          set -euo pipefail
+          sleep 5
+          if ! docker ps --filter "id=${{ steps.start.outputs.CONTAINER_ID }}" --format '{{.ID}}' | grep -q .; then
+            echo "ERROR: Python 3.12 unikernel is not running" >&2
+            docker logs "${{ steps.start.outputs.CONTAINER_ID }}" >&2 || true
+            exit 1
+          fi
+          echo "Python 3.12 unikernel started successfully"
+
+      - name: Cleanup container
+        if: always()
+        run: |
+          set -euo pipefail
+          docker stop "${{ steps.start.outputs.CONTAINER_ID }}" || true
+
+  run-local:
+    name: Test Python 3.12 (Local build)
+    needs: [build]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup kraftkit
+        uses: unikraft/kraftkit@staging
+        with:
+          loglevel: debug
+          runtimedir: /github/workspace/.kraftkit
+
+      - name: Build unikernel locally
+        run: |
+          cd library/python/3.12
+          kraft build --no-cache --no-update --plat qemu --arch x86_64
+
+      - name: Run local unikernel
+        run: |
+          set -euo pipefail
+          cd library/python/3.12
+          kraft run --rm -M 256M --plat qemu --arch x86_64 . & echo "$!" > uk.pid
+          sleep 5
+
+      - name: Validate unikernel startup
+        run: |
+          set -euo pipefail
+          if ! ps -p $(cat library/python/3.12/uk.pid) > /dev/null; then
+            echo "ERROR: Python 3.12 unikernel failed to start locally" >&2
+            exit 1
+          fi
+          echo "Python 3.12 unikernel started successfully locally"
+
+      - name: Cleanup unikernel
+        if: always()
+        run: |
+          set -euo pipefail
+          cat library/python/3.12/uk.pid | xargs kill || true
