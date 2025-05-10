@@ -83,3 +83,122 @@ jobs:
       with:
         name: index.unikraft.io/unikraft.org/lua:5.4.4
         push: true
+
+  run-remote:
+    name: Test Lua 5.4.4 (Remote OCI)
+    needs: [build, push]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Login to OCI registry
+        uses: docker/login-action@v3
+        with:
+          registry: index.unikraft.io
+          username: ${{ secrets.REG_USERNAME }}
+          password: ${{ secrets.REG_TOKEN }}
+
+      - name: Setup bridge network
+        run: |
+          set -euo pipefail
+          sudo kraft net create -n 172.44.0.1/24 virbr0 || true
+
+      - name: Pull and start unikernel
+        id: start
+        run: |
+          set -euo pipefail
+          IMAGE=index.unikraft.io/unikraft.org/lua:5.4.4
+          kraft pkg pull "$IMAGE"
+          sudo kraft run --rm -M 512M --network bridge:virbr0 "$IMAGE" & echo "$!" > uk.pid
+          echo "PID=$(cat uk.pid)" >> $GITHUB_OUTPUT
+          sleep 5
+
+      - name: Wait for port 8080
+        run: |
+          set -euo pipefail
+          TIMEOUT=10
+          START_TS=$(date +%s)
+          until nc -z 172.44.0.2 8080; do
+            if [ $(( $(date +%s) - START_TS )) -ge $TIMEOUT ]; then
+              echo "ERROR: port 8080 on 172.44.0.2 did not open within ${TIMEOUT}s" >&2
+              exit 1
+            fi
+            sleep 1
+          done
+          echo "Port 8080 is now accepting connections on 172.44.0.2"
+
+      - name: Validate HTTP response
+        run: |
+          set -euo pipefail
+          EXPECTED="Hello, World!"
+          RESPONSE=$(curl -fs http://172.44.0.2:8080/)
+          if [ "$RESPONSE" != "$EXPECTED" ]; then
+            echo "ERROR: expected '$EXPECTED' but got '$RESPONSE'" >&2
+            exit 1
+          fi
+          echo "Response is correct: '$RESPONSE'"
+
+      - name: Cleanup unikernel
+        if: always()
+        run: |
+          set -euo pipefail
+          cat uk.pid | xargs sudo kill || true
+
+  run-local:
+    name: Test Lua 5.4.4 (Local build)
+    needs: [build]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup kraftkit
+        uses: unikraft/kraftkit@staging
+        with:
+          loglevel: debug
+          runtimedir: /github/workspace/.kraftkit
+
+      - name: Build unikernel locally
+        run: |
+          cd library/lua/5.4.4
+          kraft build --no-cache --no-update --plat qemu --arch x86_64
+
+      - name: Setup bridge network
+        run: |
+          set -euo pipefail
+          sudo kraft net create -n 172.44.0.1/24 virbr0 || true
+
+      - name: Run local unikernel
+        run: |
+          set -euo pipefail
+          cd library/lua/5.4.4
+          sudo kraft run --rm -M 512M --network bridge:virbr0 --plat qemu --arch x86_64 . & echo "$!" > uk.pid
+          sleep 5
+
+      - name: Wait for port 8080
+        run: |
+          set -euo pipefail
+          TIMEOUT=10
+          START_TS=$(date +%s)
+          until nc -z 172.44.0.2 8080; do
+            if [ $(( $(date +%s) - START_TS )) -ge $TIMEOUT ]; then
+              echo "ERROR: port 8080 on 172.44.0.2 did not open within ${TIMEOUT}s" >&2
+              exit 1
+            fi
+            sleep 1
+          done
+          echo "Port 8080 is now accepting connections on 172.44.0.2"
+
+      - name: Validate HTTP response
+        run: |
+          set -euo pipefail
+          EXPECTED="Hello, World!"
+          RESPONSE=$(curl -fs http://172.44.0.2:8080/)
+          if [ "$RESPONSE" != "$EXPECTED" ]; then
+            echo "ERROR: expected '$EXPECTED' but got '$RESPONSE'" >&2
+            exit 1
+          fi
+          echo "Response is correct: '$RESPONSE'"
+
+      - name: Cleanup unikernel
+        if: always()
+        run: |
+          set -euo pipefail
+          cat library/lua/5.4.4/uk.pid | xargs sudo kill || true
