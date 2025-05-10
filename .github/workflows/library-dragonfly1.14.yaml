@@ -2,24 +2,23 @@ name: library/dragonfly:1.14
 
 on:
   schedule:
-  - cron: '0 0 * * *' # Everyday at 12AM
+    - cron: '0 0 * * *' # Everyday at 12AM
 
   push:
     branches: [main]
     paths:
-    - 'library/dragonfly/1.14/**'
-    - '.github/workflows/library-dragonfly1.14.yaml'
-    - '!library/dragonfly/1.14/README.md'
+      - 'library/dragonfly/1.14/**'
+      - '.github/workflows/library-dragonfly1.14.yaml'
+      - '!library/dragonfly/1.14/README.md'
 
   pull_request:
     types: [opened, synchronize, reopened]
     branches: [main]
     paths:
-    - 'library/dragonfly/1.14/**'
-    - '.github/workflows/library-dragonfly1.14.yaml'
-    - '!library/dragonfly/1.14/README.md'
+      - 'library/dragonfly/1.14/**'
+      - '.github/workflows/library-dragonfly1.14.yaml'
+      - '!library/dragonfly/1.14/README.md'
 
-# Automatically cancel in-progress actions on the same branch
 concurrency:
   group: ${{ github.workflow }}-${{ github.event_name == 'pull_request_target' && github.head_ref || github.ref }}
   cancel-in-progress: true
@@ -30,51 +29,75 @@ jobs:
       fail-fast: false
       matrix:
         include:
-        - plat: qemu
-          arch: x86_64
-        - plat: fc
-          arch: x86_64
+          - plat: qemu
+            arch: x86_64
+          - plat: fc
+            arch: x86_64
 
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - name: Build dragonfly1.14
-      uses: unikraft/kraftkit@staging
-      with:
-        loglevel: debug
-        workdir: library/dragonfly/1.14
-        runtimedir: /github/workspace/.kraftkit
-        plat: ${{ matrix.plat }}
-        arch: ${{ matrix.arch }}
-        push: false
-        output: oci://index.unikraft.io/unikraft.org/dragonfly:1.14
+      - name: Build dragonfly1.14
+        uses: unikraft/kraftkit@staging
+        with:
+          loglevel: debug
+          workdir: library/dragonfly/1.14
+          runtimedir: /github/workspace/.kraftkit
+          plat: ${{ matrix.plat }}
+          arch: ${{ matrix.arch }}
+          push: false
+          output: oci://index.unikraft.io/unikraft.org/dragonfly:1.14
 
-    - name: Archive OCI digests
-      uses: actions/upload-artifact@v4
-      with:
-        name: oci-digests-${{ matrix.arch }}-${{ matrix.plat }}
-        path: ${{ github.workspace }}/.kraftkit/oci/digests
-        if-no-files-found: error
+      - name: Archive OCI digests
+        uses: actions/upload-artifact@v4
+        with:
+          name: oci-digests-${{ matrix.arch }}-${{ matrix.plat }}
+          path: ${{ github.workspace }}/.kraftkit/oci/digests
+          if-no-files-found: error
+
+  test:
+    needs: [build]
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install kraft CLI
+        run: |
+          curl -fsSL https://get.kraft.sh | sh
+          echo "$HOME/.unikraft/bin" >> $GITHUB_PATH
+
+      - name: Setup dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y build-essential qemu-system-x86 redis-tools
+
+      - name: Run Dragonfly with QEMU and test with redis-cli
+        working-directory: library/dragonfly/1.14
+        run: |
+          kraft run --rm -p 6379:6379 --plat qemu --arch x86_64 -M 256M unikraft.org/dragonfly:1.14 &
+          sleep 10
+          redis-cli -h 127.0.0.1 -p 6379 ping | grep PONG || (echo "Dragonfly did not respond correctly." && exit 1)
 
   push:
     if: ${{ github.event_name == 'push' || github.event_name == 'schedule' }}
-    needs: [ build ]
+    needs: [build, test]
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - name: Login to OCI registry
-      uses: docker/login-action@v3
-      with:
-        registry: index.unikraft.io
-        username: ${{ secrets.REG_USERNAME }}
-        password: ${{ secrets.REG_TOKEN }}
+      - name: Login to OCI registry
+        uses: docker/login-action@v3
+        with:
+          registry: index.unikraft.io
+          username: ${{ secrets.REG_USERNAME }}
+          password: ${{ secrets.REG_TOKEN }}
 
-    - name: Retrieve, merge and push OCI digests
-      uses: ./.github/actions/merge-oci-digests
-      with:
-        name: index.unikraft.io/unikraft.org/dragonfly:1.14
-        push: true
+      - name: Retrieve, merge and push OCI digests
+        uses: ./.github/actions/merge-oci-digests
+        with:
+          name: index.unikraft.io/unikraft.org/dragonfly:1.14
+          push: true
