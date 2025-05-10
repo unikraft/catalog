@@ -1,0 +1,9 @@
+:2015
+
+root * /var/www
+
+encode gzip
+
+templates
+
+file_server
