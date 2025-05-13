@@ -88,6 +88,7 @@ jobs:
     name: Test Node 18 (Remote OCI)
     needs: [build, push]
     runs-on: ubuntu-latest
+  
     steps:
       - name: Login to OCI registry
         uses: docker/login-action@v3
@@ -96,52 +97,48 @@ jobs:
           username: ${{ secrets.REG_USERNAME }}
           password: ${{ secrets.REG_TOKEN }}
 
-      - name: Pull and start unikernel
-        id: start
+      - name: Pull, run, validate and cleanup remote container
         run: |
           set -euo pipefail
+
+          echo "Pull and start unikernel"
           IMAGE=index.unikraft.io/unikraft.org/node:18
           docker pull "$IMAGE"
           CONTAINER_ID=$(docker run --rm -d -p 8080:8080 "$IMAGE")
-          echo "CONTAINER_ID=$CONTAINER_ID" >> $GITHUB_OUTPUT
 
-      - name: Wait for port 8080
-        run: |
-          set -euo pipefail
+          echo "Wait for port 8080"
           TIMEOUT=10
           START_TS=$(date +%s)
           until nc -z localhost 8080; do
             if [ $(( $(date +%s) - START_TS )) -ge $TIMEOUT ]; then
               echo "ERROR: port 8080 did not open within ${TIMEOUT}s" >&2
-              docker logs "${{ steps.start.outputs.CONTAINER_ID }}" >&2 || true
+              docker logs "$CONTAINER_ID" >&2 || true
+              docker stop "$CONTAINER_ID" || true
               exit 1
             fi
             sleep 1
           done
           echo "Port 8080 is now accepting connections"
-  
-      - name: Validate HTTP response
-        run: |
-          set -euo pipefail
+
+          echo "Validate HTTP response"
           EXPECTED="Hello, World!"
           RESPONSE=$(curl -fs http://localhost:8080/)
           if [ "$RESPONSE" != "$EXPECTED" ]; then
             echo "ERROR: expected '$EXPECTED' but got '$RESPONSE'" >&2
-            docker logs "${{ steps.start.outputs.CONTAINER_ID }}" >&2 || true
+            docker logs "$CONTAINER_ID" >&2 || true
+            docker stop "$CONTAINER_ID" || true
             exit 1
           fi
           echo "Response is correct: '$RESPONSE'"
 
-      - name: Cleanup container
-        if: always()
-        run: |
-          set -euo pipefail
-          docker stop "${{ steps.start.outputs.CONTAINER_ID }}" || true
+          echo "Cleanup container"
+          docker stop "$CONTAINER_ID" || true
 
   run-local:
     name: Test Node 18 (Local build)
     needs: [build, push]
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
 
@@ -151,47 +148,41 @@ jobs:
           loglevel: debug
           runtimedir: /github/workspace/.kraftkit
 
-      - name: Build unikernel locally
-        run: |
-          cd library/node/18
-          kraft build --no-cache --no-update --plat qemu --arch x86_64
-    
-      - name: Run local unikernel
+      - name: Build, run, validate and cleanup local unikernel
         run: |
           set -euo pipefail
           cd library/node/18
-          kraft run --rm -M 512M -p 8080:8080 --plat qemu --arch x86_64 . & echo "$!" > uk.pid
+
+          echo "Build unikernel locally"
+          sudo kraft build --no-cache --no-update --plat qemu --arch x86_64
+
+          echo "Run local unikernel"
+          sudo kraft run --rm -M 512M -p 8080:8080 --plat qemu --arch x86_64 . &
+          PID=$!
           sleep 5
 
-      - name: Wait for port 8080
-        run: |
-          set -euo pipefail
+          echo "Wait for port 8080"
           TIMEOUT=10
           START_TS=$(date +%s)
           until nc -z localhost 8080; do
             if [ $(( $(date +%s) - START_TS )) -ge $TIMEOUT ]; then
               echo "ERROR: port 8080 did not open within ${TIMEOUT}s" >&2
-              docker logs "${{ steps.start.outputs.CONTAINER_ID }}" >&2 || true
+              sudo kill "$PID" || true
               exit 1
             fi
             sleep 1
           done
           echo "Port 8080 is now accepting connections"
-  
-      - name: Validate HTTP response
-        run: |
-          set -euo pipefail
+
+          echo "Validate HTTP response"
           EXPECTED="Hello, World!"
           RESPONSE=$(curl -fs http://localhost:8080/)
           if [ "$RESPONSE" != "$EXPECTED" ]; then
             echo "ERROR: expected '$EXPECTED' but got '$RESPONSE'" >&2
-            docker logs "${{ steps.start.outputs.CONTAINER_ID }}" >&2 || true
+            sudo kill "$PID" || true
             exit 1
           fi
           echo "Response is correct: '$RESPONSE'"
 
-      - name: Cleanup unikernel
-        if: always()
-        run: |
-          set -euo pipefail
-          cat library/node/18/uk.pid | xargs kill || true
+          echo "Cleanup unikernel"
+          sudo kill "$PID" || true

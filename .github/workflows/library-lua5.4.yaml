@@ -90,6 +90,7 @@ jobs:
     name: Test Lua 5.4 (Remote OCI)
     needs: [build, push]
     runs-on: ubuntu-latest
+
     steps:
       - name: Login to OCI registry
         uses: docker/login-action@v3
@@ -98,21 +99,16 @@ jobs:
           username: ${{ secrets.REG_USERNAME }}
           password: ${{ secrets.REG_TOKEN }}
 
-      - name: Pull and run Lua 5.4
-        id: run
+      - name: Run and validate
         run: |
           set -euo pipefail
           IMAGE=index.unikraft.io/unikraft.org/lua:5.4
-          OUTPUT=$(docker run --rm "$IMAGE")
-          echo "output<<EOF" >> $GITHUB_OUTPUT
-          echo "$OUTPUT" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
 
-      - name: Validate output
-        run: |
-          set -euo pipefail
+          echo "Pull and run Lua 5.4"
+          OUTPUT=$(docker run --rm "$IMAGE")
+
+          echo "Validate output"
           EXPECTED="Hello, World!"
-          OUTPUT="${{ steps.run.outputs.output }}"
           if [ "$OUTPUT" != "$EXPECTED" ]; then
             echo "ERROR: expected '$EXPECTED' but got '$OUTPUT'" >&2
             exit 1
@@ -123,6 +119,7 @@ jobs:
     name: Test Lua 5.4 (Local build)
     needs: [build]
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
 
@@ -132,26 +129,19 @@ jobs:
           loglevel: debug
           runtimedir: /github/workspace/.kraftkit
 
-      - name: Build unikernel locally
-        run: |
-          cd library/lua/5.4
-          kraft build --no-cache --no-update --plat qemu --arch x86_64
-
-      - name: Run and capture output
-        id: run
+      - name: Build, run, validate and cleanup local unikernel
         run: |
           set -euo pipefail
           cd library/lua/5.4
-          OUTPUT=$(kraft run --rm -M 128M --plat qemu --arch x86_64 .)
-          echo "output<<EOF" >> $GITHUB_OUTPUT
-          echo "$OUTPUT" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
 
-      - name: Validate output
-        run: |
-          set -euo pipefail
+          echo "Build unikernel locally"
+          sudo kraft build --no-cache --no-update --plat qemu --arch x86_64
+
+          echo "Run and capture output"
+          OUTPUT=$(sudo kraft run --rm -M 128M --plat qemu --arch x86_64 .)
+
+          echo "Validate output"
           EXPECTED="Hello, World!"
-          OUTPUT="${{ steps.run.outputs.output }}"
           if [ "$OUTPUT" != "$EXPECTED" ]; then
             echo "ERROR: expected '$EXPECTED' but got '$OUTPUT'" >&2
             exit 1
