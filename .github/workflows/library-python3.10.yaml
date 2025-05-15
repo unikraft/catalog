@@ -124,18 +124,19 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup kraftkit
-        uses: unikraft/kraftkit@staging
-        with:
-          loglevel: debug
-          runtimedir: /github/workspace/.kraftkit
+      - name: Install kraft CLI
+        run: |
+          echo "deb [trusted=yes] https://deb.pkg.kraftkit.sh/ /" | sudo tee /etc/apt/sources.list.d/kraftkit.list
+          sudo apt-get update
+          sudo apt-get install -y kraftkit
 
-      - name: Build, run, validate and cleanup locally
+      - name: Build, run, validate and cleanup Python 3.10 unikernel
         run: |
           set -euo pipefail
           cd library/python/3.10
 
           echo "Build Python 3.10 unikernel"
+          kraft clean
           sudo kraft build --no-cache --no-update --plat qemu --arch x86_64
 
           echo "Run local unikernel"

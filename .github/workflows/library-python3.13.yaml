@@ -120,32 +120,49 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup kraftkit
-        uses: unikraft/kraftkit@staging
-        with:
-          loglevel: debug
-          runtimedir: /github/workspace/.kraftkit
+      - name: Install kraft CLI
+        run: |
+          echo "deb [trusted=yes] https://deb.pkg.kraftkit.sh/ /" | sudo tee /etc/apt/sources.list.d/kraftkit.list
+          sudo apt-get update
+          sudo apt-get install -y kraftkit
 
-      - name: Build, run, validate and cleanup locally
+      - name: Build, run, validate and cleanup Python 3.13 unikernel
         run: |
           set -euo pipefail
+          sudo chmod 666 /dev/kvm
           cd library/python/3.13
 
-          echo "Build Python 3.13 unikernel"
-          sudo kraft build --no-cache --no-update --plat qemu --arch x86_64
+          echo "Clean and build Python 3.13 unikernel"
+          kraft clean
+          kraft build --no-cache --no-update --plat qemu --arch x86_64
 
-          echo "Run local unikernel"
-          sudo kraft run --rm -M 256M --plat qemu --arch x86_64 . &
+          echo "Run Python 3.13 unikernel"
+          kraft run --rm -M 256M -p 8080:8080 --plat qemu --arch x86_64 . &
           PID=$!
           sleep 5
 
-          echo "Validate local process startup"
-          if ! ps -p "$PID" > /dev/null; then
-            echo "ERROR: Python 3.13 unikernel failed to start locally" >&2
+          echo "Wait for port 8080"
+          TIMEOUT=10
+          START_TS=$(date +%s)
+          until nc -z localhost 8080; do
+            if [ $(( $(date +%s) - START_TS )) -ge $TIMEOUT ]; then
+              echo "ERROR: port 8080 did not open within ${TIMEOUT}s" >&2
+              sudo kill "$PID" || true
+              exit 1
+            fi
+            sleep 1
+          done
+          echo "Port 8080 is now accepting connections"
+
+          echo "Validate HTTP response"
+          EXPECTED="Hello, World!"
+          RESPONSE=$(curl -fs http://localhost:8080/)
+          if [ "$RESPONSE" != "$EXPECTED" ]; then
+            echo "ERROR: expected '$EXPECTED' but got '$RESPONSE'" >&2
             sudo kill "$PID" || true
             exit 1
           fi
-          echo "Python 3.13 unikernel started successfully locally"
+          echo "Response is correct: '$RESPONSE'"
 
-          echo "Cleanup local unikernel"
+          echo "Cleanup Python 3.13 unikernel"
           sudo kill "$PID" || true
