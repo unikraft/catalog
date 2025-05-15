@@ -1,0 +1,189 @@
+name: library/node:19
+
+on:
+  repository_dispatch:
+    types: [core_merge, elfloader_merge, libelf_merge, lwip_merge]
+
+  workflow_dispatch:
+
+  schedule:
+  - cron: '0 0 * * *' # Everyday at 12AM
+
+  push:
+    branches: [main]
+    paths:
+    - 'library/node/19/**'
+    - '.github/workflows/library-node19.yaml'
+    - '!library/node/19/README.md'
+
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [main]
+    paths:
+    - 'library/node/19/**'
+    - '.github/workflows/library-node19.yaml'
+    - '!library/node/19/README.md'
+
+# Automatically cancel in-progress actions on the same branch
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request_target' && github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+        - plat: qemu
+          arch: x86_64
+        - plat: fc
+          arch: x86_64
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Build node19
+      uses: unikraft/kraftkit@staging
+      with:
+        loglevel: debug
+        workdir: library/node/19
+        runtimedir: /github/workspace/.kraftkit
+        plat: ${{ matrix.plat }}
+        arch: ${{ matrix.arch }}
+        push: false
+        output: oci://index.unikraft.io/unikraft.org/node:19
+
+    - name: Archive OCI digests
+      uses: actions/upload-artifact@v4
+      with:
+        name: oci-digests-${{ matrix.arch }}-${{ matrix.plat }}
+        path: ${{ github.workspace }}/.kraftkit/oci/digests
+        if-no-files-found: error
+
+  push:
+    if: ${{ github.event_name == 'push' || github.event_name == 'schedule' }}
+    needs: [ build ]
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Login to OCI registry
+      uses: docker/login-action@v3
+      with:
+        registry: index.unikraft.io
+        username: ${{ secrets.REG_USERNAME }}
+        password: ${{ secrets.REG_TOKEN }}
+
+    - name: Retrieve, merge and push OCI digests
+      uses: ./.github/actions/merge-oci-digests
+      with:
+        name: index.unikraft.io/unikraft.org/node:19
+        push: true
+
+  run-remote:
+    name: Test Node 19 (Remote OCI)
+    needs: [build, push]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Login to OCI registry
+        uses: docker/login-action@v3
+        with:
+          registry: index.unikraft.io
+          username: ${{ secrets.REG_USERNAME }}
+          password: ${{ secrets.REG_TOKEN }}
+
+      - name: Pull, run, validate and cleanup remote container
+        run: |
+          set -euo pipefail
+
+          echo "Pull and start unikernel"
+          IMAGE=index.unikraft.io/unikraft.org/node:19
+          docker pull "$IMAGE"
+          CONTAINER_ID=$(docker run --rm -d -p 8080:8080 "$IMAGE")
+
+          echo "Wait for port 8080"
+          TIMEOUT=10
+          START_TS=$(date +%s)
+          until nc -z localhost 8080; do
+            if [ $(( $(date +%s) - START_TS )) -ge $TIMEOUT ]; then
+              echo "ERROR: port 8080 did not open within ${TIMEOUT}s" >&2
+              docker logs "$CONTAINER_ID" >&2 || true
+              docker stop "$CONTAINER_ID" || true
+              exit 1
+            fi
+            sleep 1
+          done
+          echo "Port 8080 is now accepting connections"
+
+          echo "Validate HTTP response"
+          EXPECTED="Hello, World!"
+          RESPONSE=$(curl -fs http://localhost:8080/)
+          if [ "$RESPONSE" != "$EXPECTED" ]; then
+            echo "ERROR: expected '$EXPECTED' but got '$RESPONSE'" >&2
+            docker logs "$CONTAINER_ID" >&2 || true
+            docker stop "$CONTAINER_ID" || true
+            exit 1
+          fi
+          echo "Response is correct: '$RESPONSE'"
+
+          echo "Cleanup container"
+          docker stop "$CONTAINER_ID" || true
+      
+  run-local:
+    name: Test Node 19 (Local build)
+    needs: [build]
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install kraft CLI
+        run: |
+          echo "deb [trusted=yes] https://deb.pkg.kraftkit.sh/ /" | sudo tee /etc/apt/sources.list.d/kraftkit.list
+          sudo apt-get update
+          sudo apt-get install -y kraftkit
+
+      - name: Build, run, validate and cleanup unikernel
+        run: |
+          set -euo pipefail
+          sudo chmod 666 /dev/kvm
+          cd library/node/19
+
+          echo "Build Node 19 unikernel"
+          kraft build --no-cache --no-update --plat qemu --arch x86_64
+
+          echo "Run Node 19 unikernel"
+          kraft run --rm -M 512M -p 8080:8080 --plat qemu --arch x86_64 . &
+          PID=$!
+          sleep 5
+
+          echo "Wait for port 8080"
+          TIMEOUT=10
+          START_TS=$(date +%s)
+          until nc -z localhost 8080; do
+            if [ $(( $(date +%s) - START_TS )) -ge $TIMEOUT ]; then
+              echo "ERROR: port 8080 did not open within ${TIMEOUT}s" >&2
+              sudo kill "$PID" || true
+              exit 1
+            fi
+            sleep 1
+          done
+          echo "Port 8080 is now accepting connections"
+
+          echo "Validate HTTP response"
+          EXPECTED="Hello, World!"
+          RESPONSE=$(curl -fs http://localhost:8080/)
+          if [ "$RESPONSE" != "$EXPECTED" ]; then
+            echo "ERROR: expected '$EXPECTED' but got '$RESPONSE'" >&2
+            sudo kill "$PID" || true
+            exit 1
+          fi
+          echo "Response is correct: '$RESPONSE'"
+
+          echo "Cleanup Node 19 unikernel"
+          sudo kill "$PID" || true
