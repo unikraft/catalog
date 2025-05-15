@@ -38,25 +38,14 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout Bun 1.1
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
-
-    - name: Show repo content
-      run: |
-        echo "Repo root contents:"
-        ls -la
-        echo "Expected Kraftfile:"
-        ls -la library/bun/1.1
-        cat library/bun/1.1/Kraftfile || echo "NO Kraftfile"
+    - uses: actions/checkout@v4
 
     - name: Build bun1.1
       uses: unikraft/kraftkit@staging
       with:
         loglevel: debug
         workdir: library/bun/1.1
-        runtimedir: .kraftkit
+        runtimedir: /github/workspace/.kraftkit
         plat: ${{ matrix.plat }}
         arch: ${{ matrix.arch }}
         push: false
@@ -150,10 +139,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup kraftkit
-        uses: unikraft/kraftkit@staging
-        with:
-          loglevel: debug
+      - name: Install kraft CLI
+        run: |
+          curl -fsSL https://get.kraftkit.sh | sh
+          echo "$HOME/.kraftkit/bin" >> $GITHUB_PATH
+          echo "export PATH=\$HOME/.kraftkit/bin:\$PATH" >> $GITHUB_ENV
 
       - name: Build, run, validate and cleanup local unikernel
         run: |
