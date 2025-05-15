@@ -136,7 +136,7 @@ jobs:
           kraft build --no-cache --no-update --plat qemu --arch x86_64
   
           echo "Run Python 3.13 unikernel"
-          kraft run --rm -M 256M -p 8080:8080 --plat qemu --arch x86_64 
+          kraft run --rm -M 256M -p 8080:8080 --plat qemu --arch x86_64 . &
           PID=$!
           sleep 5
 
