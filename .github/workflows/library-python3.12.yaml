@@ -135,12 +135,11 @@ jobs:
           sudo chmod 666 /dev/kvm
           cd library/python/3.12
   
-          echo "Clean and build Python 3.12 unikernel"
-          kraft clean
-          kraft build python@qemu/x86_64 --no-cache --no-update
+          echo "Build Python 3.12 unikernel"
+          kraft build --no-cache --no-update --plat qemu --arch x86_64
   
           echo "Run Python 3.12 unikernel"
-          kraft run python@qemu/x86_64 --rm -M 256M -p 8080:8080 &
+          kraft run --rm -M 256M -p 8080:8080 --plat qemu --arch x86_64 
           PID=$!
           sleep 5
   
