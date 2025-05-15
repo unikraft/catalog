@@ -133,6 +133,7 @@ jobs:
       - name: Build, run, validate and cleanup Python 3.10 unikernel
         run: |
           set -euo pipefail
+          sudo chmod 666 /dev/kvm
           cd library/python/3.10
 
           echo "Build Python 3.10 unikernel"
