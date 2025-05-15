@@ -81,3 +81,105 @@ jobs:
       with:
         name: index.unikraft.io/unikraft.org/redis:7.2
         push: true
+
+  run-remote:
+    name: Test Redis 7.2 (Remote OCI)
+    needs: [build, push]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Login to OCI registry
+        uses: docker/login-action@v3
+        with:
+          registry: index.unikraft.io
+          username: ${{ secrets.REG_USERNAME }}
+          password: ${{ secrets.REG_TOKEN }}
+
+      - name: Pull, run, ping, and cleanup remote unikernel
+        run: |
+          set -euo pipefail
+
+          echo "Pull and start Redis unikernel"
+          IMAGE=index.unikraft.io/unikraft.org/redis:7.2
+          docker pull "$IMAGE"
+          CONTAINER_ID=$(docker run --rm -d -p 6379:6379 "$IMAGE")
+
+          echo "Install redis-cli"
+          sudo apt-get update -y && sudo apt-get install -y redis-tools
+
+          echo "Wait for port 6379"
+          TIMEOUT=10
+          START_TS=$(date +%s)
+          until nc -z localhost 6379; do
+            if [ $(( $(date +%s) - START_TS )) -ge $TIMEOUT ]; then
+              echo "ERROR: Redis port 6379 did not open within ${TIMEOUT}s" >&2
+              docker logs "$CONTAINER_ID" >&2 || true
+              docker stop "$CONTAINER_ID" || true
+              exit 1
+            fi
+            sleep 1
+          done
+
+          echo "Send PING to Redis"
+          if ! redis-cli -h 127.0.0.1 -p 6379 ping | grep -q "PONG"; then
+            echo "ERROR: Redis did not respond to PING" >&2
+            docker logs "$CONTAINER_ID" >&2 || true
+            docker stop "$CONTAINER_ID" || true
+            exit 1
+          fi
+          echo "Redis 7.2 unikernel responded to PING with PONG"
+
+          echo "Cleanup container"
+          docker stop "$CONTAINER_ID" || true
+  
+  run-local:
+    name: Test Redis 7.2 (Local build)
+    needs: [build]
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install kraft CLI and redis-tools
+        run: |
+          echo "deb [trusted=yes] https://deb.pkg.kraftkit.sh/ /" | sudo tee /etc/apt/sources.list.d/kraftkit.list
+          sudo apt-get update
+          sudo apt-get install -y kraftkit redis-tools
+
+      - name: Build, run, ping, and cleanup unikernel
+        run: |
+          set -euo pipefail
+          sudo chmod 666 /dev/kvm
+          cd library/redis/7.2
+
+          echo "Build Redis 7.2 unikernel"
+          kraft build --no-cache --no-update --plat qemu --arch x86_64
+
+          echo "Run Redis 7.2 unikernel"
+          kraft run --rm -M 256M -p 6379:6379 --plat qemu --arch x86_64 . &
+          PID=$!
+          sleep 5
+
+          echo "Wait for port 6379"
+          TIMEOUT=10
+          START_TS=$(date +%s)
+          until nc -z localhost 6379; do
+            if [ $(( $(date +%s) - START_TS )) -ge $TIMEOUT ]; then
+              echo "ERROR: Redis port 6379 did not open within ${TIMEOUT}s" >&2
+              sudo kill "$PID" || true
+              exit 1
+            fi
+            sleep 1
+          done
+          echo "Redis is now accepting connections on port 6379"
+
+          echo "Validate Redis PING"
+          if ! redis-cli -h 127.0.0.1 -p 6379 ping | grep -q "PONG"; then
+            echo "ERROR: Redis did not respond to PING" >&2
+            sudo kill "$PID" || true
+            exit 1
+          fi
+          echo "Redis 7.2 responded correctly to PING"
+
+          echo "Cleanup Redis 7.2 unikernel"
+          sudo kill "$PID" || true
