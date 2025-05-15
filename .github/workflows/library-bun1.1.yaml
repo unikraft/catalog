@@ -53,12 +53,18 @@ jobs:
       uses: unikraft/kraftkit@staging
       with:
         loglevel: debug
-        workdir: library/bun/1.1
+        workdir: /github/workspace/library/bun/1.1
         runtimedir: /github/workspace/.kraftkit
         plat: ${{ matrix.plat }}
         arch: ${{ matrix.arch }}
         push: false
         output: oci://index.unikraft.io/unikraft.org/bun:1.1
+
+    - name: Confirm Kraftfile presence
+      run: |
+        echo "WORKDIR content:"
+        ls -la /github/workspace/library/bun/1.1
+        cat /github/workspace/library/bun/1.1/Kraftfile || echo "MISSING Kraftfile"
 
     - name: Archive OCI digests
       uses: actions/upload-artifact@v4
