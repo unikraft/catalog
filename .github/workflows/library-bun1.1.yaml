@@ -148,11 +148,11 @@ jobs:
       - name: Build, run, validate and cleanup local unikernel
         run: |
           set -euo pipefail
+          sudo chmod 666 /dev/kvm
           cd library/bun/1.1
       
           echo "Build unikernel locally"
           kraft build --no-cache --no-update --plat qemu --arch x86_64
-          sudo chmod 666 /dev/kvm
 
           echo "Run local unikernel"
           kraft run --rm -M 512M -p 3000:3000 --plat qemu --arch x86_64 
