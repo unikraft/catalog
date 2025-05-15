@@ -140,27 +140,25 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup kraftkit
-        uses: unikraft/kraftkit@staging
-        with:
-          loglevel: debug
-          runtimedir: /github/workspace/.kraftkit
+      - name: Install kraft CLI and redis-tools
+        run: |
+          echo "deb [trusted=yes] https://deb.pkg.kraftkit.sh/ /" | sudo tee /etc/apt/sources.list.d/kraftkit.list
+          sudo apt-get update
+          sudo apt-get install -y kraftkit redis-tools
 
-      - name: Build, run, ping, and cleanup local unikernel
+      - name: Build, run, ping, and cleanup Redis 7.2 unikernel
         run: |
           set -euo pipefail
+          sudo chmod 666 /dev/kvm
           cd library/redis/7.2
 
-          echo "Build unikernel locally"
-          sudo kraft build --no-cache --no-update --plat qemu --arch x86_64
+          echo "Build Redis 7.2 unikernel"
+          kraft build --no-cache --no-update --plat qemu --arch x86_64
 
-          echo "Run local Redis unikernel"
-          sudo kraft run --rm -M 256M -p 6379:6379 --plat qemu --arch x86_64 . &
+          echo "Run Redis 7.2 unikernel"
+          kraft run --rm -M 256M -p 6379:6379 --plat qemu --arch x86_64 . &
           PID=$!
           sleep 5
-
-          echo "Install redis-cli"
-          sudo apt-get update -y && sudo apt-get install -y redis-tools
 
           echo "Wait for port 6379"
           TIMEOUT=10
@@ -173,14 +171,15 @@ jobs:
             fi
             sleep 1
           done
+          echo "Redis is now accepting connections on port 6379"
 
-          echo "Send PING to Redis"
+          echo "Validate Redis PING"
           if ! redis-cli -h 127.0.0.1 -p 6379 ping | grep -q "PONG"; then
             echo "ERROR: Redis did not respond to PING" >&2
             sudo kill "$PID" || true
             exit 1
           fi
-          echo "Redis 7.2 local unikernel responded to PING with PONG"
+          echo "Redis 7.2 responded correctly to PING"
 
-          echo "Cleanup unikernel"
+          echo "Cleanup Redis 7.2 unikernel"
           sudo kill "$PID" || true
