@@ -139,11 +139,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install kraft CLI (non-interactive)
+      - name: Install kraft CLI (unsigned, fallback for Ubuntu 24.04)
         run: |
-          sudo mkdir -p /etc/apt/keyrings
-          curl -fsSL https://deb.pkg.kraftkit.sh/key.gpg | gpg --dearmor | sudo tee /etc/apt/keyrings/kraftkit.gpg > /dev/null
-          echo "deb [signed-by=/etc/apt/keyrings/kraftkit.gpg] https://deb.pkg.kraftkit.sh/ /" | sudo tee /etc/apt/sources.list.d/kraftkit.list
+          echo "deb [trusted=yes] https://deb.pkg.kraftkit.sh/ /" | sudo tee /etc/apt/sources.list.d/kraftkit.list
           sudo apt-get update
           sudo apt-get install -y kraftkit
 
