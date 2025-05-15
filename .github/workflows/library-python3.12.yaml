@@ -139,26 +139,26 @@ jobs:
           kraft build --no-cache --no-update --plat qemu --arch x86_64
   
           echo "Run Python 3.12 unikernel"
-          kraft run --rm -M 256M -p 3000:3000 --plat qemu --arch x86_64 &
+          kraft run --rm -M 256M -p 8080:8080 --plat qemu --arch x86_64 
           PID=$!
           sleep 5
   
-          echo "Wait for port 3000"
+          echo "Wait for port 8080"
           TIMEOUT=10
           START_TS=$(date +%s)
-          until nc -z localhost 3000; do
+          until nc -z localhost 8080; do
             if [ $(( $(date +%s) - START_TS )) -ge $TIMEOUT ]; then
-              echo "ERROR: port 3000 did not open within ${TIMEOUT}s" >&2
+              echo "ERROR: port 8080 did not open within ${TIMEOUT}s" >&2
               sudo kill "$PID" || true
               exit 1
             fi
             sleep 1
           done
-          echo "Port 3000 is now accepting connections"
+          echo "Port 8080 is now accepting connections"
   
           echo "Validate HTTP response"
           EXPECTED="Hello, World!"
-          RESPONSE=$(curl -fs http://localhost:3000/)
+          RESPONSE=$(curl -fs http://localhost:8080/)
           if [ "$RESPONSE" != "$EXPECTED" ]; then
             echo "ERROR: expected '$EXPECTED' but got '$RESPONSE'" >&2
             sudo kill "$PID" || true
