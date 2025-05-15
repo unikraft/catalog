@@ -130,7 +130,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y kraftkit
 
-      - name: Build, run and validate Python 3.10 unikernel
+      - name: Build, run and validate unikernel
         run: |
           set -euo pipefail
           sudo chmod 666 /dev/kvm
@@ -144,5 +144,7 @@ jobs:
           PID=$!
           sleep 5
 
-
           echo "Python 3.10 unikernel started successfully locally"
+
+          echo "Cleanup Python 3.10 unikernel"
+          sudo kill "$PID" || true

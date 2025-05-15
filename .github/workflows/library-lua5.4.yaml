@@ -129,7 +129,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y kraftkit
 
-      - name: Build, run, validate and cleanup Lua 5.4 unikernel
+      - name: Build, run, validate and cleanup unikernel
         run: |
           set -euo pipefail
           sudo chmod 666 /dev/kvm
@@ -144,3 +144,6 @@ jobs:
           sleep 5
 
           echo "Lua 5.4 unikernel started successfully locally"
+
+          echo "Cleanup Lua 5.4 unikernel"
+          sudo kill "$PID" || true

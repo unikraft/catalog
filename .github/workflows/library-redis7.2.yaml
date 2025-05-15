@@ -146,7 +146,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y kraftkit redis-tools
 
-      - name: Build, run, ping, and cleanup Redis 7.2 unikernel
+      - name: Build, run, ping, and cleanup unikernel
         run: |
           set -euo pipefail
           sudo chmod 666 /dev/kvm
