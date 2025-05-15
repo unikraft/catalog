@@ -151,10 +151,10 @@ jobs:
           cd library/bun/1.1
 
           echo "Build unikernel locally"
-          sudo kraft build --no-cache --no-update --plat qemu --arch x86_64
+          kraft build --no-cache --no-update --plat qemu --arch x86_64
 
           echo "Run local unikernel"
-          sudo kraft run --rm -M 512M -p 3000:3000 --plat qemu --arch x86_64 . &
+          kraft run --rm -M 512M -p 3000:3000 --plat qemu --arch x86_64 . &
           PID=$!
           sleep 5
 
