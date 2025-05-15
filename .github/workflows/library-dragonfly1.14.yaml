@@ -66,11 +66,12 @@ jobs:
     - name: Run Dragonfly with QEMU and test with redis-cli
       uses: unikraft/kraftkit@staging
       working-directory: library/dragonfly/1.14
-      run: |
-        set -xe
-        kraft run --rm -p 6379:6379 --plat qemu --arch x86_64 -M 256M unikraft.org/dragonfly:1.14 &
-        sleep 10
-        redis-cli -h 127.0.0.1 -p 6379 ping | grep PONG || (echo "Dragonfly did not respond correctly." && exit 1)
+      with:
+        run: |
+          set -xe
+          kraft run --rm -p 6379:6379 --plat qemu --arch x86_64 -M 256M unikraft.org/dragonfly:1.14 &
+          sleep 10
+          redis-cli -h 127.0.0.1 -p 6379 ping | grep PONG || (echo "Dragonfly did not respond correctly." && exit 1)
 
   push:
     if: ${{ github.event_name == 'push' || github.event_name == 'schedule' }}
