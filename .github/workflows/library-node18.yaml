@@ -136,7 +136,7 @@ jobs:
 
   run-local:
     name: Test Node 18 (Local build)
-    needs: [build, push]
+    needs: [build]
     runs-on: ubuntu-latest
 
     steps:
