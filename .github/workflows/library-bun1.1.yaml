@@ -42,22 +42,18 @@ jobs:
       with:
         fetch-depth: 0
 
-    - name: Debug file presence before build
+    - name: Debug Kraftfile presence
       run: |
-        echo "Workspace: $GITHUB_WORKSPACE"
-        echo "List contents of workdir:"
-  
-        ls -la "${GITHUB_WORKSPACE}/library/bun/1.1"
-        echo "Find Kraftfile in repo:"
-
-        find "${GITHUB_WORKSPACE}" -name 'Kraftfile'
-        cat "${GITHUB_WORKSPACE}/library/bun/1.1/Kraftfile" || echo "Kraftfile missing"
+        echo "Checking for Kraftfile in workspace"
+        find . -type f | grep -i kraftfile || echo "Kraftfile not found"
+        ls -la library/bun/1.1 || echo "Directory missing"
+        cat library/bun/1.1/Kraftfile || echo "Kraftfile content missing"
 
     - name: Build bun1.1
       uses: unikraft/kraftkit@staging
       with:
         loglevel: debug
-        workdir: ${{ github.workspace }}/library/bun/1.1
+        workdir: library/bun/1.1
         runtimedir: /github/workspace/.kraftkit
         plat: ${{ matrix.plat }}
         arch: ${{ matrix.arch }}
