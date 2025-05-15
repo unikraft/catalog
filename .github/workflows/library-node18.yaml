@@ -83,3 +83,107 @@ jobs:
       with:
         name: index.unikraft.io/unikraft.org/node:18
         push: true
+
+  run-remote:
+    name: Test Node 18 (Remote OCI)
+    needs: [build, push]
+    runs-on: ubuntu-latest
+  
+    steps:
+      - name: Login to OCI registry
+        uses: docker/login-action@v3
+        with:
+          registry: index.unikraft.io
+          username: ${{ secrets.REG_USERNAME }}
+          password: ${{ secrets.REG_TOKEN }}
+
+      - name: Pull, run, validate and cleanup remote container
+        run: |
+          set -euo pipefail
+
+          echo "Pull and start unikernel"
+          IMAGE=index.unikraft.io/unikraft.org/node:18
+          docker pull "$IMAGE"
+          CONTAINER_ID=$(docker run --rm -d -p 8080:8080 "$IMAGE")
+
+          echo "Wait for port 8080"
+          TIMEOUT=10
+          START_TS=$(date +%s)
+          until nc -z localhost 8080; do
+            if [ $(( $(date +%s) - START_TS )) -ge $TIMEOUT ]; then
+              echo "ERROR: port 8080 did not open within ${TIMEOUT}s" >&2
+              docker logs "$CONTAINER_ID" >&2 || true
+              docker stop "$CONTAINER_ID" || true
+              exit 1
+            fi
+            sleep 1
+          done
+          echo "Port 8080 is now accepting connections"
+
+          echo "Validate HTTP response"
+          EXPECTED="Hello, World!"
+          RESPONSE=$(curl -fs http://localhost:8080/)
+          if [ "$RESPONSE" != "$EXPECTED" ]; then
+            echo "ERROR: expected '$EXPECTED' but got '$RESPONSE'" >&2
+            docker logs "$CONTAINER_ID" >&2 || true
+            docker stop "$CONTAINER_ID" || true
+            exit 1
+          fi
+          echo "Response is correct: '$RESPONSE'"
+
+          echo "Cleanup container"
+          docker stop "$CONTAINER_ID" || true
+
+  run-local:
+    name: Test Node 18 (Local build)
+    needs: [build]
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install kraft CLI
+        run: |
+          echo "deb [trusted=yes] https://deb.pkg.kraftkit.sh/ /" | sudo tee /etc/apt/sources.list.d/kraftkit.list
+          sudo apt-get update
+          sudo apt-get install -y kraftkit
+
+      - name: Build, run, validate and cleanup unikernel
+        run: |
+          set -euo pipefail
+          sudo chmod 666 /dev/kvm
+          cd library/node/18
+
+          echo "Build Node 18 unikernel"
+          kraft build --no-cache --no-update --plat qemu --arch x86_64
+
+          echo "Run Node 18 unikernel"
+          kraft run --rm -M 512M -p 8080:8080 --plat qemu --arch x86_64 . &
+          PID=$!
+          sleep 5
+
+          echo "Wait for port 8080"
+          TIMEOUT=10
+          START_TS=$(date +%s)
+          until nc -z localhost 8080; do
+            if [ $(( $(date +%s) - START_TS )) -ge $TIMEOUT ]; then
+              echo "ERROR: port 8080 did not open within ${TIMEOUT}s" >&2
+              sudo kill "$PID" || true
+              exit 1
+            fi
+            sleep 1
+          done
+          echo "Port 8080 is now accepting connections"
+
+          echo "Validate HTTP response"
+          EXPECTED="Hello, World!"
+          RESPONSE=$(curl -fs http://localhost:8080/)
+          if [ "$RESPONSE" != "$EXPECTED" ]; then
+            echo "ERROR: expected '$EXPECTED' but got '$RESPONSE'" >&2
+            sudo kill "$PID" || true
+            exit 1
+          fi
+          echo "Response is correct: '$RESPONSE'"
+
+          echo "Cleanup Node 18 unikernel"
+          sudo kill "$PID" || true

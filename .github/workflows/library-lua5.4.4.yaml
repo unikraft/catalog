@@ -83,3 +83,110 @@ jobs:
       with:
         name: index.unikraft.io/unikraft.org/lua:5.4.4
         push: true
+
+  run-remote:
+    name: Test Lua 5.4.4 (Remote OCI)
+    needs: [build, push]
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Login to OCI registry
+        uses: docker/login-action@v3
+        with:
+          registry: index.unikraft.io
+          username: ${{ secrets.REG_USERNAME }}
+          password: ${{ secrets.REG_TOKEN }}
+
+      - name: Pull, run, validate and cleanup remote unikernel
+        run: |
+          set -euo pipefail
+
+          echo "Setup bridge network"
+          sudo kraft net create -n 172.44.0.1/24 virbr0 || true
+
+          echo "Pull and run unikernel"
+          IMAGE=index.unikraft.io/unikraft.org/lua:5.4.4
+          kraft pkg pull "$IMAGE"
+          sudo kraft run --rm -M 512M --network bridge:virbr0 "$IMAGE" &
+          PID=$!
+          sleep 5
+
+          echo "Wait for port 8080"
+          TIMEOUT=10
+          START_TS=$(date +%s)
+          until nc -z 172.44.0.2 8080; do
+            if [ $(( $(date +%s) - START_TS )) -ge $TIMEOUT ]; then
+              echo "ERROR: port 8080 on 172.44.0.2 did not open within ${TIMEOUT}s" >&2
+              sudo kill "$PID" || true
+              exit 1
+            fi
+            sleep 1
+          done
+          echo "Port 8080 is now accepting connections on 172.44.0.2"
+
+          echo "Validate HTTP response"
+          EXPECTED="Hello, World!"
+          RESPONSE=$(curl -fs http://172.44.0.2:8080/)
+          if [ "$RESPONSE" != "$EXPECTED" ]; then
+            echo "ERROR: expected '$EXPECTED' but got '$RESPONSE'" >&2
+            sudo kill "$PID" || true
+            exit 1
+          fi
+          echo "Response is correct: '$RESPONSE'"
+
+          echo "Cleanup unikernel"
+          sudo kill "$PID" || true
+
+  run-local:
+    name: Test Lua 5.4.4 (Local build)
+    needs: [build]
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install kraft CLI
+        run: |
+          echo "deb [trusted=yes] https://deb.pkg.kraftkit.sh/ /" | sudo tee /etc/apt/sources.list.d/kraftkit.list
+          sudo apt-get update
+          sudo apt-get install -y kraftkit
+
+      - name: Build, run, validate and cleanup unikernel
+        run: |
+          set -euo pipefail
+          sudo chmod 666 /dev/kvm
+          cd library/lua/5.4.4
+
+          echo "Build Lua 5.4.4 unikernel"
+          kraft build --no-cache --no-update --plat qemu --arch x86_64
+
+          echo "Run Lua 5.4.4 unikernel"
+          kraft run --rm -M 512M -p 8080:8080 --plat qemu --arch x86_64 . &
+          PID=$!
+          sleep 5
+
+          echo "Wait for port 8080"
+          TIMEOUT=10
+          START_TS=$(date +%s)
+          until nc -z localhost 8080; do
+            if [ $(( $(date +%s) - START_TS )) -ge $TIMEOUT ]; then
+              echo "ERROR: port 8080 did not open within ${TIMEOUT}s" >&2
+              sudo kill "$PID" || true
+              exit 1
+            fi
+            sleep 1
+          done
+          echo "Port 8080 is now accepting connections"
+
+          echo "Validate HTTP response"
+          EXPECTED="Hello, World!"
+          RESPONSE=$(curl -fs http://localhost:8080/)
+          if [ "$RESPONSE" != "$EXPECTED" ]; then
+            echo "ERROR: expected '$EXPECTED' but got '$RESPONSE'" >&2
+            sudo kill "$PID" || true
+            exit 1
+          fi
+          echo "Response is correct: '$RESPONSE'"
+
+          echo "Cleanup Lua 5.4.4 unikernel"
+          sudo kill "$PID" || true
