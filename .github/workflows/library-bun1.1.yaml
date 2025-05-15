@@ -168,7 +168,7 @@ jobs:
         uses: unikraft/kraftkit@staging
         with:
           loglevel: debug
-          runtimedir: /github/workspace/.kraftkit
+          runtimedir: .kraftkit
 
       - name: Verify and build locally
         run: |
