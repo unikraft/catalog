@@ -87,10 +87,6 @@ jobs:
     steps:
       - name: Login to OCI registry
         uses: docker/login-action@v3
-        with:
-          registry: index.unikraft.io
-          username: ${{ secrets.REG_USERNAME }}
-          password: ${{ secrets.REG_TOKEN }}
 
       - name: Pull, run, validate and cleanup remote container
         run: |
@@ -154,7 +150,7 @@ jobs:
           kraft build --no-cache --no-update --plat qemu --arch x86_64
 
           echo "Run local unikernel"
-          kraft run --rm -M 512M -p 3000:3000 --plat qemu --arch x86_64 . &
+          kraft run --rm -M 512M -p 3000:3000 --plat qemu --arch x86_64 --no-kvm . &
           PID=$!
           sleep 5
 
