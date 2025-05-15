@@ -39,6 +39,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
 
     - name: Build bun1.1
       uses: unikraft/kraftkit@staging
@@ -66,7 +68,19 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
+    - name: Check OCI credentials
+      id: check_creds
+      run: |
+        if [ -z "${{ secrets.REG_USERNAME }}" ] || [ -z "${{ secrets.REG_TOKEN }}" ]; then
+          echo "OCI credentials not set. Skipping push."
+          echo "skip=true" >> $GITHUB_OUTPUT
+        else
+          echo "OCI credentials found."
+          echo "skip=false" >> $GITHUB_OUTPUT
+        fi
+
     - name: Login to OCI registry
+      if: steps.check_creds.outputs.skip == 'false'
       uses: docker/login-action@v3
       with:
         registry: index.unikraft.io
@@ -74,6 +88,7 @@ jobs:
         password: ${{ secrets.REG_TOKEN }}
 
     - name: Retrieve, merge and push OCI digests
+      if: steps.check_creds.outputs.skip == 'false'
       uses: ./.github/actions/merge-oci-digests
       with:
         name: index.unikraft.io/unikraft.org/bun:1.1
@@ -82,6 +97,7 @@ jobs:
   run-remote:
     name: Test Bun 1.1 (Remote OCI)
     needs: [build, push]
+    if: ${{ always() && !cancelled() && needs.push.result == 'success' }}
     runs-on: ubuntu-latest
 
     steps:
@@ -138,6 +154,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup kraftkit
         uses: unikraft/kraftkit@staging
@@ -145,9 +163,15 @@ jobs:
           loglevel: debug
           runtimedir: /github/workspace/.kraftkit
 
-      - name: Build, run, validate and cleanup local unikernel
+      - name: Verify and build locally
         run: |
           set -euo pipefail
+          echo "Verifying contents of library/bun/1.1"
+          ls -la library/bun/1.1
+          file library/bun/1.1/Kraftfile || echo "Kraftfile NOT FOUND"
+          echo "---"
+          head -n 10 library/bun/1.1/Kraftfile || true
+
           cd library/bun/1.1
 
           echo "Build unikernel locally"
