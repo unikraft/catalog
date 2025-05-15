@@ -136,10 +136,11 @@ jobs:
           cd library/python/3.12
   
           echo "Build Python 3.12 unikernel"
-          kraft build --no-cache --no-update --plat qemu --arch x86_64
+          kraft clean
+          kraft build --no-cache --no-update --plat qemu --arch x86_64 --target python@qemu/x86_64
   
           echo "Run Python 3.12 unikernel"
-          kraft run --rm -M 256M -p 8080:8080 --plat qemu --arch x86_64 . &
+          kraft run --rm -M 256M -p 8080:8080 --plat qemu --arch x86_64 --target python@qemu/x86_64 . &
           PID=$!
           sleep 5
   

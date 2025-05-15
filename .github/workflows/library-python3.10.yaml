@@ -137,10 +137,10 @@ jobs:
 
           echo "Build Python 3.10 unikernel"
           kraft clean
-          sudo kraft build --no-cache --no-update --plat qemu --arch x86_64
+          kraft build --no-cache --no-update --plat qemu --arch x86_64 --target python@qemu/x86_64
 
           echo "Run local unikernel"
-          sudo kraft run --rm -M 256M --plat qemu --arch x86_64 . &
+          kraft run --rm -M 256M -p 8080:8080 --plat qemu --arch x86_64 --target python@qemu/x86_64 . &
           PID=$!
           sleep 5
 
