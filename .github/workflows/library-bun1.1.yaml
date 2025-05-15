@@ -153,8 +153,8 @@ jobs:
           echo "Build unikernel locally"
           kraft build --no-cache --no-update --plat qemu --arch x86_64
       
-          echo "Run local unikernel in QEMU (TCG mode)"
-          KRAFTKIT_QEMU_ARGS="-machine accel=tcg" kraft run --rm -M 512M -p 3000:3000 --plat qemu --arch x86_64 . &
+          echo "Run local unikernel without KVM (qemu-tcg)"
+          kraft run --rm -M 512M -p 3000:3000 --plat qemu-tcg --arch x86_64 . &
           PID=$!
           sleep 5
       
