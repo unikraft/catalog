@@ -139,11 +139,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install kraft CLI
+      - name: Install kraft CLI (non-interactive)
         run: |
-          curl -fsSL https://get.kraftkit.sh | sh
-          echo "$HOME/.kraftkit/bin" >> $GITHUB_PATH
-          echo "export PATH=\$HOME/.kraftkit/bin:\$PATH" >> $GITHUB_ENV
+          sudo mkdir -p /etc/apt/keyrings
+          curl -fsSL https://deb.pkg.kraftkit.sh/key.gpg | gpg --dearmor | sudo tee /etc/apt/keyrings/kraftkit.gpg > /dev/null
+          echo "deb [signed-by=/etc/apt/keyrings/kraftkit.gpg] https://deb.pkg.kraftkit.sh/ /" | sudo tee /etc/apt/sources.list.d/kraftkit.list
+          sudo apt-get update
+          sudo apt-get install -y kraftkit
 
       - name: Build, run, validate and cleanup local unikernel
         run: |
