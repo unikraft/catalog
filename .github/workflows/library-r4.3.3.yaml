@@ -130,7 +130,7 @@ jobs:
         run: |
           set -euo pipefail
           sudo chmod 666 /dev/kvm
-          cd library/r:4.3.3
+          cd library/r/4.3.3
           echo "Build r:4.3.3 unikernel"
           kraft build --no-cache --no-update --plat qemu --arch x86_64
   
