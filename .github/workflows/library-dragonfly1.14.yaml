@@ -76,6 +76,7 @@ jobs:
         with:
           working-directory: library/dragonfly/1.14
           run: |
+            sudo apt-get update -y && sudo apt-get install -y redis-tools
             set -xe
             kraft run --rm -p 6379:6379 --plat qemu --arch x86_64 -M 256M --no-pull index.unikraft.io/unikraft.org/dragonfly:1.14 &
             sleep 10
