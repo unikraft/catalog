@@ -81,3 +81,65 @@ jobs:
       with:
         name: index.unikraft.io/unikraft.org/r:4.3.3
         push: true
+
+  run-remote:
+    name: Test r:4.3.3 (Remote OCI)
+    needs: [build, push]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Login to OCI registry
+        uses: docker/login-action@v3
+        with:
+          registry: index.unikraft.io
+          username: ${{ secrets.REG_USERNAME }}
+          password: ${{ secrets.REG_TOKEN }}
+
+      - name: Pull, run, validate and cleanup unikernel
+        run: |
+          set -euo pipefail
+          echo "Pull and start r:4.3.3 unikernel"
+          IMAGE=index.unikraft.io/unikraft.org/r:4.3.3
+          docker pull "$IMAGE"
+          CONTAINER_ID=$(docker run --rm -d "$IMAGE")
+          echo "Wait and validate container startup"
+          sleep 5
+          if ! docker ps --filter "id=$CONTAINER_ID" --format '{{.ID}}' | grep -q .; then
+            echo "ERROR: r:4.3.3 unikernel is not running" >&2
+            docker logs "$CONTAINER_ID" >&2 || true
+            docker stop "$CONTAINER_ID" || true
+            exit 1
+          fi
+          echo "r:4.3.3 unikernel started successfully"
+          echo "Cleanup container"
+          docker stop "$CONTAINER_ID" || true
+      
+  run-local:
+    name: Test r:4.3.3 (Local build)
+    needs: [build]
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install kraft CLI
+        run: |
+          echo "deb [trusted=yes] https://deb.pkg.kraftkit.sh/ /" | sudo tee /etc/apt/sources.list.d/kraftkit.list
+          sudo apt-get update
+          sudo apt-get install -y kraftkit
+      - name: Build, run and validate unikernel
+        run: |
+          set -euo pipefail
+          sudo chmod 666 /dev/kvm
+          cd library/r:4.3.3
+          echo "Build r:4.3.3 unikernel"
+          kraft build --no-cache --no-update --plat qemu --arch x86_64
+  
+          echo "Run r:4.3.3 unikernel"
+          kraft run --rm -M 256M --plat qemu --arch x86_64 . &
+          PID=$!
+          sleep 5
+
+          echo "r:4.3.3 unikernel started successfully locally"
+
+          echo "Cleanup r:4.3.3 unikernel"
+          sudo kill "$PID" || true
