@@ -5,7 +5,7 @@ on:
   - cron: '0 0 * * *' # Everyday at 12AM
 
   push:
-    branches: [main]
+    branches: ['**']
     paths:
     - 'library/dragonfly/1.14/**'
     - '.github/workflows/library-dragonfly1.14.yaml'
@@ -78,7 +78,7 @@ jobs:
       with:
         name: index.unikraft.io/unikraft.org/dragonfly:1.14
         push: true
-      
+
   run:
     name: Test dragonfly:1.14 (Local build)
     needs: [build]
@@ -99,7 +99,7 @@ jobs:
           cd library/dragonfly/1.14
           echo "Build dragonfly:1.14 unikernel"
           kraft build --no-cache --no-update --plat qemu --arch x86_64
-  
+
           echo "Run dragonfly:1.14 unikernel"
           kraft run --rm -M 256M --plat qemu --arch x86_64 . &
           PID=$!
