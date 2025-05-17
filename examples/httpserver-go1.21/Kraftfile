@@ -1,0 +1,9 @@
+spec: v0.6
+
+name: httpserver-go1.21
+
+runtime: base:latest
+
+rootfs: ./Dockerfile
+
+cmd: ["/server"]

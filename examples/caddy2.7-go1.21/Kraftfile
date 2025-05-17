@@ -1,0 +1,7 @@
+spec: v0.6
+
+name: caddy2.7-go1.21
+
+runtime: caddy:2.7
+
+rootfs: ./rootfs

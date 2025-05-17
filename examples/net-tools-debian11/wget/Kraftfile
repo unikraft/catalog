@@ -1,0 +1,9 @@
+spec: v0.6
+
+name: wget
+
+runtime: base:latest
+
+rootfs: ./Dockerfile
+
+cmd: ["/usr/bin/wget", "https://google.com"]

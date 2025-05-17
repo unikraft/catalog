@@ -1,0 +1,9 @@
+spec: v0.6
+
+name: httpserver-boost1.74-g++13.2
+
+runtime: base:latest
+
+rootfs: ./Dockerfile
+
+cmd: ["/http_server"]

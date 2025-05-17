@@ -1,0 +1,9 @@
+spec: v0.6
+
+name: dig
+
+runtime: base:latest
+
+rootfs: ./Dockerfile
+
+cmd: ["/usr/bin/dig", "google.com"]

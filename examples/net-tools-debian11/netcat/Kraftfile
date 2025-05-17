@@ -1,0 +1,9 @@
+spec: v0.6
+
+name: netcat
+
+runtime: base:latest
+
+rootfs: ./Dockerfile
+
+cmd: ["/usr/bin/nc","google.com","80"]

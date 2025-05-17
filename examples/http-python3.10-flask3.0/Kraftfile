@@ -1,7 +1,0 @@
-spec: v0.6
-
-runtime: python:3.10
-
-rootfs: ./Dockerfile
-
-cmd: ["/app/server.py"]

@@ -1,0 +1,9 @@
+spec: v0.6
+
+name: curl
+
+runtime: base:latest
+
+rootfs: ./Dockerfile
+
+cmd: ["/usr/local/bin/curl", "https://google.com"]

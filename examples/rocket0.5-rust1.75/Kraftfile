@@ -1,0 +1,9 @@
+spec: v0.6
+
+name: rocket0.5-rust1.75
+
+runtime: base:latest
+
+rootfs: ./Dockerfile
+
+cmd: ["/server"]

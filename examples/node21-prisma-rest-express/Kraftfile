@@ -1,9 +1,0 @@
-spec: v0.6
-
-name: node21-prisma
-
-runtime: node:21
-
-rootfs: ./Dockerfile
-
-cmd: ["/usr/bin/node", "/usr/src/server.js"]

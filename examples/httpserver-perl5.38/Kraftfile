@@ -1,0 +1,9 @@
+spec: v0.6
+
+name: httpserver-perl5.38
+
+runtime: perl:5.38
+
+rootfs: ./Dockerfile
+
+cmd: ["/usr/bin/perl", "/usr/src/server.pl"]

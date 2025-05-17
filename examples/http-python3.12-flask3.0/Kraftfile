@@ -1,9 +1,0 @@
-spec: v0.6
-
-name: python-flask
-
-runtime: unikraft.org/python:3.12
-
-rootfs: ./Dockerfile
-
-cmd: ["/usr/bin/python3", "/app/server.py"]
