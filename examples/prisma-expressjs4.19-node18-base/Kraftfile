@@ -1,0 +1,9 @@
+spec: v0.6
+
+name: prisma-expressjs4.19-node18-base
+
+runtime: base:latest
+
+rootfs: ./Dockerfile
+
+cmd: ["/usr/bin/node", "/usr/src/server.js"]
