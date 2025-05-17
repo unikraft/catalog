@@ -1,0 +1,9 @@
+spec: v0.6
+
+name: tokio1-rust1.75
+
+runtime: base:latest
+
+rootfs: ./Dockerfile
+
+cmd: ["/server"]

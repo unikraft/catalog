@@ -1,5 +1,0 @@
-spec: v0.6
-
-runtime: caddy:2.7
-
-rootfs: ./rootfs

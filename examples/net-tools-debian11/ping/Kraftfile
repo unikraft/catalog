@@ -1,0 +1,9 @@
+spec: v0.6
+
+name: ping
+
+runtime: base:latest
+
+rootfs: ./Dockerfile
+
+cmd: ["/usr/bin/ping", "google.com"]

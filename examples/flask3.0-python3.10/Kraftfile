@@ -1,0 +1,9 @@
+spec: v0.6
+
+name: flask3.0-python3.10
+
+runtime: python:3.10
+
+rootfs: ./Dockerfile
+
+cmd: ["/app/server.py"]

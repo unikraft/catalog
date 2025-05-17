@@ -1,0 +1,9 @@
+spec: v0.6
+
+name: host
+
+runtime: base:latest
+
+rootfs: ./Dockerfile
+
+cmd: ["/usr/bin/host", "google.com"]
