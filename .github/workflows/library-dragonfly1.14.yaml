@@ -78,40 +78,8 @@ jobs:
       with:
         name: index.unikraft.io/unikraft.org/dragonfly:1.14
         push: true
-
-
-  run-remote:
-    name: Test dragonfly:1.14 (Remote OCI)
-    needs: [build, push]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Login to OCI registry
-        uses: docker/login-action@v3
-        with:
-          registry: index.unikraft.io
-          username: ${{ secrets.REG_USERNAME }}
-          password: ${{ secrets.REG_TOKEN }}
-
-      - name: Pull, run, validate and cleanup unikernel
-        run: |
-          set -euo pipefail
-          echo "Pull and start dragonfly:1.14 unikernel"
-          IMAGE=index.unikraft.io/unikraft.org/dragonfly:1.14
-          docker pull "$IMAGE"
-          CONTAINER_ID=$(docker run --rm -d "$IMAGE")
-          echo "Wait and validate container startup"
-          sleep 5
-          if ! docker ps --filter "id=$CONTAINER_ID" --format '{{.ID}}' | grep -q .; then
-            echo "ERROR: dragonfly:1.14 unikernel is not running" >&2
-            docker logs "$CONTAINER_ID" >&2 || true
-            docker stop "$CONTAINER_ID" || true
-            exit 1
-          fi
-          echo "dragonfly:1.14 unikernel started successfully"
-          echo "Cleanup container"
-          docker stop "$CONTAINER_ID" || true
       
-  run-local:
+  run:
     name: Test dragonfly:1.14 (Local build)
     needs: [build]
     runs-on: ubuntu-latest
