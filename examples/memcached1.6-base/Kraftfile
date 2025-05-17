@@ -1,0 +1,9 @@
+spec: v0.6
+
+name: memcached1.6-base
+
+runtime: base:latest
+
+rootfs: ./Dockerfile
+
+cmd: ["/usr/bin/memcached", "-u", "root"]
