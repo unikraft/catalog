@@ -1,4 +1,4 @@
-name: library/node:18
+name: library/node:19
 
 on:
   repository_dispatch:
@@ -12,17 +12,17 @@ on:
   push:
     branches: [main]
     paths:
-      - 'library/node/18/**'
-      - '.github/workflows/library-node18.yaml'
-      - '!library/node/18/README.md'
+      - 'library/node/19/**'
+      - '.github/workflows/library-node19.yaml'
+      - '!library/node/19/README.md'
 
   pull_request:
     types: [opened, synchronize, reopened]
     branches: [main]
     paths:
-      - 'library/node/18/**'
-      - '.github/workflows/library-node18.yaml'
-      - '!library/node/18/README.md'
+      - 'library/node/19/**'
+      - '.github/workflows/library-node19.yaml'
+      - '!library/node/19/README.md'
 
 # Automatically cancel in-progress actions on the same branch
 concurrency:
@@ -45,16 +45,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Build node18 for ${{ matrix.plat }}/${{ matrix.arch }}
+      - name: Build node19 for ${{ matrix.plat }}/${{ matrix.arch }}
         uses: unikraft/kraftkit@staging
         with:
           loglevel: debug
-          workdir: library/node/18
+          workdir: library/node/19
           runtimedir: /github/workspace/.kraftkit
           plat: ${{ matrix.plat }}
           arch: ${{ matrix.arch }}
           push: false
-          output: oci://index.unikraft.io/unikraft.org/node:18
+          output: oci://index.unikraft.io/unikraft.org/node:19
 
       - name: Archive OCI digests
         uses: actions/upload-artifact@v4
@@ -86,11 +86,11 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y kraftkit
 
-      - name: Build & Run node18 unikernel on ${{ matrix.plat }}/${{ matrix.arch }}
+      - name: Build & Run node19 unikernel on ${{ matrix.plat }}/${{ matrix.arch }}
         run: |
           set -euo pipefail
           sudo chmod 666 /dev/kvm
-          cd library/node/18
+          cd library/node/19
 
           echo "Re-building unikernel for ${{ matrix.plat }}/${{ matrix.arch }}"
           kraft build --no-cache --no-update \
@@ -116,7 +116,7 @@ jobs:
           echo "Port 8080 is now accepting connections"
 
           echo "Validating HTTP response"
-          EXPECTED="Hello, world!"
+          EXPECTED="Hello, World!"
           RESPONSE=$(curl -fs http://localhost:8080/)
           if [ "$RESPONSE" != "$EXPECTED" ]; then
             echo "ERROR: expected '$EXPECTED' but got '$RESPONSE'" >&2
@@ -146,5 +146,5 @@ jobs:
       - name: Retrieve, merge and push OCI digests
         uses: ./.github/actions/merge-oci-digests
         with:
-          name: index.unikraft.io/unikraft.org/node:18
+          name: index.unikraft.io/unikraft.org/node:19
           push: true
