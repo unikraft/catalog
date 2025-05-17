@@ -1,0 +1,9 @@
+spec: v0.6
+
+name: httpserver-php8.2-base
+
+runtime: base:latest
+
+rootfs: ./Dockerfile
+
+cmd: ["/usr/bin/php /usr/src/server.php"]

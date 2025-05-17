@@ -1,0 +1,9 @@
+spec: v0.6
+
+name: hugo0.147-base
+
+runtime: base:latest
+
+rootfs: ./Dockerfile
+
+cmd: ["/usr/bin/hugo", "server", "--bind=0.0.0.0", "--source", "/site"]

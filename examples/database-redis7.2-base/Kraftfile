@@ -1,0 +1,9 @@
+spec: v0.6
+
+name: database-redis7.2-base
+
+runtime: base:latest
+
+rootfs: ./Dockerfile
+
+cmd: ["/usr/bin/redis-server", "/etc/redis/redis.conf"]

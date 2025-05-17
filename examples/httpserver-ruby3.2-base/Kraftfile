@@ -1,0 +1,9 @@
+spec: v0.6
+
+name: httpserver-ruby3.2-base
+
+runtime: base:latest
+
+rootfs: ./Dockerfile
+
+cmd: ["/usr/bin/ruby", "/src/server.rb"]
