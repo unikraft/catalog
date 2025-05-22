@@ -6,3 +6,5 @@ publish = false
 
 [dependencies]
 actix-web = "4"
+zerofrom = "=0.1.5"
+litemap = "=0.7.4"
