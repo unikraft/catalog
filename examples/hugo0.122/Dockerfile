@@ -5,5 +5,4 @@ RUN set -xe; \
 
 FROM scratch
 
-COPY site /site
-
+COPY ./site /site
