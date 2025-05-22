@@ -18,9 +18,12 @@ RUN set -xe; \
     cd findtime; \
     git checkout f1c97c2; \
     ln -sf ../usr/share/zoneinfo/Etc/UTC /target/etc/localtime; \
-    echo "Etc/UTC" > /target/etc/timezone;
+    echo "Etc/UTC" > /target/etc/timezone; 
 
 WORKDIR /src/findtime
+
+COPY ./Cargo.toml ./Cargo.toml
+COPY ./Cargo.lock ./Cargo.lock
 
 RUN set -xe; \
     rustup target add x86_64-unknown-linux-musl; \
