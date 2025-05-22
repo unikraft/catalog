@@ -16,8 +16,8 @@ WORKDIR /site
 
 RUN set -xe; \
     hugo new site .; \
-    git clone --depth 1 https://github.com/budparr/gohugo-theme-ananke.git themes/ananke; \
-    echo 'theme = "ananke"' >> hugo.toml \
+    git clone --depth 1 https://github.com/spf13/hyde themes/hyde; \
+    echo 'theme = "hyde"' >> hugo.toml \
     ;
 
 FROM alpine:3 AS sys
