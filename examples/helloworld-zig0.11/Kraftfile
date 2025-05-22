@@ -6,4 +6,4 @@ runtime: unikraft.org/base:latest
 
 rootfs: ./Dockerfile
 
-args: ["/helloworld"]
+cmd: ["/helloworld"]
