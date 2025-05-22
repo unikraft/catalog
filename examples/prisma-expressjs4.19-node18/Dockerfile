@@ -1,4 +1,4 @@
-FROM node:18-alpine AS deps
+FROM node:18-alpine3.20 AS deps
 
 WORKDIR /app
 
@@ -13,6 +13,8 @@ WORKDIR /app
 COPY ./webpack.config.js /app/
 COPY ./src /app/src
 COPY ./prisma /app/prisma
+
+RUN apk add --no-cache openssl
 
 RUN set -xe; \
     npx prisma generate; \

@@ -1,4 +1,4 @@
-FROM node:21-alpine AS base
+FROM node:21-alpine3.20 AS base
 
 WORKDIR /app
 
@@ -8,6 +8,7 @@ RUN npm install
 
 FROM alpine:3 AS sys
 
+RUN apk add --no-cache openssl
 RUN set -xe; \
     mkdir -p /target/etc; \
     mkdir -p /blank; \
