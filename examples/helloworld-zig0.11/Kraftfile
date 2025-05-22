@@ -2,7 +2,7 @@ spec: v0.6
 
 name: helloworld-zig0.11
 
-runtime: unikraft.org/base:latest
+runtime: base:latest
 
 rootfs: ./Dockerfile
 
