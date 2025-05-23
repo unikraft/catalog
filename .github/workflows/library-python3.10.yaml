@@ -7,20 +7,20 @@ on:
   workflow_dispatch:
 
   schedule:
-  - cron: '0 0 * * *' # Everyday at 12AM
+    - cron: '0 0 * * *' # Everyday at 12AM
 
   push:
     branches: [main]
     paths:
-    - 'library/python/3.10/**'
-    - '.github/workflows/library-python3.10.yaml'
+      - 'library/python/3.10/**'
+      - '.github/workflows/library-python3.10.yaml'
 
   pull_request:
     types: [opened, synchronize, reopened]
     branches: [main]
     paths:
-    - 'library/python/3.10/**'
-    - '.github/workflows/library-python3.10.yaml'
+      - 'library/python/3.10/**'
+      - '.github/workflows/library-python3.10.yaml'
 
 # Automatically cancel in-progress actions on the same branch
 concurrency:
@@ -33,51 +33,115 @@ jobs:
       fail-fast: false
       matrix:
         include:
-        - plat: qemu
-          arch: x86_64
-        - plat: fc
-          arch: x86_64
+          - plat: qemu
+            arch: x86_64
+          - plat: fc
+            arch: x86_64
 
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - name: Build python3.10
-      uses: unikraft/kraftkit@staging
-      with:
-        loglevel: debug
-        workdir: library/python/3.10
-        runtimedir: /github/workspace/.kraftkit
-        plat: ${{ matrix.plat }}
-        arch: ${{ matrix.arch }}
-        push: false
-        output: oci://index.unikraft.io/unikraft.org/python:3.10
+      - name: Build python3.10 for ${{ matrix.plat }}/${{ matrix.arch }}
+        uses: unikraft/kraftkit@staging
+        with:
+          loglevel: debug
+          workdir: library/python/3.10
+          runtimedir: /github/workspace/.kraftkit
+          plat: ${{ matrix.plat }}
+          arch: ${{ matrix.arch }}
+          push: false
+          output: oci://index.unikraft.io/unikraft.org/python:3.10
 
-    - name: Archive OCI digests
-      uses: actions/upload-artifact@v4
-      with:
-        name: oci-digests-${{ matrix.arch }}-${{ matrix.plat }}
-        path: ${{ github.workspace }}/.kraftkit/oci/digests
-        if-no-files-found: error
+      - name: Archive OCI digests
+        uses: actions/upload-artifact@v4
+        with:
+          name: oci-digests-${{ matrix.arch }}-${{ matrix.plat }}
+          path: ${{ github.workspace }}/.kraftkit/oci/digests
+          if-no-files-found: error
+
+  run:
+    needs: [build]
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - plat: qemu
+            arch: x86_64
+          - plat: fc
+            arch: x86_64
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install kraft CLI
+        run: |
+          echo "deb [trusted=yes] https://deb.pkg.kraftkit.sh/ /" |
+          sudo tee /etc/apt/sources.list.d/kraftkit.list
+          sudo apt-get update
+          sudo apt-get install -y kraftkit
+
+      - name: Build & Run python3.10 unikernel on ${{ matrix.plat }}/${{ matrix.arch }}
+        run: |
+          set -euo pipefail
+          sudo chmod 666 /dev/kvm
+          cd library/python/3.10
+
+          echo "Re-building unikernel for ${{ matrix.plat }}/${{ matrix.arch }}"
+          kraft build --no-cache --no-update \
+            --plat ${{ matrix.plat }} --arch ${{ matrix.arch }}
+
+          echo "Running unikernel"
+          kraft run --rm -M 256M -p 8080:8080 \
+            --plat ${{ matrix.plat }} --arch ${{ matrix.arch }} . &
+          PID=$!
+          sleep 5
+
+          echo "Waiting for port 8080"
+          TIMEOUT=10
+          START_TS=$(date +%s)
+          until nc -z localhost 8080; do
+            if [ $(( $(date +%s) - START_TS )) -ge $TIMEOUT ]; then
+              echo "ERROR: port 8080 did not open within ${TIMEOUT}s" >&2
+              sudo kill "$PID" || true
+              exit 1
+            fi
+            sleep 1
+          done
+
+          echo "Validating HTTP response"
+          EXPECTED="Hello, World!"
+          RESPONSE=$(curl -fs http://localhost:8080/)
+          if [ "$RESPONSE" != "$EXPECTED" ]; then
+            echo "ERROR: expected '$EXPECTED' but got '$RESPONSE'" >&2
+            sudo kill "$PID" || true
+            exit 1
+          fi
+          echo "Response is correct: '$RESPONSE'"
+
+          echo "Cleaning up"
+          sudo kill "$PID" || true
 
   push:
     if: ${{ github.event_name == 'push' || github.event_name == 'schedule' }}
-    needs: [ build ]
+    needs: [run]
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - name: Login to OCI registry
-      uses: docker/login-action@v3
-      with:
-        registry: index.unikraft.io
-        username: ${{ secrets.REG_USERNAME }}
-        password: ${{ secrets.REG_TOKEN }}
+      - name: Login to OCI registry
+        uses: docker/login-action@v3
+        with:
+          registry: index.unikraft.io
+          username: ${{ secrets.REG_USERNAME }}
+          password: ${{ secrets.REG_TOKEN }}
 
-    - name: Retrieve, merge and push OCI digests
-      uses: ./.github/actions/merge-oci-digests
-      with:
-        name: index.unikraft.io/unikraft.org/python:3.10
-        push: true
+      - name: Retrieve, merge and push OCI digests
+        uses: ./.github/actions/merge-oci-digests
+        with:
+          name: index.unikraft.io/unikraft.org/python:3.10
+          push: true
