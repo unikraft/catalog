@@ -2,7 +2,7 @@ name: library/imaginary:1.2
 
 on:
   schedule:
-  - cron: '0 0 * * *' # Everyday at 12AM
+  - cron: '30 0 * * *'
 
   push:
     branches: [main]

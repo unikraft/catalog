@@ -2,7 +2,7 @@ name: library/findtime:latest
 
 on:
   schedule:
-  - cron: '0 0 * * *' # Everyday at 12AM
+  - cron: '15 0 * * *'
 
   push:
     branches: [main]

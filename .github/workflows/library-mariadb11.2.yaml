@@ -2,7 +2,7 @@ name: library/mariadb:11.2
 
 on:
   schedule:
-  - cron: '0 0 * * *' # Everyday at 12AM
+  - cron: '45 0 * * *'
 
   push:
     branches: [main]

@@ -5,7 +5,7 @@ on:
     types: [core_merge, elfloader_merge, libelf_merge, lwip_merge]
 
   schedule:
-  - cron: '0 0 * * *' # Everyday at 12AM
+  - cron: '15 1 * * *'
 
   push:
     branches: [main]
