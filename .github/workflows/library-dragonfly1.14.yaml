@@ -2,7 +2,7 @@ name: library/dragonfly:1.14
 
 on:
   schedule:
-  - cron: '0 0 * * *' # Everyday at 12AM
+  - cron: '0 0 * * *'
 
   push:
     branches: [main]
