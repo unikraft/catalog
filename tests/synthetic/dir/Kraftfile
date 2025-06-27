@@ -4,4 +4,4 @@ runtime: base:latest
 
 rootfs: ./Dockerfile
 
-cmd: ["python2 threading-demo.py"]
+cmd: ["/dir"]
