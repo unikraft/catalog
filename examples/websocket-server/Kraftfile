@@ -1,0 +1,7 @@
+spec: v0.6
+runtime: base:latest
+rootfs: ./Dockerfile
+cmd: ["/websocket_server"]
+ports:
+  - target: 8080
+    host: 8080
