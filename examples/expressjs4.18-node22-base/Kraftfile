@@ -1,0 +1,9 @@
+spec: v0.6
+
+name: expressjs4.18-node22-base
+
+runtime: base:latest
+
+rootfs: ./Dockerfile
+
+cmd: ["/usr/bin/node", "/usr/src/server.js"]
