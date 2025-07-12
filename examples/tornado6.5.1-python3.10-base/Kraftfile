@@ -1,0 +1,9 @@
+spec: v0.6
+
+name: tornado6.5.1-python3.10-base
+
+runtime: base:latest
+
+rootfs: ./Dockerfile
+
+cmd: ["/usr/local/bin/python3", "/app/server.py"]
