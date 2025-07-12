@@ -1,0 +1,9 @@
+spec: v0.6
+
+name: fastapi0.116.0-python3.12-base
+
+runtime: base:latest
+
+rootfs: ./Dockerfile
+
+cmd: ["/usr/local/bin/python3", "/app/server.py"]
