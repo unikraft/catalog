@@ -155,3 +155,5 @@ libraries:
 targets:
 - fc/x86_64
 - qemu/x86_64
+CONFIG_STACK_SIZE_PAGE_ORDER: 5
+CONFIG_AUXSTACK_SIZE_PAGE_ORDER: 5
