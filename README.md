@@ -23,17 +23,17 @@ kraft pkg ls --apps --update
 
 | | Example |
 |-|:-|
-| ![](./.github/icons/c.svg) | [Simple "Hello, world!" application written in C](https://github.com/unikraft/catalog/tree/main/examples/helloworld-c) |
-| ![](./.github/icons/cpp.svg) | [Simple "Hello, world!" application written in C++](https://github.com/unikraft/catalog/tree/main/examples/helloworld-cpp) |
-| ![](./.github/icons/rust-white.svg#gh-dark-mode-only)![](./.github/icons/rust-black.svg#gh-light-mode-only) | [Simple "Hello, world!" application written in Rust built via `cargo`](https://github.com/unikraft/catalog/tree/main/examples/helloworld-rs) |
-| ![](./.github/icons/js.svg) | [Simple NodeJS 18 HTTP Web Server with `http`](https://github.com/unikraft/catalog/tree/main/examples/http-node18) |
-| ![](./.github/icons/go.svg) | [Simple Go 1.21 HTTP Web Server with `net/http`](https://github.com/unikraft/catalog/tree/main/examples/http-go1.21) |
-| ![](./.github/icons/python3.svg) | [Simple Flask 3.0 HTTP Web Server](https://github.com/unikraft/catalog/tree/main/examples/http-python3.10-flask3.0) |
-| ![](./.github/icons/python3.svg) | [Simple Python 3.10 HTTP Web Server with `http.server.HTTPServer`](https://github.com/unikraft/catalog/tree/main/examples/http-python3.10) |
-| ![](./.github/icons/rust-white.svg#gh-dark-mode-only)![](./.github/icons/rust-black.svg#gh-light-mode-only) | [Rust Actix Web Server](https://github.com/unikraft/catalog/tree/main/examples/http-rust1.75-actix-web4) |
-| ![](./.github/icons/rust-white.svg#gh-dark-mode-only)![](./.github/icons/rust-black.svg#gh-light-mode-only) | [Rust/Rocket v0.5](https://github.com/unikraft/catalog/tree/main/examples/http-rust1.75-rocket0.5) |
-| ![](./.github/icons/rust-white.svg#gh-dark-mode-only)![](./.github/icons/rust-black.svg#gh-light-mode-only) | [Rust/Tokio Server](https://github.com/unikraft/catalog/tree/main/examples/http-rust1.75-tokio) |
-| ![](./.github/icons/rust-white.svg#gh-dark-mode-only)![](./.github/icons/rust-black.svg#gh-light-mode-only) | [Rust HTTP Web Server](https://github.com/unikraft/catalog/tree/main/examples/http-rust1.75) |
+| ![](./.github/icons/c.svg) | [Simple "Hello, world!" application written in C](https://github.com/unikraft/catalog/tree/main/examples/helloworld-gcc13.2) |
+| ![](./.github/icons/cpp.svg) | [Simple "Hello, world!" application written in C++](https://github.com/unikraft/catalog/tree/main/examples/helloworld-g++13.2) |
+| ![](./.github/icons/rust-white.svg#gh-dark-mode-only)![](./.github/icons/rust-black.svg#gh-light-mode-only) | [Simple "Hello, world!" application written in Rust built via `cargo`](https://github.com/unikraft/catalog/tree/main/examples/helloworld-rust1.75) |
+| ![](./.github/icons/js.svg) | [Simple NodeJS 21 HTTP Web Server with `http`](https://github.com/unikraft/catalog/tree/main/examples/httpserver-nodejs21) |
+| ![](./.github/icons/go.svg) | [Simple Go 1.21 HTTP Web Server with `net/http`](https://github.com/unikraft/catalog/tree/main/examples/httpserver-go1.21) |
+| ![](./.github/icons/python3.svg) | [Simple Flask 3.0 HTTP Web Server](https://github.com/unikraft/catalog/tree/main/examples/flask3.0-python3.12) |
+| ![](./.github/icons/python3.svg) | [Simple Python 3.10 HTTP Web Server with `http.server.HTTPServer`](https://github.com/unikraft/catalog/tree/main/examples/httpserver-python3.10) |
+| ![](./.github/icons/rust-white.svg#gh-dark-mode-only)![](./.github/icons/rust-black.svg#gh-light-mode-only) | [Rust Actix Web Server](https://github.com/unikraft/catalog/tree/main/examples/actix4-rust1.75) |
+| ![](./.github/icons/rust-white.svg#gh-dark-mode-only)![](./.github/icons/rust-black.svg#gh-light-mode-only) | [Rust/Rocket v0.5](https://github.com/unikraft/catalog/tree/main/examples/rocket0.5-rust1.75) |
+| ![](./.github/icons/rust-white.svg#gh-dark-mode-only)![](./.github/icons/rust-black.svg#gh-light-mode-only) | [Rust/Tokio Server](https://github.com/unikraft/catalog/tree/main/examples/tokio1-rust1.75) |
+| ![](./.github/icons/rust-white.svg#gh-dark-mode-only)![](./.github/icons/rust-black.svg#gh-light-mode-only) | [Rust HTTP Web Server](https://github.com/unikraft/catalog/tree/main/examples/httpserver-rust1.75) |
 
 ## Library
 
