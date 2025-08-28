@@ -1,10 +1,10 @@
 spec: v0.6
 
-name: redis
+name: java
 
 rootfs: ./Dockerfile
 
-cmd: ["/usr/bin/redis-server", "/etc/redis/redis.conf"]
+cmd: ["/usr/bin/java", "-classpath", "/usr/src", "SimpleHttpServer"]
 
 template:
   source: https://github.com/unikraft/app-elfloader.git
@@ -16,17 +16,13 @@ unikraft:
   kconfig:
     # Configurations options for app-elfloader
     # (they can't be part of the template atm)
-    CONFIG_LIBPOSIX_PROCESS_ARCH_PRCTL: 'y'
+    CONFIG_APPELFLOADER_ARCH_PRCTL: 'y'
     CONFIG_APPELFLOADER_BRK: 'y'
     CONFIG_APPELFLOADER_CUSTOMAPPNAME: 'y'
     CONFIG_APPELFLOADER_STACK_NBPAGES: 128
     CONFIG_APPELFLOADER_VFSEXEC_EXECBIT: 'n'
     CONFIG_APPELFLOADER_VFSEXEC: 'y'
-    CONFIG_APPELFLOADER_HFS: 'y'
-    CONFIG_APPELFLOADER_HFS_ETCRESOLVCONF: 'y'
-    CONFIG_APPELFLOADER_HFS_ETCHOSTS: 'y'
-    CONFIG_APPELFLOADER_HFS_ETCHOSTNAME: 'y'
-    CONFIG_APPELFLOADER_HFS_REPLACEEXIST: 'y'
+    CONFIG_APPELFLOADER_AUTOGEN_REPLACEEXIST: 'y'
     # Unikraft options
     CONFIG_HAVE_PAGING_DIRECTMAP: 'y'
     CONFIG_HAVE_PAGING: 'y'
@@ -47,11 +43,9 @@ unikraft:
     CONFIG_LIBPOSIX_FDTAB: 'y'
     CONFIG_LIBPOSIX_FUTEX: 'y'
     CONFIG_LIBPOSIX_MMAP: 'y'
-    CONFIG_LIBPOSIX_NETLINK: 'y'
     CONFIG_LIBPOSIX_PIPE: 'y'
     CONFIG_LIBPOSIX_POLL: 'y'
-    CONFIG_LIBPOSIX_PROCESS: 'y'
-    CONFIG_LIBPOSIX_PROCESS_MULTITHREADING: 'y'
+    CONFIG_LIBPOSIX_PROCESS_CLONE: 'y'
     CONFIG_LIBPOSIX_SOCKET: 'y'
     CONFIG_LIBPOSIX_SYSINFO: 'y'
     CONFIG_LIBPOSIX_TIME: 'y'
@@ -88,41 +82,34 @@ unikraft:
     CONFIG_LIBUKFALLOC: 'y'
     CONFIG_LIBUKMPI: 'n'
     CONFIG_LIBUKSIGNAL: 'y'
-    CONFIG_LIBUKRANDOM_DEVFS: 'y'
     CONFIG_LIBUKRANDOM: 'y'
     CONFIG_LIBUKRANDOM_GETRANDOM: 'y'
+    CONFIG_LIBUKRANDOM_CMDLINE_SEED: 'y'
+    CONFIG_LIBUKRANDOM_LCPU: 'y'
     CONFIG_LIBUKVMEM_DEFAULT_BASE: '0x0000001000000000'
     CONFIG_LIBUKVMEM_DEMAND_PAGE_IN_SIZE: 12
     CONFIG_LIBUKVMEM_PAGEFAULT_HANDLER_PRIO: 4
     CONFIG_LIBUKVMEM: 'y'
     CONFIG_LIBVFSCORE_AUTOMOUNT_CI: 'y'
     CONFIG_LIBVFSCORE_AUTOMOUNT_CI_EINITRD: 'y'
-    CONFIG_LIBVFSCORE_AUTOMOUNT_UP: 'y'
-    CONFIG_LIBVFSCORE_AUTOMOUNT: 'y'
     CONFIG_LIBVFSCORE_NONLARGEFILE: 'y'
     CONFIG_LIBVFSCORE: 'y'
-    CONFIG_LIBUK9P: 'y'
     CONFIG_OPTIMIZE_DEADELIM: 'y'
     CONFIG_OPTIMIZE_LTO: 'y'
     CONFIG_PAGING: 'y'
     CONFIG_STACK_SIZE_PAGE_ORDER: 4 # 128 * 4K = 512K
     CONFIG_UKPLAT_MEMREGION_MAX_COUNT: 64
-    CONFIG_LIBUKNETDEV_EINFO_LIBPARAM: 'y'
 
     # Debug options
     # CONFIG_LIBUKDEBUG_PRINTD: 'y'
     # CONFIG_LIBUKDEBUG_PRINTK_INFO: 'y'
     # CONFIG_LIBSYSCALL_SHIM_STRACE: 'y'
-    # CONFIG_LIBSYSCALL_SHIM_DEBUG: 'y'
 
 libraries:
   lwip:
     source: https://github.com/unikraft/lib-lwip.git
     version: staging
     kconfig:
-      CONFIG_LWIP_LOOPIF: 'y'
-      CONFIG_LWIP_UKNETDEV: 'y'
-      CONFIG_LWIP_LOOPBACK: 'y'
       CONFIG_LWIP_TCP: 'y'
       CONFIG_LWIP_UDP: 'y'
       CONFIG_LWIP_RAW: 'y'
@@ -132,12 +119,11 @@ libraries:
       CONFIG_LWIP_HEAP: 'y'
       CONFIG_LWIP_SOCKET: 'y'
       CONFIG_LWIP_AUTOIFACE: 'y'
-      CONFIG_LWIP_IPV4: 'y'
-      CONFIG_LWIP_DHCP: 'y'
-      CONFIG_LWIP_DNS: 'y'
       CONFIG_LWIP_NUM_TCPCON: 64
       CONFIG_LWIP_NUM_TCPLISTENERS: 64
       CONFIG_LWIP_ICMP: 'y'
+      CONFIG_LWIP_DHCP: 'y'
+      CONFIG_LWIP_DNS: 'n'
   libelf:
     source: https://github.com/unikraft/lib-libelf.git
     version: staging
