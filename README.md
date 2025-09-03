@@ -28,7 +28,7 @@ kraft pkg ls --apps --update
 | ![](./.github/icons/rust-white.svg#gh-dark-mode-only)![](./.github/icons/rust-black.svg#gh-light-mode-only) | [Simple "Hello, world!" application written in Rust built via `cargo`](https://github.com/unikraft/catalog/tree/main/examples/helloworld-rust1.75) |
 | ![](./.github/icons/js.svg) | [Simple NodeJS 18 HTTP Web Server with `http`](https://github.com/unikraft/catalog/tree/main/examples/httpserver-nodejs18-base) |
 | ![](./.github/icons/go.svg) | [Simple Go 1.21 HTTP Web Server with `net/http`](https://github.com/unikraft/catalog/tree/main/examples/httpserver-go1.21) |
-| ![](./.github/icons/python3.svg) | [Simple Flask 3.0 HTTP Web Server](https://github.com/unikraft/catalog/tree/main/examples/http-python3.10-flask3.0) |
+| ![](./.github/icons/python3.svg) | [Simple Flask 3.0 HTTP Web Server](https://github.com/unikraft/catalog/tree/main/examples/flask3.0-python3.10) |
 | ![](./.github/icons/python3.svg) | [Simple Python 3.10 HTTP Web Server with `http.server.HTTPServer`](https://github.com/unikraft/catalog/tree/main/examples/httpserver-python3.10) |
 | ![](./.github/icons/rust-white.svg#gh-dark-mode-only)![](./.github/icons/rust-black.svg#gh-light-mode-only) | [Rust Actix Web Server](https://github.com/unikraft/catalog/tree/main/examples/actix4-rust1.75) |
 | ![](./.github/icons/rust-white.svg#gh-dark-mode-only)![](./.github/icons/rust-black.svg#gh-light-mode-only) | [Rust/Rocket v0.5](https://github.com/unikraft/catalog/tree/main/examples/rocket0.5-rust1.75) |
