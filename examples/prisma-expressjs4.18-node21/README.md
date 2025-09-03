@@ -1,6 +1,6 @@
-# Node Prisma Server
+# Node 21 Prisma Server
 
-This directory contains a Node [`Prisma`](https://www.prisma.io/) implementation running on Unikraft.
+This directory contains a Node 21 [`Prisma`](https://www.prisma.io/) implementation running on Unikraft.
 
 ## Set Up
 

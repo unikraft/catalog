@@ -1,6 +1,6 @@
-# Rust HTTP Web Server
+# Rust "Hello, World!"
 
-This directory contains a [Rust](https://www.rust-lang.org/) HTTP server running on Unikraft.
+This directory contains a [Rust](https://www.rust-lang.org/) "Hello, World!" example running on Unikraft.
 
 ## Set Up
 

@@ -1,6 +1,6 @@
-# Node ExpressJS
+# Node 21 ExpressJS
 
-This directory contains a Node [`ExpressJS`](https://expressjs.com/) implementation running on Unikraft.
+This directory contains a Node 21 [`ExpressJS`](https://expressjs.com/) implementation running on Unikraft.
 
 ## Set Up
 
