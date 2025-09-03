@@ -1,6 +1,6 @@
-# Node24 ExpressJS
+# Node 24 ExpressJS
 
-This directory contains a Node24 [`ExpressJS`](https://expressjs.com/) implementation running on Unikraft.
+This directory contains a Node 24 [`ExpressJS`](https://expressjs.com/) implementation running on Unikraft.
 
 ## Set Up
 

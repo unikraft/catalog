@@ -1,4 +1,4 @@
-# Node Web Server
+# Node 21 Web Server
 
 This directory contains a [Node](https://nodejs.org/en) web server running on Unikraft.
 
