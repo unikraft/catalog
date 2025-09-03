@@ -4,6 +4,7 @@ WORKDIR /src
 
 COPY ./src /src/src
 COPY ./Cargo.toml /src/Cargo.toml
+COPY ./Cargo.lock /src/Cargo.lock
 
 RUN cargo build
 
