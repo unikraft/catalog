@@ -38,4 +38,4 @@ COPY --from=build /lib64/ld-linux-x86-64.so.2 /lib64/ld-linux-x86-64.so.2
 COPY --from=build /etc/ld.so.cache /etc/ld.so.cache
 
 # Simple Perl HTTP server
-COPY ./server.pl /usr/src/server.pl 
+COPY ./server.pl /usr/src/server.pl
