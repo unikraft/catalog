@@ -1,4 +1,4 @@
-FROM python:3.12 AS base
+FROM python:3.14 AS base
 
 WORKDIR /app
 
@@ -9,8 +9,8 @@ RUN pip3 install -r requirements.txt --no-cache-dir
 FROM scratch
 
 # System libraries
-COPY --from=base /usr/local/lib/python3.12 /usr/local/lib/python3.12
-COPY --from=base /usr/local/bin/../lib/libpython3.12.so.1.0 /usr/local/bin/../lib/libpython3.12.so.1.0
+COPY --from=base /usr/local/lib/python3.14 /usr/local/lib/python3.14
+COPY --from=base /usr/local/bin/../lib/libpython3.14.so.1.0 /usr/local/bin/../lib/libpython3.14.so.1.0
 COPY --from=base /lib64/ld-linux-x86-64.so.2 /lib64/ld-linux-x86-64.so.2
 COPY --from=base /lib/x86_64-linux-gnu/libc.so.6 /lib/x86_64-linux-gnu/libc.so.6
 COPY --from=base /lib/x86_64-linux-gnu/libpthread.so.0 /lib/x86_64-linux-gnu/libpthread.so.0
