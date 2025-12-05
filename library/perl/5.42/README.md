@@ -1,4 +1,4 @@
-# Perl 5.42
+# Perl
 
 This directory contains the [Perl](https://www.perl.org/) runtime on Unikraft, in binary compatibility mode.
 It implements a simple HTTP server running on Unikraft that provides a simple response to each request.
@@ -8,7 +8,7 @@ It implements a simple HTTP server running on Unikraft that provides a simple re
 Use `kraft` to run the image and start a Unikraft instance:
 
 ```bash
-kraft run -M 256M -p 8080:8080 --plat qemu --arch x86_64
+kraft run -M 256M -p 8080:8080 --plat qemu --arch x86_64 unikraft.org/perl:5.42
 ```
 
 If the `--plat` argument is left out, it defaults to `qemu`.
@@ -32,22 +32,22 @@ kraft ps -a
 ```
 
 ```text
-NAME            KERNEL                      ARGS                              CREATED        STATUS   MEM   PORTS                    PLAT
-focused_oliver  project://perl:qemu/x86_64  /usr/bin/perl /usr/src/server.pl  2 minutes ago  running  244M  0.0.0.0:8080->8080/tcp   qemu/x86_64
+NAME            KERNEL                      ARGS                              CREATED         STATUS   MEM   PORTS                   PLAT
+reverent_manis  project://perl:qemu/x86_64  /usr/bin/perl /usr/src/server.pl  13 seconds ago  running  0MiB  0.0.0.0:8080->8080/tcp  qemu/x86_64
 ```
 
-The instance name is `focused_oliver`.
+The instance name is `reverent_manis`.
 To close the Unikraft instance, use:
 
 ```bash
-kraft rm focused_oliver
+kraft rm reverent_manis
 ```
 
 Note that closing the `kraft run` command (e.g., via `Ctrl+c`) does not kill the Unikraft instance.
 If you want the Unikraft instance closed when closing the `kraft run` command, use the `--rm` option:
 
 ```bash
-kraft run --rm -M 256M -p 8080:8080 --plat qemu --arch x86_64
+kraft run --rm -M 256M -p 8080:8080 --plat qemu --arch x86_64 unikraft.org/perl:5.42
 ```
 
 ## Build and Run Locally
