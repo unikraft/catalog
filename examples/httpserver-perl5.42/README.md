@@ -1,4 +1,4 @@
-# Perl 5.42 Web Server
+# Perl Web Server
 
 This directory contains a [Perl](https://www.perl.org/) web server running on Unikraft.
 
