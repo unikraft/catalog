@@ -2,7 +2,10 @@ spec: v0.6
 
 name: helloworld
 
-unikraft: stable
+unikraft:
+  version: stable
+  kconfig:
+    CONFIG_LIBPOSIX_TTY_STDIO: 'y'
 
 libraries:
   musl: stable
