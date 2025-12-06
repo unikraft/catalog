@@ -1,0 +1,52 @@
+name: Unikraft Nginx 1.27 CI
+
+on:
+  push:
+    branches:
+      - 'feat/nginx-1.27' 
+  pull_request:
+    branches:
+      - 'staging'
+      - 'main'
+
+jobs:
+  build-and-test-nginx:
+    # Ruleaza pe un mediu Linux standard
+    runs-on: ubuntu-latest
+    
+    env:
+      KRAFTKIT_CHECK_UPDATES: false
+
+    steps:
+      - name: ⬇️ Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🛠️ Install Dependencies
+        run: |
+          # Instalarea dependentelor esentiale Unikraft (build essentials)
+          sudo apt-get update
+          sudo apt-get install -y build-essential uuid-dev flex bison libtool automake cmake ninja-build \
+          qemu-system-x86 qemu-utils
+          
+          # Descarca si instaleaza KraftKit (CLI)
+          curl -sSfL https://get.kraftkit.sh | sudo sh -s -- --install-method apt
+
+      - name: ⚙️ Build Nginx 1.27 Unikernel
+        
+        working-directory: ./library/nginx/1.27
+        run: |
+          echo "Building Nginx 1.27 for QEMU x86_64"
+          # Curata orice configurare veche si compilare
+          rm -rf .unikraft
+          
+          # Ruleaza compilarea
+          kraft build --plat qemu --arch x86_64
+          
+      - name: 🏃 Run Test (Optional: Verifică dacă pornește)
+        working-directory: ./library/nginx/1.27
+        run: |
+          # Pornirea unicernelului in modul de emulare soft (-W) pentru CI
+          kraft run -W --plat qemu --arch x86_64 --exec --timeout 15s \
+            --args "/usr/bin/nginx"
