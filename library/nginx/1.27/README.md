@@ -1,11 +1,11 @@
-# Nginx 1.25
+# Nginx 1.27
 
-This directory contains the definition for the `unikraft.org/nginx:1.25` image running Nginx.
+This directory contains the definition for the `unikraft.org/nginx:1.27` image running Nginx.
 
 To run this image, [install Unikraft's companion command-line toolchain `kraft`](https://unikraft.org/docs/cli) and then you can run:
 
 ```console
-kraft run -p 8080:80 unikraft.org/nginx:1.25
+kraft run -p 8080:80 unikraft.org/nginx:1.27
 ```
 
 Query the server using:
