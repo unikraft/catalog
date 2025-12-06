@@ -57,6 +57,34 @@ jobs:
         arch: ${{ matrix.arch }}
         push: false
         output: oci://index.unikraft.io/unikraft.org/nginx:1.15
+        after: |
+          # GitHub Actions can only executed with QEMU (via emulation mode)
+          if [[ ${{ matrix.plat }} != "qemu" ]]; then
+            exit 0;
+          fi
+
+          export KRAFTKIT_LOG_LEVEL=debug
+          export KRAFTKIT_RUNTIME_DIR=/github/workspace/.kraftkit
+
+          set -xe;
+
+          kraft run \
+            --detach \
+            --disable-acceleration \
+            --plat ${{ matrix.plat }} \
+            --arch ${{ matrix.arch }} \
+            --name nginx-${GITHUB_RUN_ID} \
+            --port 8080:80 \
+            index.unikraft.io/unikraft.org/nginx:1.15
+
+          function cleanup {
+            kraft logs nginx-${GITHUB_RUN_ID} || true;
+            kraft rm nginx-${GITHUB_RUN_ID} || true;
+          }
+          trap cleanup EXIT
+          trap cleanup INT
+
+          curl -Lv --fail http://localhost:8080
 
     - name: Archive OCI digests
       uses: actions/upload-artifact@v4
