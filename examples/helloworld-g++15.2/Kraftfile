@@ -1,0 +1,9 @@
+spec: v0.6
+
+name: helloworld-g++15.2
+
+runtime: base:latest
+
+rootfs: ./Dockerfile
+
+cmd: ["/helloworld"]
