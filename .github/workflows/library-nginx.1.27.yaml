@@ -1,0 +1,48 @@
+name: Nginx 1.27 Build & Test
+
+# Ruleaza pe push si pull request pe branch-ul principal
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'library/nginx/1.27/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0 
+
+    - name: Setup Environment and Dependencies
+      # Aici ar trebui sa rulezi scripturile de initializare
+      run: |
+        echo "Installing necessary build tools..."
+        # Adauga comenzi specifice pentru a instala unikraft sau alte dependinte
+
+    - name: Build Nginx 1.27 Example
+      # Presupunand ca ai un script de build specific pentru Nginx 1.27
+      run: |
+        cd library/nginx/1.27
+        # Executa comanda de build, ex:
+        # ./build.sh
+        # sau
+        # kraft build --log-level=debug
+
+    - name: Run Tests (Optional)
+      # Adauga pasi pentru a rula teste dacă exista
+      run: |
+        echo "Running tests..."
+        # kraft run --target-test
+
+    - name: Cleanup
+      run: |
+        echo "Cleaning up build artifacts..."
+        # kraft clean
