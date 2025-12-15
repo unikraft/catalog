@@ -78,3 +78,34 @@ jobs:
       with:
         name: index.unikraft.io/unikraft.org/haproxy:2.8
         push: true
+
+  run:
+    name: Test haproxy:2.8 (Local build)
+    needs: [build]
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install kraft CLI
+        run: |
+          echo "deb [trusted=yes] https://deb.pkg.kraftkit.sh/ /" | sudo tee /etc/apt/sources.list.d/kraftkit.list
+          sudo apt-get update
+          sudo apt-get install -y kraftkit
+      - name: Build, run and validate unikernel
+        run: |
+          set -euo pipefail
+          sudo chmod 666 /dev/kvm
+          cd library/haproxy/2.8
+          echo "Build haproxy:2.8 unikernel"
+          kraft build --no-cache --no-update --plat qemu --arch x86_64
+
+          echo "Run haproxy:2.8 unikernel"
+          kraft run --rm -M 256M --plat qemu --arch x86_64 . &
+          PID=$!
+          sleep 5
+
+          echo "haproxy:2.8 unikernel started successfully locally"
+
+          echo "Cleanup haproxy:2.8 unikernel"
+          sudo kill "$PID" || true
