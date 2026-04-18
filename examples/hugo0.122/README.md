@@ -36,7 +36,7 @@ kraft ps
 
 ```text
 NAME         KERNEL                          ARGS                                                CREATED        STATUS   MEM   PORTS                   PLAT
-loving_moja  oci://unikraft.org/hugo:latest  /usr/bin/hugo server --bind=0.0.0.0 --source /site  3 seconds ago  running  488M  0.0.0.0:1313->1313/tcp  qemu/x86_64
+loving_moja  oci://unikraft.org/hugo:0.122  /usr/bin/hugo server --bind=0.0.0.0 --source /site  3 seconds ago  running  488M  0.0.0.0:1313->1313/tcp  qemu/x86_64
 ```
 
 The instance name is `loving_moja`.
