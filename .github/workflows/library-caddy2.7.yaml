@@ -56,6 +56,15 @@ jobs:
         push: false
         output: oci://index.unikraft.io/unikraft.org/caddy:2.7
 
+    - name: Test caddy2.7
+      if: matrix.plat == 'qemu'
+      run: |
+        cd library/caddy/2.7
+        kraft run -d -p 8080:80 --plat ${{ matrix.plat }} --arch ${{ matrix.arch }}
+        sleep 5
+        curl -I http://localhost:8080 || exit 1
+        kraft stop --all
+
     - name: Archive OCI digests
       uses: actions/upload-artifact@v4
       with:
