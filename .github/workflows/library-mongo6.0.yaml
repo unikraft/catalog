@@ -109,6 +109,11 @@ jobs:
         name: oci-layout-${{ matrix.arch }}-${{ matrix.plat }}
         path: ${{ github.workspace }}/.kraftkit/oci
 
+    - name: Install system dependencies for KraftKit
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y qemu-system-x86 qemu-utils socat
+
     - name: Install KraftKit
       run: |
         curl -sSfL https://get.kraftkit.sh | sudo sh -s -- -y
