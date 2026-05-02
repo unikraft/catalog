@@ -115,9 +115,7 @@ jobs:
         sudo apt-get install -y qemu-system-x86 qemu-utils socat
 
     - name: Install KraftKit
-      run: |
-        curl -sSfL https://get.kraftkit.sh | sudo sh -s -- -y
-        sudo mv ~/.kraftkit/bin/kraft /usr/local/bin/kraft
+      run: curl -sSfL https://get.kraftkit.sh | sudo sh -s -- -y
 
     - name: Run mongo6.0 (${{ matrix.plat }}/${{ matrix.arch }})
       env:
