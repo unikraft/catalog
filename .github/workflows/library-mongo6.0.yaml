@@ -111,7 +111,7 @@ jobs:
 
     - name: Install KraftKit
       run: |
-        curl -sSfL https://get.kraftkit.sh | sh -s -- -y
+        curl -sSfL https://get.kraftkit.sh | sudo sh -s -- -y
         sudo mv ~/.kraftkit/bin/kraft /usr/local/bin/kraft
 
     - name: Run mongo6.0 (${{ matrix.plat }}/${{ matrix.arch }})
