@@ -18,6 +18,8 @@ on:
     - 'library/mongo/6.0/**'
     - '.github/workflows/library-mongo6.0.yaml'
     - '!library/mongo/6.0/README.md'
+  
+  workflow_dispatch:
 
 # Automatically cancel in-progress actions on the same branch
 concurrency:
