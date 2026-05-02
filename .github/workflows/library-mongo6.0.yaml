@@ -83,30 +83,45 @@ jobs:
 
   test:
     needs: [ build ]
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+        - plat: qemu
+          arch: x86_64
+        - plat: fc
+          arch: x86_64
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v4
 
+    - name: Setup KraftKit
+      uses: unikraft/kraftkit@staging
+      with:
+        loglevel: debug
+
     - name: Install netcat
       run: sudo apt-get update && sudo apt-get install -y netcat-openbsd
 
-    - name: Run mongo6.0 (qemu/x86_64)
+    - name: Run mongo6.0 (${{ matrix.plat }}/${{ matrix.arch }})
       run: |
         cd library/mongo/6.0
-        kraft run --rm -M 1024M -p 27017:27017 --plat qemu --arch x86_64 . &
+        # Aici kraft va rula aplicația, iar dacă nu o găsește gata compilată, 
+        # o va recompila rapid local pe mașina de test înainte să o pornească.
+        kraft run --rm -M 1024M -p 27017:27017 --plat ${{ matrix.plat }} --arch ${{ matrix.arch }} . &
         echo $! > /tmp/kraft_pid
 
     - name: Wait for port 27017
       run: |
         for i in $(seq 1 15); do
           if nc -z 127.0.0.1 27017; then
-            echo "Mongo is accepting connections."
+            echo "Mongo pe ${{ matrix.plat }} a acceptat conexiunea."
             exit 0
           fi
           sleep 1
         done
-        echo "Mongo did not accept connections after 15 seconds."
+        echo "Mongo nu a răspuns după 15 secunde."
         exit 1
 
     - name: Stop mongo instance
