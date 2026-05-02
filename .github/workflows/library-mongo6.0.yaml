@@ -103,38 +103,30 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Download OCI layout from build
-      uses: actions/download-artifact@v4
+    - name: Setup KraftKit and Dependencies
+      uses: unikraft/kraftkit@staging
       with:
-        name: oci-layout-${{ matrix.arch }}-${{ matrix.plat }}
-        path: ${{ github.workspace }}/.kraftkit/oci
+        loglevel: debug
 
-    - name: Install system dependencies for KraftKit
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y qemu-system-x86 qemu-utils socat
-
-    - name: Install KraftKit
-      run: curl -sSfL https://get.kraftkit.sh | sudo sh -s -- -y
+    - name: Install netcat
+      run: sudo apt-get update && sudo apt-get install -y netcat-openbsd
 
     - name: Run mongo6.0 (${{ matrix.plat }}/${{ matrix.arch }})
-      env:
-        KRAFTKIT_RUNTIME_DIR: ${{ github.workspace }}/.kraftkit
-        KRAFTKIT_NO_CHECK_UPDATES: true
       run: |
-        kraft run --rm -M 1024M -p 27017:27017 --plat ${{ matrix.plat }} --arch ${{ matrix.arch }} index.unikraft.io/unikraft.org/mongo:6.0 &
+        cd library/mongo/6.0
+        kraft run --rm -M 1024M -p 27017:27017 --plat ${{ matrix.plat }} --arch ${{ matrix.arch }} . &
         echo $! > /tmp/kraft_pid
 
     - name: Wait for port 27017
       run: |
-        for i in $(seq 1 15); do
+        for i in $(seq 1 30); do
           if nc -z 127.0.0.1 27017; then
-            echo "Mongo on ${{ matrix.plat }} accepted the connection."
+            echo "Mongo pe ${{ matrix.plat }} a acceptat conexiunea."
             exit 0
           fi
           sleep 1
         done
-        echo "Mongo did not answer after 15 seconds."
+        echo "Mongo nu a răspuns după 30 secunde."
         exit 1
 
     - name: Stop mongo instance
