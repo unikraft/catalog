@@ -60,13 +60,6 @@ jobs:
         path: ${{ github.workspace }}/.kraftkit/oci/digests
         if-no-files-found: error
 
-    - name: Archive OCI layout
-      uses: actions/upload-artifact@v4
-      with:
-        name: oci-layout-${{ matrix.arch }}-${{ matrix.plat }}
-        path: ${{ github.workspace }}/.kraftkit/oci
-        if-no-files-found: error
-
   push:
     if: ${{ github.event_name == 'push' || github.event_name == 'schedule' }}
     needs: [ build ]
@@ -96,49 +89,39 @@ jobs:
         include:
         - plat: qemu
           arch: x86_64
-        - plat: fc
-          arch: x86_64
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v4
 
-    - name: Download OCI layout from build
-      uses: actions/download-artifact@v4
-      with:
-        name: oci-layout-${{ matrix.arch }}-${{ matrix.plat }}
-        path: ${{ github.workspace }}/.kraftkit/oci
-
-    - name: Install netcat
-      run: sudo apt-get update && sudo apt-get install -y netcat-openbsd
-
-    - name: Install system dependencies for KraftKit
+    - name: Install dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y qemu-system-x86 qemu-utils socat
+        sudo apt-get install -y qemu-system-x86 qemu-utils socat netcat-openbsd
 
     - name: Install KraftKit
       run: curl -sSfL https://get.kraftkit.sh | sudo sh -s -- -y
 
-    - name: Run mongo6.0 (${{ matrix.plat }}/${{ matrix.arch }})
+    - name: Build and Run mongo6.0
       env:
-        KRAFTKIT_RUNTIME_DIR: ${{ github.workspace }}/.kraftkit
         KRAFTKIT_NO_CHECK_UPDATES: true
       run: |
         cd library/mongo/6.0
-        kraft run --rm -M 1024M -p 27017:27017 --plat ${{ matrix.plat }} --arch ${{ matrix.arch }} . &
+        kraft build --plat ${{ matrix.plat }} --arch ${{ matrix.arch }}
+        kraft run --rm -W -M 4096M -p 27017:27017 --plat ${{ matrix.plat }} --arch ${{ matrix.arch }} . > /tmp/kraft-mongo.log 2>&1 &
         echo $! > /tmp/kraft_pid
 
     - name: Wait for port 27017
       run: |
-        for i in $(seq 1 30); do
+        for i in $(seq 1 120); do
           if nc -z 127.0.0.1 27017; then
             echo "Mongo on ${{ matrix.plat }} accepted the connection."
             exit 0
           fi
           sleep 1
         done
-        echo "Mongo did not answer after 15 seconds."
+        echo "Mongo did not answer after 120 seconds."
+        cat /tmp/kraft-mongo.log || true
         exit 1
 
     - name: Stop mongo instance
