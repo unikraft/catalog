@@ -78,3 +78,53 @@ jobs:
       with:
         name: index.unikraft.io/unikraft.org/mongo:6.0
         push: true
+
+  test:
+    needs: [ build ]
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+        - plat: qemu
+          arch: x86_64
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y qemu-system-x86 qemu-utils socat netcat-openbsd
+
+    - name: Install KraftKit
+      run: curl -sSfL https://get.kraftkit.sh | sudo sh -s -- -y
+
+    - name: Build and Run mongo6.0
+      env:
+        KRAFTKIT_NO_CHECK_UPDATES: true
+      run: |
+        cd library/mongo/6.0
+        kraft build --plat ${{ matrix.plat }} --arch ${{ matrix.arch }}
+        kraft run --rm -W -M 4096M -p 27017:27017 --plat ${{ matrix.plat }} --arch ${{ matrix.arch }} . > /tmp/kraft-mongo.log 2>&1 &
+        echo $! > /tmp/kraft_pid
+
+    - name: Wait for port 27017
+      run: |
+        for i in $(seq 1 120); do
+          if nc -z 127.0.0.1 27017; then
+            echo "Mongo on ${{ matrix.plat }} accepted the connection."
+            exit 0
+          fi
+          sleep 1
+        done
+        echo "Mongo did not answer after 120 seconds."
+        cat /tmp/kraft-mongo.log || true
+        exit 1
+
+    - name: Stop mongo instance
+      if: ${{ always() }}
+      run: |
+        if [ -f /tmp/kraft_pid ]; then
+          kill "$(cat /tmp/kraft_pid)" || true
+        fi
