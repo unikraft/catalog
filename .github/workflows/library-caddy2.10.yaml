@@ -55,7 +55,7 @@ jobs:
         arch: ${{ matrix.arch }}
         push: false
         output: oci://index.unikraft.io/unikraft.org/caddy:2.10
-
+    
     - name: Archive OCI digests
       uses: actions/upload-artifact@v4
       with:
@@ -63,9 +63,31 @@ jobs:
         path: ${{ github.workspace }}/.kraftkit/oci/digests
         if-no-files-found: error
 
+  run:
+    needs: build
+    strategy:
+      matrix:
+        include:
+          - plat: qemu
+            arch: x86_64
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup KraftKit
+        uses: unikraft/kraftkit@staging
+        with:
+          runtimedir: /github/workspace/.kraftkit
+      - name: Test caddy2.10
+        run: |
+          cd library/caddy/2.10
+          kraft run -d -M 512M -p 2015:2015 --plat ${{ matrix.plat }} --arch ${{ matrix.arch }}
+          sleep 10
+          curl -I http://localhost:2015 || exit 1
+          kraft stop --all
+
   push:
     if: ${{ github.event_name == 'push' || github.event_name == 'schedule' }}
-    needs: [ build ]
+    needs: [ run ]
     runs-on: ubuntu-latest
 
     steps:
