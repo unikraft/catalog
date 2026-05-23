@@ -21,7 +21,7 @@ unikraft:
     # Configurations options for app-elfloader
     # (they can't be part of the template atm)
     CONFIG_LIBPOSIX_PROCESS_ARCH_PRCTL: 'y'
-    CONFIG_APPELFLOADER_BRK: 'y'
+    CONFIG_LIBPOSIX_PROCESS_BRK: 'y'
     CONFIG_APPELFLOADER_CUSTOMAPPNAME: 'y'
     CONFIG_APPELFLOADER_STACK_NBPAGES: 128
     CONFIG_APPELFLOADER_VFSEXEC_EXECBIT: 'n'
