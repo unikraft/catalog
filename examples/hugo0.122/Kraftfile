@@ -2,7 +2,7 @@ spec: v0.6
 
 name: hugo0.122
 
-runtime: hugo:latest
+runtime: hugo:0.122
 
 rootfs: ./Dockerfile
 

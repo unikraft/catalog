@@ -1,6 +1,6 @@
-# Hugo
+# Node 25 Web Server
 
-This directory contains a [`Hugo`](https://gohugo.io/) web server running on Unikraft.
+This directory contains a [Node](https://nodejs.org/en) web server running on Unikraft.
 
 ## Set Up
 
@@ -11,20 +11,20 @@ To run this example, [install Unikraft's companion command-line toolchain `kraft
 Use `kraft` to run the image and start a Unikraft instance:
 
 ```bash
-kraft run --rm -p 1313:1313 --plat qemu --arch x86_64 -M 512M .
+kraft run --rm -p 8080:8080 --plat qemu --arch x86_64 -M 1024M .
 ```
 
 If the `--plat` argument is left out, it defaults to `qemu`.
 If the `--arch` argument is left out, it defaults to your system's CPU architecture.
 
-Once executed, it will open port `1313` and wait for connections.
+Once executed, it will open port `8080` and wait for connections.
 To test it, you can use `curl`:
 
 ```bash
-curl localhost:1313
+curl localhost:8080
 ```
 
-You should see the landing page for Hugo.
+You should see a "Bye, World!" message.
 
 ## Inspect and Close
 
@@ -35,22 +35,22 @@ kraft ps
 ```
 
 ```text
-NAME         KERNEL                          ARGS                                                CREATED        STATUS   MEM   PORTS                   PLAT
-loving_moja  oci://unikraft.org/hugo:0.122  /usr/bin/hugo server --bind=0.0.0.0 --source /site  3 seconds ago  running  488M  0.0.0.0:1313->1313/tcp  qemu/x86_64
+NAME             KERNEL                      ARGS                              CREATED         STATUS   MEM   PORTS                   PLAT
+unruffled_edgar  oci://unikraft.org/node:25  /usr/bin/node /usr/src/server.js  47 seconds ago  running  488M  0.0.0.0:8080->8080/tcp  qemu/x86_64
 ```
 
-The instance name is `loving_moja`.
+The instance name is `unruffled_edgar`.
 To close the Unikraft instance, close the `kraft` process (e.g., via `Ctrl+c`) or run:
 
 ```bash
-kraft rm loving_moja
+kraft rm unruffled_edgar
 ```
 
 Note that depending on how you modify this example your instance **may** need more memory to run.
 To do so, use the `kraft run`'s `-M` flag, for example:
 
 ```bash
-kraft run --rm -p 1313:1313 --plat qemu --arch x86_64 -M 1024M .
+kraft run -p 8080:8080 --plat qemu --arch x86_64 -M 2048M .
 ```
 
 ## `kraft` and `sudo`
