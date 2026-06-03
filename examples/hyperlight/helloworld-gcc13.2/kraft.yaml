@@ -1,0 +1,66 @@
+specification: '0.6'
+name: helloworld-hyperlight
+
+unikraft:
+  source: https://github.com/unikraft/unikraft.git
+  version: plat-hyperlight
+  kconfig:
+    CONFIG_PLAT_HYPERLIGHT: 'y'
+    CONFIG_PAGING: 'n'
+    CONFIG_LIBUKVMEM: 'n'
+    CONFIG_LIBUKINTCTLR_HYPERLIGHT: 'y'
+    CONFIG_HYPERLIGHT_MAX_GUEST_LOG_LEVEL: 7
+
+    # Suppress kernel logging for performance (CRIT is the quietest level).
+    CONFIG_LIBUKPRINT_KLVL_CRIT: 'y'
+    CONFIG_LIBUKPRINT_PRINT_TIME: 'n'
+    CONFIG_LIBUKPRINT_PRINT_SRCNAME: 'n'
+    CONFIG_LIBUKBOOT_BANNER_NONE: 'y'
+    CONFIG_OPTIMIZE_SIZE: 'y'
+    CONFIG_OPTIMIZE_PIE: 'y'
+    CONFIG_LIBVFSCORE: 'y'
+    CONFIG_LIBVFSCORE_AUTOMOUNT_CI: 'y'
+    CONFIG_LIBVFSCORE_AUTOMOUNT_CI_CUSTOM: 'y'
+    CONFIG_LIBVFSCORE_AUTOMOUNT_CI0_MP: '/'
+    CONFIG_LIBVFSCORE_AUTOMOUNT_CI0_DRIVER: 'cpiovfs'
+    CONFIG_LIBVFSCORE_AUTOMOUNT_CI0_UKOPTS_IFINITRD0: 'y'
+    CONFIG_LIBCPIOVFS: 'y'
+    CONFIG_LIBUKCPIO: 'y'
+    CONFIG_APPELFLOADER: 'y'
+    CONFIG_APPELFLOADER_VFSEXEC: 'y'
+    CONFIG_APPELFLOADER_CUSTOMAPPNAME: 'n'
+    CONFIG_APPELFLOADER_VFSEXEC_ENVPATH: 'n'
+    CONFIG_APPELFLOADER_VFSEXEC_PATH: '/bin/hello'
+    CONFIG_LIBPOSIX_ENVIRON_ENVP0: '"PATH=/bin"'
+    CONFIG_LIBELF: 'y'
+    # Random number support
+    CONFIG_LIBUKRANDOM_CMDLINE_SEED: 'y'
+    CONFIG_LIBUKRANDOM_GETRANDOM: 'y'
+    # Threading support for clean exit
+    CONFIG_LIBPOSIX_PROCESS_MULTITHREADING: 'y'
+    CONFIG_LIBUKSCHED: 'y'
+    CONFIG_LIBUKSCHEDCOOP: 'y'
+    CONFIG_LIBUKMPI: 'y'
+    CONFIG_LIBUKLOCK: 'y'
+    CONFIG_LIBUKLOCK_SEMAPHORE: 'y'
+    CONFIG_LIBUKLOCK_MUTEX: 'y'
+    CONFIG_LIBUKBOOT_MAINTHREAD: 'y'
+    CONFIG_LIBPOSIX_PROCESS_ARCH_PRCTL: 'y'
+    # TLS
+    CONFIG_LIBCONTEXT: 'y'
+    CONFIG_LIBCONTEXT_CLEAR_TBSS: 'y'
+    # Disable per-thread fd table — use global fd table for dispatch compatibility
+    CONFIG_LIBPOSIX_FDTAB_MULTITAB: 'n'
+    # Disable paging/vmem - Hyperlight identity-maps all guest memory
+
+libraries:
+  app-elfloader:
+    source: https://github.com/unikraft/app-elfloader.git
+    version: plat-hyperlight
+  libelf:
+    source: https://github.com/unikraft/lib-libelf.git
+    version: staging
+
+targets:
+  - architecture: x86_64
+    platform: hyperlight
