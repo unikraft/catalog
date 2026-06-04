@@ -1,0 +1,87 @@
+specification: '0.6'
+name: hostfs-posix-py-hyperlight
+
+unikraft:
+  source: https://github.com/unikraft/unikraft.git
+  version: plat-hyperlight
+  kconfig:
+    # Platform
+    CONFIG_PLAT_HYPERLIGHT: 'y'
+    CONFIG_PAGING: 'n'
+    CONFIG_LIBUKVMEM: 'n'
+    CONFIG_LIBUKINTCTLR_HYPERLIGHT: 'y'
+    CONFIG_HYPERLIGHT_MAX_GUEST_LOG_LEVEL: 4
+
+    # Suppress all kernel logging (compile-time filtering)
+    CONFIG_LIBUKPRINT_KLVL_CRIT: 'y'
+    CONFIG_LIBUKPRINT_PRINT_TIME: 'n'
+    CONFIG_LIBUKPRINT_PRINT_SRCNAME: 'n'
+    CONFIG_LIBUKBOOT_BANNER_NONE: 'y'
+
+    # Size optimization
+    CONFIG_OPTIMIZE_SIZE: 'y'
+    CONFIG_OPTIMIZE_PIE: 'y'
+
+    # VFS + initrd as ramfs (for /usr/local/bin/python3 and the ELF loader)
+    CONFIG_LIBVFSCORE: 'y'
+    CONFIG_LIBVFSCORE_AUTOMOUNT_CI: 'y'
+    CONFIG_LIBVFSCORE_AUTOMOUNT_CI_CUSTOM: 'y'
+    CONFIG_LIBVFSCORE_AUTOMOUNT_CI0_MP: '/'
+    CONFIG_LIBVFSCORE_AUTOMOUNT_CI0_DRIVER: 'cpiovfs'
+    CONFIG_LIBVFSCORE_AUTOMOUNT_CI0_UKOPTS_IFINITRD0: 'y'
+    CONFIG_LIBCPIOVFS: 'y'
+    CONFIG_LIBUKCPIO: 'y'
+
+    # devfs + /dev/hcall (needed for HYPERLIGHT_HCALL symbol;
+    # hostfs calls hyperlight_hcall() directly, not through /dev/hcall)
+    CONFIG_LIBDEVFS: 'y'
+    CONFIG_LIBDEVFS_AUTOMOUNT: 'y'
+    CONFIG_HYPERLIGHT_HCALL: 'y'
+
+    # hostfs — transparent POSIX -> host RPC forwarding (default mount /host).
+    CONFIG_LIBHOSTFS: 'y'
+    CONFIG_LIBHOSTFS_AUTOMOUNT: 'y'
+
+    # ELF loader — run /usr/local/bin/python3
+    CONFIG_APPELFLOADER: 'y'
+    CONFIG_APPELFLOADER_VFSEXEC: 'y'
+    CONFIG_APPELFLOADER_CUSTOMAPPNAME: 'n'
+    CONFIG_APPELFLOADER_VFSEXEC_ENVPATH: 'n'
+    CONFIG_APPELFLOADER_VFSEXEC_PATH: '/usr/local/bin/python3'
+    CONFIG_LIBPOSIX_ENVIRON_ENVP0: 'PATH=/usr/local/bin:/usr/bin:/bin'
+    CONFIG_LIBPOSIX_ENVIRON_ENVP1: 'LD_LIBRARY_PATH=/usr/local/lib'
+    CONFIG_LIBELF: 'y'
+
+    # CPython needs mmap + futex + larger scratch
+    CONFIG_LIBUKMMAP: 'y'
+    CONFIG_LIBPOSIX_FUTEX: 'y'
+
+    CONFIG_LIBUKRANDOM_CMDLINE_SEED: 'y'
+    CONFIG_LIBUKRANDOM_GETRANDOM: 'y'
+
+    CONFIG_LIBPOSIX_PROCESS_MULTITHREADING: 'y'
+    CONFIG_LIBUKSCHED: 'y'
+    CONFIG_LIBUKSCHEDCOOP: 'y'
+    CONFIG_LIBUKMPI: 'y'
+    CONFIG_LIBUKLOCK: 'y'
+    CONFIG_LIBUKLOCK_SEMAPHORE: 'y'
+    CONFIG_LIBUKLOCK_MUTEX: 'y'
+    CONFIG_LIBUKBOOT_MAINTHREAD: 'y'
+    CONFIG_LIBPOSIX_PROCESS_ARCH_PRCTL: 'y'
+
+    CONFIG_LIBCONTEXT: 'y'
+    CONFIG_LIBCONTEXT_CLEAR_TBSS: 'y'
+
+    CONFIG_LIBPOSIX_FDTAB_MULTITAB: 'n'
+
+libraries:
+  app-elfloader:
+    source: https://github.com/unikraft/app-elfloader.git
+    version: plat-hyperlight
+  libelf:
+    source: https://github.com/unikraft/lib-libelf.git
+    version: staging
+
+targets:
+  - architecture: x86_64
+    platform: hyperlight
