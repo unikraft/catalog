@@ -1,0 +1,97 @@
+specification: '0.6'
+name: powershell-hyperlight
+
+unikraft:
+  source: https://github.com/unikraft/unikraft.git
+  version: plat-hyperlight
+  kconfig:
+    # Platform
+    CONFIG_PLAT_HYPERLIGHT: 'y'
+    CONFIG_PAGING: 'n'
+    CONFIG_LIBUKVMEM: 'n'
+    CONFIG_LIBUKINTCTLR_HYPERLIGHT: 'y'
+    CONFIG_HYPERLIGHT_MAX_GUEST_LOG_LEVEL: '0'
+
+    # Suppress all kernel logging
+    CONFIG_LIBUKPRINT_KLVL_CRIT: 'y'
+    CONFIG_LIBUKPRINT_PRINT_TIME: 'n'
+    CONFIG_LIBUKPRINT_PRINT_SRCNAME: 'n'
+    CONFIG_LIBUKBOOT_BANNER_NONE: 'y'
+
+    # Size optimization
+    CONFIG_OPTIMIZE_SIZE: 'y'
+    CONFIG_OPTIMIZE_PIE: 'y'
+
+    # VFS and initrd support - cpiovfs for zero-copy mount
+    CONFIG_LIBVFSCORE: 'y'
+    CONFIG_LIBVFSCORE_AUTOMOUNT_CI: 'y'
+    CONFIG_LIBVFSCORE_AUTOMOUNT_CI_CUSTOM: 'y'
+    CONFIG_LIBVFSCORE_AUTOMOUNT_CI0_MP: '/'
+    CONFIG_LIBVFSCORE_AUTOMOUNT_CI0_DRIVER: 'cpiovfs'
+    CONFIG_LIBVFSCORE_AUTOMOUNT_CI0_UKOPTS_IFINITRD0: 'y'
+    CONFIG_LIBCPIOVFS: 'y'
+    CONFIG_LIBUKCPIO: 'y'
+
+    # ELF loader - execute PowerShell binary
+    CONFIG_APPELFLOADER: 'y'
+    CONFIG_APPELFLOADER_VFSEXEC: 'y'
+    CONFIG_APPELFLOADER_CUSTOMAPPNAME: 'n'
+    CONFIG_APPELFLOADER_VFSEXEC_ENVPATH: 'n'
+    CONFIG_APPELFLOADER_VFSEXEC_PATH: '/opt/microsoft/powershell/7/pwsh'
+    CONFIG_APPELFLOADER_VFSEXEC_EXECBIT: 'n'
+    CONFIG_LIBPOSIX_ENVIRON_ENVP0: 'PATH=/opt/microsoft/powershell/7:/usr/bin:/bin'
+    CONFIG_LIBPOSIX_ENVIRON_ENVP1: 'DOTNET_GCHeapHardLimit=0x10000000'
+    CONFIG_LIBPOSIX_ENVIRON_ENVP2: 'DOTNET_gcServer=0'
+    CONFIG_LIBPOSIX_ENVIRON_ENVP3: 'DOTNET_EnableWriteXorExecute=0'
+    CONFIG_LIBPOSIX_ENVIRON_ENVP4: 'COMPlus_EnableDiagnostics=0'
+    CONFIG_LIBPOSIX_ENVIRON_ENVP5: 'POWERSHELL_TELEMETRY_OPTOUT=1'
+    CONFIG_LIBPOSIX_ENVIRON_ENVP6: 'DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1'
+    CONFIG_LIBPOSIX_ENVIRON_ENVP7: 'HOME=/root'
+    CONFIG_LIBPOSIX_ENVIRON_ENVP8: 'PSModulePath=/opt/microsoft/powershell/7/Modules'
+    CONFIG_LIBELF: 'y'
+
+    # Random number support
+    CONFIG_LIBUKRANDOM_CMDLINE_SEED: 'y'
+    CONFIG_LIBUKRANDOM_GETRANDOM: 'y'
+    CONFIG_LIBUKRANDOM_DEVFS: 'y'
+    CONFIG_LIBDEVFS: 'y'
+    CONFIG_LIBDEVFS_AUTOMOUNT: 'y'
+
+    # Stack size (order 9 = 2^9 pages = 2MB, needed for CoreCLR's 1.5MB alloca)
+    CONFIG_STACK_SIZE_PAGE_ORDER: 9
+
+    # Threading support (required for CoreCLR)
+    CONFIG_LIBUKBOOT_MAINTHREAD: 'y'
+    CONFIG_LIBPOSIX_PROCESS_ARCH_PRCTL: 'y'
+    CONFIG_LIBPOSIX_PROCESS_MULTITHREADING: 'y'
+    CONFIG_LIBPOSIX_PROCESS_SIGNAL: 'y'
+    CONFIG_LIBPOSIX_FUTEX: 'y'
+    CONFIG_LIBUKSCHED: 'y'
+    CONFIG_LIBUKSCHEDCOOP: 'y'
+    CONFIG_LIBUKMPI: 'y'
+    CONFIG_LIBUKLOCK: 'y'
+    CONFIG_LIBUKLOCK_SEMAPHORE: 'y'
+    CONFIG_LIBUKLOCK_MUTEX: 'y'
+
+    # mmap needed by CoreCLR memory management
+    CONFIG_LIBUKMMAP: 'y'
+
+    # Event/polling support
+    CONFIG_LIBPOSIX_POLL: 'y'
+    CONFIG_LIBPOSIX_EVENTFD: 'y'
+    CONFIG_LIBPOSIX_FDIO: 'y'
+    CONFIG_LIBPOSIX_FDTAB: 'y'
+    CONFIG_LIBUKFILE: 'y'
+
+
+libraries:
+  app-elfloader:
+    source: https://github.com/unikraft/app-elfloader.git
+    version: plat-hyperlight
+  libelf:
+    source: https://github.com/unikraft/lib-libelf.git
+    version: staging
+
+targets:
+  - architecture: x86_64
+    platform: hyperlight
