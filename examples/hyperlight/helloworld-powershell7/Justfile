@@ -1,0 +1,60 @@
+# powershell on Hyperlight
+#
+# just run      - Run once
+# just run-10    - Run 10x (snapshot/restore)
+# just rootfs   - Build rootfs via Docker (cross-platform)
+# just build    - Build/pull kernel
+# just clean    - Remove build artifacts
+
+set windows-shell := ["powershell.exe", "-NoLogo", "-Command"]
+export DOCKER_BUILDKIT := "0"
+
+kernel      := ".unikraft/build/powershell-hyperlight_hyperlight-x86_64"
+initrd      := "powershell-initrd.cpio"
+memory      := "1Gi"
+image       := "powershell-hyperlight"
+ghcr_kernel := "ghcr.io/hyperlight-dev/hyperlight-unikraft/powershell-kernel:latest"
+
+# Run the example
+run:
+    kraft run --plat hyperlight --memory {{memory}} --rootfs {{initrd}} {{kernel}} --as=kernel -- -NoProfile -File /scripts/hello.ps1
+
+# Run 10 times via snapshot/restore
+run-10:
+    kraft run --plat hyperlight --memory {{memory}} --rootfs {{initrd}} --hyperlight-repeat 9 {{kernel}} --as=kernel -- -NoProfile -File /scripts/hello.ps1
+
+# Build rootfs via Docker (cross-platform)
+rootfs:
+    docker build --platform linux/amd64 --target cpio -t {{image}}-cpio .
+    - docker rm -f {{image}}-tmp
+    docker create --name {{image}}-tmp {{image}}-cpio /bin/true
+    docker cp {{image}}-tmp:/output.cpio ./{{initrd}}
+    docker rm -f {{image}}-tmp
+
+# Build kernel via kraft (Linux)
+[unix]
+build:
+    -kraft build --plat hyperlight --arch x86_64
+
+# Pull pre-built kernel from GHCR (Windows)
+[windows]
+build:
+    docker pull {{ghcr_kernel}}
+    - docker rm -f {{image}}-kernel-tmp
+    docker create --name {{image}}-kernel-tmp {{ghcr_kernel}} /kernel
+    New-Item -ItemType Directory -Force -Path (Split-Path {{kernel}}) | Out-Null
+    docker cp {{image}}-kernel-tmp:/kernel ./{{kernel}}
+    docker rm -f {{image}}-kernel-tmp
+
+# Clean + rebuild everything
+rebuild: clean build rootfs
+
+# Clean build artifacts
+[unix]
+clean:
+    rm -rf .unikraft {{initrd}}
+
+[windows]
+clean:
+    if (Test-Path .unikraft) { Remove-Item -Recurse -Force .unikraft }
+    if (Test-Path {{initrd}}) { Remove-Item -Force {{initrd}} }

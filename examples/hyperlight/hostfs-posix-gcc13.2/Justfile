@@ -1,0 +1,65 @@
+# hostfs-posix-c on Hyperlight
+#
+# Phase B demo: unmodified POSIX open/read/write/mkdir/readdir against a
+# sandboxed host directory mounted at /host by lib/hostfs.
+
+set windows-shell := ["powershell.exe", "-NoLogo", "-Command"]
+export DOCKER_BUILDKIT := "0"
+
+kernel      := ".unikraft/build/hostfs-posix-c-hyperlight_hyperlight-x86_64"
+initrd      := "hostfs-posix-c-initrd.cpio"
+memory      := "2Mi"
+image       := "hostfs-posix-c-hyperlight"
+ghcr_kernel := "ghcr.io/hyperlight-dev/hyperlight-unikraft/hostfs-posix-c-kernel:latest"
+mount_dir   := "./work"
+
+[unix]
+run:
+    mkdir -p {{mount_dir}}
+    kraft run --plat hyperlight --memory {{memory}} --rootfs {{initrd}} --hyperlight-mount {{mount_dir}} {{kernel}} --as=kernel
+
+[windows]
+run:
+    New-Item -ItemType Directory -Force -Path {{mount_dir}} | Out-Null
+    kraft run --plat hyperlight --memory {{memory}} --rootfs {{initrd}} --hyperlight-mount {{mount_dir}} {{kernel}} --as=kernel
+
+[unix]
+run-10:
+    mkdir -p {{mount_dir}}
+    kraft run --plat hyperlight --memory {{memory}} --rootfs {{initrd}} --hyperlight-mount {{mount_dir}} --hyperlight-repeat 9 {{kernel}} --as=kernel
+
+[windows]
+run-10:
+    New-Item -ItemType Directory -Force -Path {{mount_dir}} | Out-Null
+    kraft run --plat hyperlight --memory {{memory}} --rootfs {{initrd}} --hyperlight-mount {{mount_dir}} --hyperlight-repeat 9 {{kernel}} --as=kernel
+
+rootfs:
+    docker build --platform linux/amd64 --target cpio -t {{image}}-cpio .
+    - docker rm -f {{image}}-tmp
+    docker create --name {{image}}-tmp {{image}}-cpio /bin/true
+    docker cp {{image}}-tmp:/output.cpio ./{{initrd}}
+    docker rm -f {{image}}-tmp
+
+[unix]
+build:
+    -kraft build --plat hyperlight --arch x86_64
+
+[windows]
+build:
+    docker pull {{ghcr_kernel}}
+    - docker rm -f {{image}}-kernel-tmp
+    docker create --name {{image}}-kernel-tmp {{ghcr_kernel}} /kernel
+    New-Item -ItemType Directory -Force -Path (Split-Path {{kernel}}) | Out-Null
+    docker cp {{image}}-kernel-tmp:/kernel ./{{kernel}}
+    docker rm -f {{image}}-kernel-tmp
+
+rebuild: clean build rootfs
+
+[unix]
+clean:
+    rm -rf .unikraft {{initrd}}
+
+[windows]
+clean:
+    if (Test-Path .unikraft) { Remove-Item -Recurse -Force .unikraft }
+    if (Test-Path {{initrd}}) { Remove-Item -Force {{initrd}} }

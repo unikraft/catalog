@@ -1,0 +1,31 @@
+spec: v0.6
+
+name: helloworld-c-native
+
+unikraft:
+  source: https://github.com/unikraft/unikraft.git
+  version: plat-hyperlight
+  kconfig:
+    CONFIG_LIBUKDEBUG: 'y'
+    CONFIG_LIBUKDEBUG_ENABLE_ASSERT: 'y'
+    CONFIG_LIBUKPRINT_PRINTK: 'y'
+    CONFIG_LIBUKPRINT_PRINT_TIME: 'y'
+    CONFIG_LIBUKPRINT_PRINT_SRCNAME: 'y'
+    CONFIG_LIBUKPRINT_KLVL_WARN: 'y'
+    CONFIG_LIBUKPRINT_ANSI_COLOR: 'y'
+
+targets:
+- qemu/x86_64
+- fc/x86_64
+- plat: hyperlight
+  arch: x86_64
+  kconfig:
+    CONFIG_PLAT_HYPERLIGHT: 'y'
+    CONFIG_LIBUKINTCTLR_HYPERLIGHT: 'y'
+    CONFIG_PAGING: 'n'
+    CONFIG_LIBUKVMEM: 'n'
+    CONFIG_OPTIMIZE_PIE: 'y'
+    CONFIG_OPTIMIZE_SIZE: 'y'
+    CONFIG_LIBUKBOOT_MAINTHREAD: 'y'
+    CONFIG_LIBUKBOOT_BANNER_NONE: 'y'
+    CONFIG_HYPERLIGHT_MAX_GUEST_LOG_LEVEL: '7'

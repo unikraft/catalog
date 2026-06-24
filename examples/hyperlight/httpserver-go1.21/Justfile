@@ -1,0 +1,47 @@
+# go-httpserver on Hyperlight
+#
+# just run          - Run HTTP server (rootfs embedded in kernel)
+# just wrk          - wrk load test (server must be running)
+# just vegeta       - vegeta load test (server must be running)
+# just build        - Build kernel (embeds rootfs from Dockerfile)
+# just clean        - Remove build artifacts
+
+set windows-shell := ["powershell.exe", "-NoLogo", "-Command"]
+export DOCKER_BUILDKIT := "0"
+
+kernel      := ".unikraft/build/httpserver-go-hyperlight-go1-21_hyperlight-x86_64"
+memory      := "128Mi"
+
+# Run HTTP server (rootfs is embedded in kernel; no --rootfs needed)
+run:
+	kraft run --plat hyperlight --rm --memory {{memory}} -p 8080:8080 {{kernel}} --as=kernel
+
+# wrk load test (server must be running)
+wrk:
+	bash bench_wrk.sh
+
+# vegeta load test (server must be running)
+vegeta:
+	bash bench_vegeta.sh
+
+# Build kernel via kraft (Linux)
+[unix]
+build:
+	kraft build --plat hyperlight --arch x86_64
+
+# Pull pre-built kernel from GHCR (Windows — no kernel published yet)
+[windows]
+build:
+	Write-Host "No pre-built kernel for httpserver-go yet. Build on Linux first."
+
+# Clean + rebuild everything
+rebuild: clean build
+
+# Clean build artifacts
+[unix]
+clean:
+	rm -rf .unikraft .config.*
+
+[windows]
+clean:
+	if (Test-Path .unikraft) { Remove-Item -Recurse -Force .unikraft }

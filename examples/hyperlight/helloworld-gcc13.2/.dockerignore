@@ -1,0 +1,17 @@
+.unikraft/unikraft
+.unikraft/apps
+.unikraft/libs
+.unikraft/build/config
+.unikraft/build/kconfig
+.unikraft/build/lib*
+.unikraft/build/Makefile
+.unikraft/build/*.cmd
+.unikraft/build/*.py
+.unikraft/build/*.o
+.unikraft/build/*.dbg*
+.unikraft/build/*.bootinfo*
+.unikraft/build/include
+.unikraft/build/appelfloader*
+.unikraft/build/provided_syscalls*
+.unikraft/build/libraries*
+hello
