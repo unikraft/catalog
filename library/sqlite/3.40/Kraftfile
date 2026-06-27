@@ -4,7 +4,7 @@ name: sqlite
 
 rootfs: ./rootfs
 
-cmd: ["/music.db", ".read query.sql"]
+cmd: ["/music.db", ".read 'query.sql'"]
 
 unikraft:
   version: staging
