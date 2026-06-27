@@ -6,4 +6,4 @@ runtime: base:latest
 
 rootfs: ./Dockerfile
 
-cmd: ["/usr/bin/python3", "/app/server.py"]
+cmd: ["/usr/local/bin/python3", "/app/server.py"]

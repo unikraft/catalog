@@ -1,0 +1,6 @@
+{
+  "com.urunc.unikernel.unikernelType": "dW5pa3JhZnQ=",
+  "com.urunc.unikernel.hypervisor": "aHlwZXJsaWdodA==",
+  "com.urunc.unikernel.binary": "L3VuaWtlcm5lbC9rZXJuZWw=",
+  "com.urunc.unikernel.initrd": "L3VuaWtlcm5lbC9pbml0cmQuY3Bpbw=="
+}

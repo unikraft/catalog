@@ -1,0 +1,47 @@
+# helloworld-c-native (native-in-kernel, no ELF loader)
+#
+# just run          - Run on Hyperlight
+# just run-10       - Run 10x on Hyperlight (snapshot/restore)
+# just build        - Build Hyperlight kernel
+# just build-all    - Build hl + qemu + fc kernels
+# just boottime-hl   - Run Hyperlight kernel
+# just boottime-qemu - Run QEMU kernel
+# just boottime-fc   - Run Firecracker kernel
+# just boot-all     - Run all kernels
+# just clean        - Remove build artifacts
+
+kernel-hl := ".unikraft/build/helloworld-c-native_hyperlight-x86_64"
+kernel-qemu := ".unikraft/build/helloworld-c-native_qemu-x86_64"
+kernel-fc := ".unikraft/build/helloworld-c-native_fc-x86_64"
+memory-hl := "2Mi"
+memory-vm := "64Mi"
+
+run:
+    kraft run --plat hyperlight --memory {{memory-hl}} {{kernel-hl}} --as=kernel
+
+run-10:
+    kraft run --plat hyperlight --memory {{memory-hl}} --hyperlight-repeat 9 {{kernel-hl}} --as=kernel
+
+build:
+    kraft build --plat hyperlight --arch x86_64
+
+build-all:
+    kraft build --plat hyperlight --arch x86_64
+    kraft build --plat qemu --arch x86_64
+    kraft build --plat fc --arch x86_64
+
+boottime-hl:
+    kraft run --plat hyperlight --rm --memory {{memory-hl}} --as=kernel {{kernel-hl}}
+
+boottime-qemu:
+    kraft run --plat qemu --rm --memory {{memory-vm}} --as=kernel {{kernel-qemu}}
+
+boottime-fc:
+    kraft run --plat fc --rm --memory {{memory-vm}} --as=kernel {{kernel-fc}}
+
+boot-all: boottime-hl boottime-qemu boottime-fc
+
+rebuild: clean build-all
+
+clean:
+    rm -rf .unikraft .config.* .config*

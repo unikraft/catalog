@@ -1,0 +1,46 @@
+# blocking go-httpserver (qemu + firecracker benchmarks)
+#
+# Both platforms attach to the same Kraft network and guest IP.
+# Benchmarks always target http://172.44.0.2:8080.
+#
+# just build-qemu   - Build QEMU kernel (embeds rootfs from Dockerfile)
+# just build-fc     - Build Firecracker kernel (embeds rootfs from Dockerfile)
+# just run-qemu     - Run HTTP server on QEMU (http://172.44.0.2:8080)
+# just run-fc       - Run HTTP server on Firecracker (http://172.44.0.2:8080)
+# just wrk          - wrk load test (server must be running)
+# just vegeta       - vegeta load test (server must be running)
+# just clean        - Remove build artifacts
+
+export DOCKER_BUILDKIT := "0"
+
+memory       := "128Mi"
+kraft-net    := "kraft0"
+kraft-subnet := "172.44.0.1/24"
+kraft-ip     := "172.44.0.2"
+base-url     := "http://172.44.0.2:8080"
+kernel-qemu  := ".unikraft/build/blocking-httpserver-go1-21_qemu-x86_64"
+kernel-fc    := ".unikraft/build/blocking-httpserver-go1-21_fc-x86_64"
+
+run-qemu:
+	-kraft net create --network "{{kraft-subnet}}" "{{kraft-net}}"
+	kraft run --plat qemu --rm --memory {{memory}} --network {{kraft-net}}:{{kraft-ip}} --as=kernel {{kernel-qemu}} -- /bin/server
+
+run-fc:
+	-kraft net create --network "{{kraft-subnet}}" "{{kraft-net}}"
+	kraft run --plat fc --rm --memory {{memory}} --network {{kraft-net}}:{{kraft-ip}} --as=kernel {{kernel-fc}} -- /bin/server
+
+[unix]
+build-qemu:
+	kraft build --plat qemu --arch x86_64
+
+build-fc:
+	kraft build --plat fc --arch x86_64
+
+wrk:
+	bash bench_wrk.sh
+
+vegeta:
+	bash bench_vegeta.sh
+
+clean:
+	rm -rf .unikraft .config.*

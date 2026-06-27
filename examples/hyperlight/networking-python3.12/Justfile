@@ -1,0 +1,68 @@
+# networking-py on Hyperlight
+#
+# just rootfs    - Build rootfs via Docker (cross-platform)
+# just build     - Build kernel
+# just run-get   - Run HTTP GET test
+# just run-echo  - Run echo server
+# just run-http-server - Run HTTP server
+# just clean     - Remove build artifacts
+
+set windows-shell := ["powershell.exe", "-NoLogo", "-Command"]
+export DOCKER_BUILDKIT := "0"
+
+kernel      := ".unikraft/build/networking-py-hyperlight_hyperlight-x86_64"
+initrd      := "initrd.cpio"
+memory      := "128Mi"
+image       := "networking-py-hyperlight"
+config      := ".config.networking-py-hyperlight_hyperlight-x86_64"
+
+# Run HTTP GET test (raw sockets)
+run-get:
+    kraft run --plat hyperlight --rm --memory {{memory}} --rootfs {{initrd}} --hyperlight-net {{kernel}} --as=kernel -- /http_get.py
+
+# Run HTTP GET test (urllib — high-level stdlib)
+run-urllib:
+    kraft run --plat hyperlight --rm --memory {{memory}} --rootfs {{initrd}} --hyperlight-net {{kernel}} --as=kernel -- /urllib_get.py
+
+# Run HTTPS (TLS) test
+run-https:
+    kraft run --plat hyperlight --rm --memory {{memory}} --rootfs {{initrd}} --hyperlight-net {{kernel}} --as=kernel -- /https_test.py
+
+# Run echo server
+run-echo:
+    kraft run --plat hyperlight --rm --memory {{memory}} --rootfs {{initrd}} --port 8080:8080 {{kernel}} --as=kernel -- /echo_server.py
+
+# Run HTTP server
+run-http-server:
+    kraft run --plat hyperlight --rm --memory {{memory}} --hyperlight-stack 512Mi --rootfs {{initrd}} --port 8080:8080 {{kernel}} --as=kernel -- /http_server.py
+
+# Build rootfs via Docker (cross-platform)
+rootfs:
+    docker build --platform linux/amd64 --target cpio -t {{image}}-cpio .
+    - docker rm -f {{image}}-tmp
+    docker create --name {{image}}-tmp {{image}}-cpio /bin/true
+    docker cp {{image}}-tmp:/output.cpio ./{{initrd}}
+    docker rm -f {{image}}-tmp
+
+# Build kernel via kraft (Linux)
+[unix]
+build:
+    -kraft build --plat hyperlight --arch x86_64
+
+# Pull pre-built kernel from GHCR (Windows — no kernel published yet)
+[windows]
+build:
+    Write-Host "No pre-built kernel for networking-py yet. Build on Linux first."
+
+# Clean + rebuild everything
+rebuild: clean build rootfs
+
+# Clean build artifacts
+[unix]
+clean:
+    rm -rf .unikraft {{initrd}} {{config}}*
+
+[windows]
+clean:
+    if (Test-Path .unikraft) { Remove-Item -Recurse -Force .unikraft }
+    if (Test-Path {{initrd}}) { Remove-Item -Force {{initrd}} }
