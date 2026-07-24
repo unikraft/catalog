@@ -13,6 +13,7 @@ on:
     branches: [main]
     paths:
     - 'library/base/**'
+    - 'library/base-hyperlight/**'
     - '.github/workflows/library-base.yaml'
 
   pull_request:
@@ -20,6 +21,7 @@ on:
     branches: [main]
     paths:
     - 'library/base/**'
+    - 'library/base-hyperlight/**'
     - '.github/workflows/library-base.yaml'
 
 # Automatically cancel in-progress actions on the same branch
@@ -35,8 +37,13 @@ jobs:
         include:
         - plat: qemu
           arch: x86_64
+          workdir: library/base
         - plat: fc
           arch: x86_64
+          workdir: library/base
+        - plat: hyperlight
+          arch: x86_64
+          workdir: library/base-hyperlight
 
     runs-on: ubuntu-latest
 
@@ -47,7 +54,7 @@ jobs:
       uses: unikraft/kraftkit@staging
       with:
         loglevel: debug
-        workdir: library/base
+        workdir: ${{ matrix.workdir }}
         runtimedir: /github/workspace/.kraftkit
         plat: ${{ matrix.plat }}
         arch: ${{ matrix.arch }}
