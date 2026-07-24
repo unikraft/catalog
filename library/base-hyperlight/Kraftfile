@@ -1,0 +1,180 @@
+spec: v0.7
+
+name: base-hyperlight
+
+# General-purpose ELF-loader runtime for the Hyperlight platform.
+# Feature set is the union of what examples/hyperlight/* enable:
+#   - Hyperlight platform + interrupt controller (no guest paging/vmem)
+#   - Host calls (/dev/hcall)
+#   - hostfs (POSIX -> host RPC, default mount /host)
+#   - hostsock (host-proxied sockets)
+#   - cpiovfs initrd mount (zero-copy, large rootfs-friendly)
+#   - threading, futex, signals, mmap, poll/eventfd
+#   - multiprocess / execve / binfmt (shell & agent examples)
+
+unikraft:
+  source: https://github.com/unikraft/unikraft.git
+  version: plat-hyperlight
+  kconfig:
+    # ------------------------------------------------------------------
+    # Platform (required for hyperlight-unikraft VMM)
+    # ------------------------------------------------------------------
+    CONFIG_PLAT_HYPERLIGHT: 'y'
+    CONFIG_PAGING: 'n'
+    CONFIG_LIBUKVMEM: 'n'
+    CONFIG_LIBUKINTCTLR_HYPERLIGHT: 'y'
+    CONFIG_HYPERLIGHT_MAX_GUEST_LOG_LEVEL: "4"
+
+    # ------------------------------------------------------------------
+    # Logging / boot banner (quiet by default)
+    # ------------------------------------------------------------------
+    CONFIG_LIBUKPRINT_KLVL_CRIT: 'y'
+    CONFIG_LIBUKPRINT_PRINT_TIME: 'n'
+    CONFIG_LIBUKPRINT_PRINT_SRCNAME: 'n'
+    CONFIG_LIBUKBOOT_BANNER_NONE: 'y'
+
+    # ------------------------------------------------------------------
+    # Size optimization
+    # ------------------------------------------------------------------
+    CONFIG_OPTIMIZE_SIZE: 'y'
+    CONFIG_OPTIMIZE_PIE: 'y'
+
+    # ------------------------------------------------------------------
+    # VFS + initrd via cpiovfs
+    # ------------------------------------------------------------------
+    CONFIG_LIBVFSCORE: 'y'
+    CONFIG_LIBVFSCORE_AUTOMOUNT_CI: 'y'
+    CONFIG_LIBVFSCORE_AUTOMOUNT_CI_CUSTOM: 'y'
+    CONFIG_LIBVFSCORE_AUTOMOUNT_CI0_MP: '/'
+    CONFIG_LIBVFSCORE_AUTOMOUNT_CI0_DRIVER: 'cpiovfs'
+    CONFIG_LIBVFSCORE_AUTOMOUNT_CI0_UKOPTS_IFINITRD0: 'y'
+    CONFIG_LIBCPIOVFS: 'y'
+    CONFIG_LIBUKCPIO: 'y'
+
+    # ------------------------------------------------------------------
+    # devfs + Hyperlight host call device (/dev/hcall)
+    # Required by hostfs, hostsock, and guest tool-calling demos
+    # ------------------------------------------------------------------
+    CONFIG_LIBDEVFS: 'y'
+    CONFIG_LIBDEVFS_AUTOMOUNT: 'y'
+    CONFIG_HYPERLIGHT_HCALL: 'y'
+    CONFIG_LIBUKRANDOM_DEVFS: 'y'
+
+    # ------------------------------------------------------------------
+    # hostfs — transparent POSIX -> host RPC (default mount /host)
+    # ------------------------------------------------------------------
+    CONFIG_LIBHOSTFS: 'y'
+    CONFIG_LIBHOSTFS_AUTOMOUNT: 'y'
+
+    # ------------------------------------------------------------------
+    # Networking: host-proxied sockets
+    # ------------------------------------------------------------------
+    CONFIG_LIBPOSIX_SOCKET: 'y'
+    CONFIG_LIBHOSTSOCK: 'y'
+
+    # FD / file infrastructure (required by posix-socket, poll, hostfs)
+    CONFIG_LIBPOSIX_FDIO: 'y'
+    CONFIG_LIBPOSIX_FDTAB: 'y'
+    CONFIG_LIBPOSIX_FDTAB_MULTITAB: 'n'
+    CONFIG_LIBUKFILE: 'y'
+    CONFIG_LIBPOSIX_PIPE: 'y'
+    CONFIG_LIBPOSIX_POLL: 'y'
+    CONFIG_LIBPOSIX_EVENTFD: 'y'
+    CONFIG_LIBPOSIX_TIMERFD: 'y'
+    CONFIG_LIBPOSIX_TIME: 'y'
+    CONFIG_LIBPOSIX_SYSINFO: 'y'
+    CONFIG_LIBPOSIX_USER: 'y'
+    CONFIG_LIBPOSIX_USER_UID: "0"
+    CONFIG_LIBPOSIX_USER_GID: "0"
+    CONFIG_LIBPOSIX_USER_USERNAME: "root"
+    CONFIG_LIBPOSIX_USER_GROUPNAME: "root"
+
+    # Generic environment for binary-compat guests
+    CONFIG_LIBPOSIX_ENVIRON: 'y'
+    CONFIG_LIBPOSIX_ENVIRON_LIBPARAM: 'y'
+    CONFIG_LIBPOSIX_ENVIRON_ENVP0: "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+    CONFIG_LIBPOSIX_ENVIRON_ENVP1: "LD_LIBRARY_PATH=/usr/local/lib:/usr/lib:/lib"
+    CONFIG_LIBPOSIX_ENVIRON_ENVP2: "HOME=/"
+    CONFIG_LIBPOSIX_ENVIRON_ENVP3: "PWD=/"
+
+    # ------------------------------------------------------------------
+    # Random number support
+    # ------------------------------------------------------------------
+    CONFIG_LIBUKRANDOM: 'y'
+    CONFIG_LIBUKRANDOM_CMDLINE_SEED: 'y'
+    CONFIG_LIBUKRANDOM_GETRANDOM: 'y'
+    CONFIG_LIBUKRANDOM_LCPU: 'y'
+
+    # ------------------------------------------------------------------
+    # Threading / scheduling / locks
+    # ------------------------------------------------------------------
+    CONFIG_LIBUKBOOT_MAINTHREAD: 'y'
+    CONFIG_LIBPOSIX_PROCESS: 'y'
+    CONFIG_LIBPOSIX_PROCESS_ARCH_PRCTL: 'y'
+    CONFIG_LIBPOSIX_PROCESS_MULTITHREADING: 'y'
+    CONFIG_LIBPOSIX_PROCESS_SIGNAL: 'y'
+    CONFIG_LIBPOSIX_FUTEX: 'y'
+    CONFIG_LIBUKSCHED: 'y'
+    CONFIG_LIBUKSCHEDCOOP: 'y'
+    CONFIG_LIBUKLOCK: 'y'
+    CONFIG_LIBUKLOCK_SEMAPHORE: 'y'
+    CONFIG_LIBUKLOCK_MUTEX: 'y'
+    CONFIG_LIBUKSIGNAL: 'y'
+
+    # Multiprocess / execve / binfmt (BusyBox shell, Python agents, …)
+    CONFIG_LIBPOSIX_PROCESS_MULTIPROCESS: 'y'
+    CONFIG_LIBPOSIX_PROCESS_EXECVE: 'y'
+    CONFIG_LIBUKBINFMT: 'y'
+    CONFIG_APPELFLOADER_MULTIPROCESS: 'y'
+    CONFIG_APPELFLOADER_ELF_BINFMT: 'y'
+
+    # ------------------------------------------------------------------
+    # Memory: MPI (per-CPU) + ukmmap (anonymous mmap without paging)
+    # Required by musl mallocng, Go/Python/Node/.NET/Rust runtimes
+    # ------------------------------------------------------------------
+    CONFIG_LIBUKMPI: 'y'
+    CONFIG_LIBUKMMAP: 'y'
+
+    # TLS / context
+    CONFIG_LIBCONTEXT: 'y'
+    CONFIG_LIBCONTEXT_CLEAR_TBSS: 'y'
+
+    # Stack size order 9 = 2^9 pages = 2 MiB (needed by CoreCLR / PowerShell)
+    CONFIG_STACK_SIZE_PAGE_ORDER: "9"
+
+    # ------------------------------------------------------------------
+    # Syscall shim
+    # ------------------------------------------------------------------
+    CONFIG_LIBSYSCALL_SHIM: 'y'
+    CONFIG_LIBSYSCALL_SHIM_HANDLER: 'y'
+    CONFIG_LIBSYSCALL_SHIM_HANDLER_ULTLS: 'y'
+    CONFIG_LIBSYSCALL_SHIM_LEGACY_VERBOSE: 'y'
+    # Debug options (disabled for performance; uncomment when needed)
+    # CONFIG_LIBSYSCALL_SHIM_STRACE: 'y'
+    # CONFIG_LIBSYSCALL_SHIM_DEBUG: 'y'
+
+libraries:
+  app-elfloader:
+    source: https://github.com/unikraft/app-elfloader.git
+    version: plat-hyperlight
+    kconfig:
+      CONFIG_APPELFLOADER: 'y'
+      CONFIG_APPELFLOADER_BRK: 'y'
+      CONFIG_APPELFLOADER_VFSEXEC: 'y'
+      CONFIG_APPELFLOADER_CUSTOMAPPNAME: 'y'
+      CONFIG_APPELFLOADER_VFSEXEC_ENVPATH: 'y'
+      CONFIG_APPELFLOADER_VFSEXEC_ENVPWD: 'y'
+      CONFIG_APPELFLOADER_VFSEXEC_EXECBIT: 'n'
+      CONFIG_APPELFLOADER_STACK_NBPAGES: "128"
+      CONFIG_LIBELF: 'y'
+  libelf:
+    source: https://github.com/unikraft/lib-libelf.git
+    version: staging
+
+targets:
+  - architecture: x86_64
+    platform: hyperlight
+
+rootfs: ./Dockerfile
+
+cmd: ["/bin/fallback"]
