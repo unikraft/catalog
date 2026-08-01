@@ -1,33 +1,8 @@
-spec: v0.6
-
-template:
-  source: https://github.com/unikraft/app-elfloader.git
-  version: staging
-
-rootfs: ./Dockerfile
-
-cmd: ["/fallback"]
+spec: v0.7
 
 unikraft:
   version: staging
   kconfig:
-    # Configurations options for app-elfloader
-    # (they can't be part of the template atm)
-    CONFIG_LIBPOSIX_PROCESS_ARCH_PRCTL: 'y'
-    CONFIG_APPELFLOADER_BRK: 'y'
-    CONFIG_APPELFLOADER_CUSTOMAPPNAME: 'y'
-    CONFIG_APPELFLOADER_STACK_NBPAGES: 128
-    CONFIG_APPELFLOADER_VFSEXEC: 'y'
-    CONFIG_APPELFLOADER_VFSEXEC_EXECBIT: 'y'
-    CONFIG_APPELFLOADER_VFSEXEC_ENVPWD: 'y'
-    CONFIG_APPELFLOADER_VFSEXEC_ENVPATH: 'y'
-    CONFIG_APPELFLOADER_AUTOGEN: 'y'
-    CONFIG_APPELFLOADER_AUTOGEN_ETCRESOLVCONF: 'y'
-    CONFIG_APPELFLOADER_AUTOGEN_ETCHOSTS: 'y'
-    CONFIG_APPELFLOADER_AUTOGEN_ETCHOSTS_LOCALHOST4: 'y'
-    CONFIG_APPELFLOADER_AUTOGEN_ETCHOSTNAME: 'y'
-    CONFIG_APPELFLOADER_AUTOGEN_REPLACEEXIST: 'y'
-
     # Unikraft options
     CONFIG_HAVE_PAGING_DIRECTMAP: 'y'
     CONFIG_HAVE_PAGING: 'y'
@@ -123,6 +98,24 @@ unikraft:
     # CONFIG_LIBSYSCALL_SHIM_DEBUG: 'y'
 
 libraries:
+  app-elfloader:
+    source: https://github.com/unikraft/app-elfloader.git
+    version: staging
+    kconfig:
+      CONFIG_LIBPOSIX_PROCESS_ARCH_PRCTL: 'y'
+      CONFIG_APPELFLOADER_BRK: 'y'
+      CONFIG_APPELFLOADER_CUSTOMAPPNAME: 'y'
+      CONFIG_APPELFLOADER_STACK_NBPAGES: 128
+      CONFIG_APPELFLOADER_VFSEXEC: 'y'
+      CONFIG_APPELFLOADER_VFSEXEC_EXECBIT: 'y'
+      CONFIG_APPELFLOADER_VFSEXEC_ENVPWD: 'y'
+      CONFIG_APPELFLOADER_VFSEXEC_ENVPATH: 'y'
+      CONFIG_APPELFLOADER_AUTOGEN: 'y'
+      CONFIG_APPELFLOADER_AUTOGEN_ETCRESOLVCONF: 'y'
+      CONFIG_APPELFLOADER_AUTOGEN_ETCHOSTS: 'y'
+      CONFIG_APPELFLOADER_AUTOGEN_ETCHOSTS_LOCALHOST4: 'y'
+      CONFIG_APPELFLOADER_AUTOGEN_ETCHOSTNAME: 'y'
+      CONFIG_APPELFLOADER_AUTOGEN_REPLACEEXIST: 'y'
   lwip:
     source: https://github.com/unikraft/lib-lwip.git
     version: staging
@@ -155,3 +148,7 @@ libraries:
 targets:
 - fc/x86_64
 - qemu/x86_64
+
+rootfs: ./Dockerfile
+
+cmd: ["/fallback"]
