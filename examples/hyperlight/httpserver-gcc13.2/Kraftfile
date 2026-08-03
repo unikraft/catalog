@@ -1,0 +1,13 @@
+spec: v0.6
+
+name: httpserver-gcc13.2-hyperlight
+
+runtime: base:latest
+
+targets:
+  - platform: hyperlight
+    architecture: x86_64
+
+rootfs: .unikraft/build/initramfs-x86_64.cpio
+
+cmd: ["/http_server"]

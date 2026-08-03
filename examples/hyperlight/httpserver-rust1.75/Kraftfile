@@ -1,0 +1,13 @@
+spec: v0.6
+
+name: httpserver-rust1.75-base-hyperlight
+
+runtime: base:latest
+
+targets:
+  - platform: hyperlight
+    architecture: x86_64
+
+rootfs: .unikraft/build/initramfs-x86_64.cpio
+
+cmd: ["/server"]
