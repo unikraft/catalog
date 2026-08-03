@@ -1,0 +1,25 @@
+# httpserver-rust1.75-base on Hyperlight
+#
+# just build        - Build rootfs via kraft build
+# just run          - Run HTTP server (uses Hyperlight runtime)
+# just clean        - Remove build artifacts
+
+initrd := ".unikraft/build/initramfs-x86_64.cpio"
+memory := "64Mi"
+
+# Build rootfs via kraft
+build:
+	kraft build --rootfs ./Dockerfile --plat hyperlight --arch x86_64
+
+# Run HTTP server with Kraft
+run:
+	kraft run --plat hyperlight --rm --memory {{memory}} --rootfs {{initrd}} -p 8080:8080 .
+
+# Clean build artifacts
+[unix]
+clean:
+	rm -rf .unikraft .config.*
+
+[windows]
+clean:
+	if (Test-Path .unikraft) { Remove-Item -Recurse -Force .unikraft }
