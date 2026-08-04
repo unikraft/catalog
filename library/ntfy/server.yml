@@ -1,0 +1,4 @@
+base-url: "http://localhost"
+listen-http: ":80"
+cache-file: "/tmp/ntfy.db"
+attachment-cache-dir: "/tmp/attachments"
