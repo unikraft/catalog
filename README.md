@@ -60,6 +60,7 @@ kraft pkg ls --apps --update
 | [![](https://github.com/unikraft/catalog/actions/workflows/library-nats2.10.yaml/badge.svg)](https://github.com/unikraft/catalog/actions/workflows/library-nats2.10.yaml) | [`unikraft.org/nats:2.10`](library/nats/2.10) |
 | [![](https://github.com/unikraft/catalog/actions/workflows/library-nginx1.15.yaml/badge.svg)](https://github.com/unikraft/catalog/actions/workflows/library-nginx1.15.yaml) | [`unikraft.org/nginx:1.15`](library/nginx/1.15) |
 | [![](https://github.com/unikraft/catalog/actions/workflows/library-nginx1.25.yaml/badge.svg)](https://github.com/unikraft/catalog/actions/workflows/library-nginx1.25.yaml) | [`unikraft.org/nginx:1.25`](library/nginx/1.25) |
+| [![](https://github.com/unikraft/catalog/actions/workflows/library-nginx1.31.yaml/badge.svg)](https://github.com/unikraft/catalog/actions/workflows/library-nginx1.31.yaml) | [`unikraft.org/nginx:1.31`](library/nginx/1.31) |
 | [![](https://github.com/unikraft/catalog/actions/workflows/library-node18.yaml/badge.svg)](https://github.com/unikraft/catalog/actions/workflows/library-node18.yaml) | [`unikraft.org/node:18`](library/node/18) |
 | [![](https://github.com/unikraft/catalog/actions/workflows/library-node20.yaml/badge.svg)](https://github.com/unikraft/catalog/actions/workflows/library-node20.yaml) | [`unikraft.org/node:20`](library/node/20) |
 | [![](https://github.com/unikraft/catalog/actions/workflows/library-node21.yaml/badge.svg)](https://github.com/unikraft/catalog/actions/workflows/library-node21.yaml) | [`unikraft.org/node:21`](library/node/21) |
