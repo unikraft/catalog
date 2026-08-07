@@ -27,7 +27,7 @@ $ nc -zv 172.44.0.2 4222
 Connection to localhost 4222 port [tcp/*] succeeded! 
 ```
 
-or querry the http server
+or query the http server
 
 ```console
 curl 172.44.0.2:8222
