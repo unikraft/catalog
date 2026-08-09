@@ -1,0 +1,9 @@
+spec: v0.6
+
+name: puppeteer
+
+runtime: unikraft.org/base:latest
+
+rootfs: ./Dockerfile
+
+cmd: ["/usr/local/bin/node", "/src/pdf.js"]
