@@ -1,3 +1,5 @@
+
+
 # Unikraft Applications & Examples Catalog
 
 This repository contains the official catalog of supported applications by
@@ -73,3 +75,7 @@ kraft pkg ls --apps --update
 | [![](https://github.com/unikraft/catalog/actions/workflows/library-ruby3.2.yaml/badge.svg)](https://github.com/unikraft/catalog/actions/workflows/library-ruby3.2.yaml) | [`unikraft.org/ruby:3.2`](library/ruby/3.2) |
 | [![](https://github.com/unikraft/catalog/actions/workflows/library-skipper0.18.yaml/badge.svg)](https://github.com/unikraft/catalog/actions/workflows/library-skipper0.18.yaml) | [`unikraft.org/skipper:0.18`](library/skipper/0.18) |
 | [![](https://github.com/unikraft/catalog/actions/workflows/library-surreal1.1.yaml/badge.svg)](https://github.com/unikraft/catalog/actions/workflows/library-surreal1.1.yaml) | [`unikraft.org/surreal:1.1`](library/surreal/1.1) |
+| [![](https://github.com/unikraft/catalog/actions/workflows/library-perl5.42.yaml/badge.svg)](https://github.com/unikraft/catalog/actions/workflows/library-perl5.42.yaml) | [`unikraft.org/perl:5.42`](library/perl/5.42) |
+| [![](https://github.com/unikraft/catalog/actions/workflows/library-python3.14.yaml/badge.svg)](https://github.com/unikraft/catalog/actions/workflows/library-python3.14.yaml) | [`unikraft.org/python:3.14`](library/python/3.14) |
+| [![](https://github.com/unikraft/catalog/actions/workflows/library-r4.3.3.yaml/badge.svg)](https://github.com/unikraft/catalog/actions/workflows/library-r4.3.3.yaml) | [`unikraft.org/r:4.3.3`](library/r/4.3.3) |
+| [![](https://github.com/unikraft/catalog/actions/workflows/library-sqlite3.40.yaml/badge.svg)](https://github.com/unikraft/catalog/actions/workflows/library-sqlite3.40.yaml) | [`unikraft.org/sqlite:3.40`](library/sqlite/3.40) |
