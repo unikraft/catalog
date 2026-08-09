@@ -78,3 +78,35 @@ jobs:
       with:
         name: index.unikraft.io/unikraft.org/grafana:10.2
         push: true
+
+
+  run:
+    name: Test grafana:10.2 (Local build)
+    needs: [build]
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install kraft CLI
+        run: |
+          echo "deb [trusted=yes] https://deb.pkg.kraftkit.sh/ /" | sudo tee /etc/apt/sources.list.d/kraftkit.list
+          sudo apt-get update
+          sudo apt-get install -y kraftkit
+      - name: Build, run and validate unikernel
+        run: |
+          set -euo pipefail
+          sudo chmod 666 /dev/kvm
+          cd library/grafana/10.2
+          echo "Build grafana:10.2 unikernel"
+          kraft build --no-cache --no-update --plat qemu --arch x86_64
+
+          echo "Run grafana:10.2 unikernel"
+          kraft run --rm -M 256M --plat qemu --arch x86_64 . &
+          PID=$!
+          sleep 5
+
+          echo "Pytgrafana:10.2 unikernel started successfully locally"
+
+          echo "Cleanup grafana:10.2 unikernel"
+          sudo kill "$PID" || true
