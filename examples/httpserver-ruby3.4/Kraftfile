@@ -1,0 +1,9 @@
+spec: v0.6
+
+name: httpserver-ruby3.4
+
+runtime: ruby:3.4
+
+rootfs: ./Dockerfile
+
+cmd: ["/usr/bin/ruby", "/src/server.rb"]

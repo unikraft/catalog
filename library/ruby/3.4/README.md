@@ -8,7 +8,7 @@ It implements a simple HTTP server running on Unikraft that provides a simple re
 Use `kraft` to run the image and start a Unikraft instance:
 
 ```bash
-kraft run -M 256M -p 8080:8080 --plat qemu --arch x86_64 unikraft.org/ruby:3.2
+kraft run -M 512M -p 8080:8080 --plat qemu --arch x86_64 unikraft.org/ruby:3.4
 ```
 
 If the `--plat` argument is left out, it defaults to `qemu`.
@@ -32,22 +32,22 @@ kraft ps -a
 ```
 
 ```text
-NAME         KERNEL                      ARGS                          CREATED         STATUS   MEM   PORTS                   PLAT
-happy_gordo  project://ruby:qemu/x86_64  /usr/bin/ruby /src/server.rb  46 seconds ago  running  0MiB  0.0.0.0:8080->8080/tcp  qemu/x86_64
+NAME           KERNEL                      ARGS                          CREATED         STATUS    MEM    PORTS                   PLAT
+zealous_titus  project://ruby:qemu/x86_64  /usr/bin/ruby /src/server.rb  9 seconds ago   running   488M   0.0.0.0:8080->8080/tcp  qemu/x86_64
 ```
 
-The instance name is `happy_gordo`.
+The instance name is `zealous_titus`.
 To close the Unikraft instance, use:
 
 ```bash
-kraft rm happy_gordo
+kraft rm zealous_titus
 ```
 
 Note that closing the `kraft run` command (e.g., via `Ctrl+c`) does not kill the Unikraft instance.
 If you want the Unikraft instance closed when closing the `kraft run` command, use the `--rm` option:
 
 ```bash
-kraft run --rm -M 256M -p 8080:8080 --plat qemu --arch x86_64 unikraft.org/ruby:3.2
+kraft run --rm -M 512M -p 8080:8080 --plat qemu --arch x86_64 unikraft.org/ruby:3.4
 ```
 
 ## Build and Run Locally
@@ -67,7 +67,7 @@ If the `--arch` argument is left out, it defaults to your system's CPU architect
 In order to run the locally built image, use `.` (_dot_, the current directory)  as the final argument to the `kraft run` command:
 
 ```bash
-kraft run -M 256M -p 8080:8080 --plat qemu --arch x86_64 .
+kraft run -M 512M -p 8080:8080 --plat qemu --arch x86_64 .
 ```
 
 Same as above, it will open port `8080` and wait for connections.
