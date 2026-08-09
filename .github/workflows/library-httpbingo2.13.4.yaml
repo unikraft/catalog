@@ -57,10 +57,31 @@ jobs:
         name: oci-digests-${{ matrix.arch }}-${{ matrix.plat }}
         path: ${{ github.workspace }}/.kraftkit/oci/digests
         if-no-files-found: error
+  run:
+    needs: build
+    strategy:
+      matrix:
+        include:
+          - plat: qemu
+            arch: x86_64
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup KraftKit
+        uses: unikraft/kraftkit@staging
+        with:
+          runtimedir: /github/workspace/.kraftkit
+      - name: Test httpbingo2.13.4
+        run: |
+          cd library/httpbingo/2.13.4
+          kraft run -d -M 256M -p 8080:8080 --plat ${{ matrix.plat }} --arch ${{ matrix.arch }}
+          sleep 10
+          curl -I http://localhost:8080/status/418 || exit 1
+          kraft stop --all
 
   push:
     if: ${{ github.event_name == 'push' || github.event_name == 'schedule' }}
-    needs: [ build ]
+    needs: [ run ]
     runs-on: ubuntu-latest
 
     steps:
