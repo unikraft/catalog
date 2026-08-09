@@ -1,0 +1,9 @@
+spec: v0.6
+
+name: httpserver-java25-base
+
+rootfs: ./Dockerfile
+
+cmd: ["/usr/lib/jvm/java-25-runtime/bin/java", "-classpath", "/usr/src/", "SimpleHttpServer"]
+
+runtime: java:25
