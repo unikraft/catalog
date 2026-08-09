@@ -78,3 +78,34 @@ jobs:
       with:
         name: index.unikraft.io/unikraft.org/findtime:latest
         push: true
+
+  run:
+    name: Test findtime:latest (Local build)
+    needs: [build]
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install kraft CLI
+        run: |
+          echo "deb [trusted=yes] https://deb.pkg.kraftkit.sh/ /" | sudo tee /etc/apt/sources.list.d/kraftkit.list
+          sudo apt-get update
+          sudo apt-get install -y kraftkit
+      - name: Build, run and validate unikernel
+        run: |
+          set -euo pipefail
+          sudo chmod 666 /dev/kvm
+          cd library/findtime/latest
+          echo "Build findtime:latest unikernel"
+          kraft build --no-cache --no-update --plat qemu --arch x86_64
+
+          echo "Run findtime:latest unikernel"
+          kraft run --rm -M 256M --plat qemu --arch x86_64 . &
+          PID=$!
+          sleep 5
+
+          echo "findtime:latest unikernel started successfully locally"
+
+          echo "Cleanup findtime:latest unikernel"
+          sudo kill "$PID" || true
