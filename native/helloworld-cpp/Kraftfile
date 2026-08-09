@@ -6,6 +6,7 @@ unikraft:
   version: stable
   kconfig:
     CONFIG_LIBPOSIX_SYSINFO: y
+    CONFIG_LIBPOSIX_TTY_STDIO: 'y'
     CONFIG_LIBUKSIGNAL: y
 
 targets:
