@@ -1,0 +1,25 @@
+---
+services:
+  proxy:
+    image: nginx:1.25
+    volumes:
+      - ./proxy:/etc/nginx
+    ports:
+      - 8080:80
+    depends_on:
+      - backend
+    networks:
+      internal:
+
+  backend:
+    build:
+      context: backend
+    networks:
+      internal:
+        ipv4_address: 172.23.0.2
+
+networks:
+  internal:
+    ipam:
+      config:
+        - subnet: 172.23.0.1/16
