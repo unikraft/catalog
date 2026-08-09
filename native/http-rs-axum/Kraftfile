@@ -8,6 +8,7 @@ unikraft:
     CONFIG_LIBPOSIX_EVENTFD: 'y'
     CONFIG_LIBPOSIX_UNIXSOCKET: 'y'
     CONFIG_LIBUKNETDEV_EINFO_LIBPARAM: 'y'
+    CONFIG_LIBUKRANDOM_GETRANDOM: 'y'
 
 libraries:
   musl: stable
