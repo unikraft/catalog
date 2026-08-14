@@ -1,0 +1,131 @@
+name: library/lighttpd:1.4
+
+on:
+  schedule:
+  - cron: '0 1 * * *'
+
+  push:
+    branches: [main]
+    paths:
+    - 'library/lighttpd/1.4/**'
+    - '.github/workflows/library-lighttpd1.4.yaml'
+    - '!library/lighttpd/1.4/README.md'
+
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [main]
+    paths:
+    - 'library/lighttpd/1.4/**'
+    - '.github/workflows/library-lighttpd1.4.yaml'
+    - '!library/lighttpd/1.4/README.md'
+
+# Automatically cancel in-progress actions on the same branch
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request_target' && github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+        - plat: qemu
+          arch: x86_64
+        - plat: fc
+          arch: x86_64
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Build lighttpd1.4
+      uses: unikraft/kraftkit@staging
+      with:
+        loglevel: debug
+        workdir: library/lighttpd/1.4
+        runtimedir: /github/workspace/.kraftkit
+        plat: ${{ matrix.plat }}
+        arch: ${{ matrix.arch }}
+        push: false
+        output: oci://index.unikraft.io/unikraft.org/lighttpd:1.4
+
+    - name: Archive OCI digests
+      uses: actions/upload-artifact@v4
+      with:
+        name: oci-digests-${{ matrix.arch }}-${{ matrix.plat }}
+        path: ${{ github.workspace }}/.kraftkit/oci/digests
+        if-no-files-found: error
+
+  push:
+    if: ${{ github.event_name == 'push' || github.event_name == 'schedule' }}
+    needs: [ build ]
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Login to OCI registry
+      uses: docker/login-action@v3
+      with:
+        registry: index.unikraft.io
+        username: ${{ secrets.REG_USERNAME }}
+        password: ${{ secrets.REG_TOKEN }}
+
+    - name: Retrieve, merge and push OCI digests
+      uses: ./.github/actions/merge-oci-digests
+      with:
+        name: index.unikraft.io/unikraft.org/lighttpd:1.4
+        push: true
+
+  test:
+    needs: [ build ]
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+        - plat: qemu
+          arch: x86_64
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y qemu-system-x86 qemu-utils curl
+
+    - name: Install KraftKit
+      run: curl -sSfL https://get.kraftkit.sh | sudo sh -s -- -y
+
+    - name: Build and Run lighttpd1.4
+      env:
+        KRAFTKIT_NO_CHECK_UPDATES: true
+        UK_CFLAGS: "-std=gnu17"
+      run: |
+        cd library/lighttpd/1.4
+        kraft build --plat ${{ matrix.plat }} --arch ${{ matrix.arch }}
+        kraft run --rm -W -M 64M -p 8080:80 --plat ${{ matrix.plat }} --arch ${{ matrix.arch }} . > /tmp/kraft-lighttpd.log 2>&1 &
+        echo $! > /tmp/kraft_pid
+
+    - name: Wait for HTTP on port 8080
+      run: |
+        for i in $(seq 1 120); do
+          if curl -fsS http://127.0.0.1:8080/ >/dev/null 2>&1; then
+            echo "lighttpd on ${{ matrix.plat }} served a request."
+            exit 0
+          fi
+          sleep 1
+        done
+        echo "lighttpd did not answer after 120 seconds."
+        cat /tmp/kraft-lighttpd.log || true
+        exit 1
+
+    - name: Stop lighttpd instance
+      if: ${{ always() }}
+      run: |
+        if [ -f /tmp/kraft_pid ]; then
+          kill "$(cat /tmp/kraft_pid)" || true
+        fi
