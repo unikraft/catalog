@@ -1,0 +1,10 @@
+spec: v0.6
+
+name: actix4-rust1.75-distroless
+
+runtime: base:latest
+
+rootfs: ./Dockerfile
+
+cmd: ["/server"]
+
