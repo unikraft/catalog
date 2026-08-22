@@ -1,0 +1,92 @@
+name: Test Redis7.2 Database Distroless
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "examples/database-redis7.2-base-distroless/**"
+      - ".github/workflows/test-database-redis7.2-base-distroless.yaml"
+  pull_request:
+    paths:
+      - "examples/database-redis7.2-base-distroless/**"
+      - ".github/workflows/test-database-redis7.2-base-distroless.yaml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-benchmark-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install KraftKit
+        env:
+          KRAFT_VERSION: "0.12.15"
+        run: |
+          set -euo pipefail
+          wget -q "https://github.com/unikraft/kraftkit/releases/download/v${KRAFT_VERSION}/kraft_${KRAFT_VERSION}_linux_amd64.tar.gz"
+          wget -q "https://github.com/unikraft/kraftkit/releases/download/v${KRAFT_VERSION}/kraftkit_${KRAFT_VERSION}_checksums.txt"
+          awk -v f="kraft_${KRAFT_VERSION}_linux_amd64.tar.gz" '($2==f)||($2=="*"f){print}' "kraftkit_${KRAFT_VERSION}_checksums.txt" | sha256sum -c -
+          tar -xzf "kraft_${KRAFT_VERSION}_linux_amd64.tar.gz"
+          chmod +x kraft
+          sudo install -o root -g root -m 0755 kraft /usr/local/bin/kraft
+          kraft version
+
+      - name: Build Unikernel
+        working-directory: examples/database-redis7.2-base-distroless
+        run: kraft build --plat qemu --arch x86_64 .
+
+      - name: Measure RootFS Size
+        working-directory: examples/database-redis7.2-base-distroless
+        run: |
+          du -sh .unikraft/build/initramfs-x86_64.cpio
+
+      - name: Build Distroless rootfs for Trivy
+        working-directory: examples/database-redis7.2-base-distroless
+        run: docker build --pull -t database-redis7.2-base-distroless:ci .
+
+      - name: Run Trivy Vulnerability Scanner
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25
+        with:
+          scan-type: "image"
+          image-ref: "database-redis7.2-base-distroless:ci"
+          format: "table"
+          exit-code: "1"
+          severity: "CRITICAL,HIGH"
+          trivyignores: "examples/database-redis7.2-base-distroless/.trivyignore"
+
+      - name: Install QEMU and Redis
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qemu-system-x86 redis-tools
+          if [ -e /dev/kvm ]; then
+            sudo chown "$(id -u):$(id -g)" /dev/kvm
+            sudo chmod 660 /dev/kvm
+          fi
+
+      - name: Run Unikernel in Background
+        working-directory: examples/database-redis7.2-base-distroless
+        run: kraft run -d --rm -p 6379:6379 --plat qemu --arch x86_64 -M 256M --name redis-test .
+
+      - name: Test Database
+        run: |
+          sleep 5
+          redis-cli -h 127.0.0.1 -p 6379 SET a 1
+          RESULT=$(redis-cli -h 127.0.0.1 -p 6379 GET a)
+          if [ "$RESULT" = "1" ]; then
+            exit 0
+          else
+            exit 1
+          fi
+
+      - name: Cleanup
+        if: always()
+        run: kraft rm --force redis-test || true
