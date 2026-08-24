@@ -1,2 +1,4 @@
 asyncio>=3.4.3
 tornado>=6.5.2
+msgpack>=1.2.1
+setuptools>=78.1.1
