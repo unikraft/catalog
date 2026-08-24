@@ -1,0 +1,2 @@
+asyncio>=3.4.3
+tornado>=6.5.2
