@@ -1,0 +1,47 @@
+name: Test C++13.2 Helloworld Distroless
+
+on:
+  workflow_dispatch:
+  push:
+  pull_request:
+
+jobs:
+  build-benchmark-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install KraftKit
+        run: curl -sSfL https://get.kraftkit.sh | sudo DEBIAN_FRONTEND=noninteractive sh -s -- -y
+
+      - name: Build Unikernel
+        working-directory: examples/helloworld-g++13.2-distroless
+        run: kraft build --plat qemu --arch x86_64 .
+
+      - name: Measure RootFS Size
+        working-directory: examples/helloworld-g++13.2-distroless
+        run: |
+          du -sh .unikraft/build/ || true
+          find .unikraft/build/ -type f -name "*.img" -exec du -h {} + || true
+
+      - name: Run Trivy Vulnerability Scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: "fs"
+          scan-ref: "examples/helloworld-g++13.2-distroless"
+          format: "table"
+          exit-code: "0"
+          severity: "CRITICAL,HIGH"
+
+      - name: Install QEMU and Grant Permissions
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qemu-system-x86
+          sudo chmod 666 /dev/kvm
+
+      - name: Run and Validate Output
+        working-directory: examples/helloworld-g++13.2-distroless
+        run: |
+          kraft run --rm -M 128M
