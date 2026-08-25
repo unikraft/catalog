@@ -1,0 +1,86 @@
+name: Test Tornado 6.5.1 Python 3.10 Distroless
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "examples/tornado6.5.1-python3.10-base-distroless/**"
+      - ".github/workflows/test-tornado6.5.1-python3.10-distroless.yaml"
+  pull_request:
+    paths:
+      - "examples/tornado6.5.1-python3.10-base-distroless/**"
+      - ".github/workflows/test-tornado6.5.1-python3.10-distroless.yaml"
+
+jobs:
+  build-benchmark-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install KraftKit
+        run: |
+          curl -sSfL https://get.kraftkit.sh | sudo DEBIAN_FRONTEND=noninteractive sh -s -- -y
+          kraft version
+
+      - name: Build Unikernel
+        working-directory: examples/tornado6.5.1-python3.10-base-distroless
+        run: |
+          kraft build --plat qemu --arch x86_64 .
+
+      - name: Measure RootFS Size
+        working-directory: examples/tornado6.5.1-python3.10-base-distroless
+        run: |
+          du -sh .unikraft/build/ || true
+          find .unikraft/build/ -type f -name "*.img" -exec du -h {} + || true
+
+      - name: Run Trivy Vulnerability Scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: "fs"
+          scan-ref: "examples/tornado6.5.1-python3.10-base-distroless"
+          format: "table"
+          exit-code: "0"
+          severity: "CRITICAL,HIGH"
+
+      - name: Install QEMU and Grant Permissions
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qemu-system-x86
+          sudo chmod 666 /dev/kvm
+
+      - name: Run Tornado Unikernel
+        working-directory: examples/tornado6.5.1-python3.10-base-distroless
+        run: |
+          kraft run --rm \
+            -p 8080:8080 \
+            --plat qemu \
+            --arch x86_64 \
+            -M 512M \
+            . &
+          
+          echo $! > /tmp/kraft-run.pid
+
+      - name: Wait for Tornado to start
+        run: |
+          for i in {1..30}; do
+            if curl -fsS http://127.0.0.1:8080/ > /tmp/tornado-response.txt; then
+              echo "Tornado is ready."
+              cat /tmp/tornado-response.txt
+              exit 0
+            fi
+
+            echo "Waiting for Tornado... attempt $i/30"
+            sleep 2
+          done
+
+          echo "Tornado did not become ready."
+          exit 1
+
+      - name: Validate HTTP Response
+        run: |
+          response="$(curl -fsS http://127.0.0.1:8080/)"
+          echo "Response: $response"
+
+          test "$response" = "Bye, World!"
