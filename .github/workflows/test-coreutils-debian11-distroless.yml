@@ -1,0 +1,108 @@
+name: Test Linux Coreutils Distroless
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "examples/coreutils-debian11-distroless/**"
+      - ".github/workflows/test-coreutils-debian11-distroless.yml"
+  pull_request:
+    paths:
+      - "examples/coreutils-debian11-distroless/**"
+      - ".github/workflows/test-coreutils-debian11-distroless.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-benchmark-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout repository
+        # v7.0.1
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+
+      - name: Install KraftKit (Version Pinned & Verified)
+        env:
+          KRAFT_VERSION: "0.12.15"
+        run: |
+          set -euo pipefail
+
+          wget -q "https://github.com/unikraft/kraftkit/releases/download/v${KRAFT_VERSION}/kraft_${KRAFT_VERSION}_linux_amd64.tar.gz"
+          wget -q "https://github.com/unikraft/kraftkit/releases/download/v${KRAFT_VERSION}/kraftkit_${KRAFT_VERSION}_checksums.txt"
+
+          grep " kraft_${KRAFT_VERSION}_linux_amd64.tar.gz\$" "kraftkit_${KRAFT_VERSION}_checksums.txt" | sha256sum -c -
+
+          tar -xzf "kraft_${KRAFT_VERSION}_linux_amd64.tar.gz"
+          chmod +x kraft
+          sudo install -o root -g root -m 0755 kraft /usr/local/bin/kraft
+          kraft version
+
+      - name: Build Distroless rootfs for Trivy
+        working-directory: examples/coreutils-debian11-distroless
+        run: docker build --pull -t coreutils-debian11-distroless:ci .
+
+      - name: Run Trivy Vulnerability Scanner
+        # v0.36.0
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25
+        with:
+          scan-type: "image"
+          scan-ref: "coreutils-debian11-distroless:ci"
+          format: "table"
+          exit-code: "1"
+          severity: "CRITICAL,HIGH"
+          trivyignores: "examples/coreutils-debian11-distroless/.trivyignore"
+
+      - name: Install QEMU and Grant Permissions
+        run: |
+          set -euo pipefail
+
+          sudo apt-get update
+          sudo apt-get install -y qemu-system-x86
+
+          if [ -e /dev/kvm ]; then
+            sudo chown "$(id -u):$(id -g)" /dev/kvm
+            sudo chmod 660 /dev/kvm
+          fi
+
+      - name: Run and Validate All Commands
+        working-directory: examples/coreutils-debian11-distroless
+        run: |
+          set -uo pipefail
+
+          declare -A tests=(
+            ["Kraftfile.cat"]="Lorem ipsum"
+            ["Kraftfile.ls"]="test-files"
+            ["Kraftfile.pwd"]="/"
+            ["Kraftfile.uniq"]="Unikraft rules!"
+            ["Kraftfile.sort"]="Hello World!"
+          )
+
+          fail=0
+          for kraftfile in "${!tests[@]}"; do
+            expected="${tests[$kraftfile]}"
+            logfile="run-${kraftfile}.log"
+            echo "::group::${kraftfile}"
+
+            kraft run --rm --plat qemu --arch x86_64 -M 128M -K "${kraftfile}" . | tee "${logfile}"
+            run_status="${PIPESTATUS[0]}"
+
+            if [ "${run_status}" -ne 0 ]; then
+              echo "FAIL: ${kraftfile} (kraft run exited ${run_status})" >&2
+              fail=1
+            elif grep -q -- "${expected}" "${logfile}"; then
+              echo "PASS: ${kraftfile}"
+            else
+              echo "FAIL: ${kraftfile} — expected \"${expected}\" not found in output" >&2
+              fail=1
+            fi
+            echo "::endgroup::"
+          done
+
+          exit "${fail}"
