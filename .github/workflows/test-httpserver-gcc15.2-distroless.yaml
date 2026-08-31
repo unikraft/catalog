@@ -1,0 +1,86 @@
+name: Test C HTTP Server Distroless
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "examples/httpserver-gcc15.2-distroless/**"
+      - ".github/workflows/test-httpserver-gcc15.2-distroless.yaml"
+  pull_request:
+    paths:
+      - "examples/httpserver-gcc15.2-distroless/**"
+      - ".github/workflows/test-httpserver-gcc15.2-distroless.yaml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-benchmark-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install KraftKit (Version Pinned & Verified)
+        env:
+          KRAFT_VERSION: "0.12.15"
+        run: |
+          set -euo pipefail
+          wget -q "https://github.com/unikraft/kraftkit/releases/download/v${KRAFT_VERSION}/kraft_${KRAFT_VERSION}_linux_amd64.tar.gz"
+          wget -q "https://github.com/unikraft/kraftkit/releases/download/v${KRAFT_VERSION}/kraftkit_${KRAFT_VERSION}_checksums.txt"
+          awk -v f="kraft_${KRAFT_VERSION}_linux_amd64.tar.gz" '($2==f)||($2=="*"f){print}' "kraftkit_${KRAFT_VERSION}_checksums.txt" | sha256sum -c -
+          tar -xzf "kraft_${KRAFT_VERSION}_linux_amd64.tar.gz"
+          chmod +x kraft
+          sudo install -o root -g root -m 0755 kraft /usr/local/bin/kraft
+          kraft version
+
+      - name: Build Unikernel
+        working-directory: examples/httpserver-gcc15.2-distroless
+        run: kraft build --plat qemu --arch x86_64 .
+
+      - name: Measure RootFS Size
+        working-directory: examples/httpserver-gcc15.2-distroless
+        run: |
+          du -sh .unikraft/build/initramfs-x86_64.cpio
+
+      - name: Build Distroless rootfs for Trivy
+        working-directory: examples/httpserver-gcc15.2-distroless
+        run: docker build --pull -t httpserver-gcc15.2-distroless:ci .
+
+      - name: Run Trivy Vulnerability Scanner
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25
+        with:
+          scan-type: "image"
+          image-ref: "httpserver-gcc15.2-distroless:ci"
+          format: "table"
+          exit-code: "1"
+          severity: "CRITICAL,HIGH"
+          trivyignores: "examples/httpserver-gcc15.2-distroless/.trivyignore"
+
+      - name: Install QEMU and Grant Permissions
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qemu-system-x86
+          if [ -e /dev/kvm ]; then
+            sudo chown "$(id -u):$(id -g)" /dev/kvm
+            sudo chmod 660 /dev/kvm
+          fi
+
+      - name: Run Unikernel in Background
+        working-directory: examples/httpserver-gcc15.2-distroless
+        run: kraft run -d --rm -p 8080:8080 --plat qemu --arch x86_64 -M 128M --name httpserver-test .
+
+      - name: Test Network Connectivity
+        run: |
+          sleep 5
+          curl -s localhost:8080 | grep "Bye, World!"
+
+      - name: Cleanup
+        if: always()
+        run: kraft rm --force httpserver-test || true
