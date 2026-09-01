@@ -1,0 +1,113 @@
+
+name: Test Flask 3.0 Python 3.12 Distroless
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "examples/flask3.0-python3.12-distroless/**"
+      - ".github/workflows/test-flask3.0-python3.12-distroless.yaml"
+  pull_request:
+    paths:
+      - "examples/flask3.0-python3.12-distroless/**"
+      - ".github/workflows/test-flask3.0-python3.12-distroless.yaml"
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install KraftKit
+        run: |
+          curl -sSfL https://get.kraftkit.sh | \
+            sudo DEBIAN_FRONTEND=noninteractive sh -s -- -y
+
+      - name: Build Unikernel
+        working-directory: examples/flask3.0-python3.12-distroless
+        run: |
+          kraft build --plat qemu --arch x86_64 .
+
+      - name: Measure rootfs size
+        working-directory: examples/flask3.0-python3.12-distroless
+        run: |
+          echo "Build directory:"
+          du -sh .unikraft/build/ || true
+
+          echo "Image/rootfs files:"
+          find .unikraft/build/ -type f \
+            \( -name "*.img" -o -name "*.cpio" \) \
+            -exec du -h {} + || true
+
+      - name: Scan for vulnerabilities
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: fs
+          scan-ref: examples/flask3.0-python3.12-distroless
+          format: table
+          exit-code: "0"
+          severity: CRITICAL,HIGH
+
+      - name: Install QEMU
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qemu-system-x86
+
+      - name: Enable KVM
+        run: |
+          sudo chmod 666 /dev/kvm
+
+      - name: Run Unikernel and validate HTTP response
+        working-directory: examples/flask3.0-python3.12-distroless
+        run: |
+          set -e
+
+          kraft run \
+            --rm \
+            -p 8080:8080 \
+            --plat qemu \
+            --arch x86_64 \
+            -M 1024M \
+            . > kraft.log 2>&1 &
+
+          KRAFT_PID=$!
+
+          echo "Waiting for Flask HTTP server..."
+
+          for i in {1..30}; do
+            if curl -fsS http://127.0.0.1:8080 > response.txt 2>/dev/null; then
+              echo "HTTP server is ready."
+              break
+            fi
+
+            if ! kill -0 "$KRAFT_PID" 2>/dev/null; then
+              echo "Kraft process exited unexpectedly."
+              cat kraft.log
+              exit 1
+            fi
+
+            sleep 2
+          done
+
+          echo "===== Kraft log ====="
+          cat kraft.log
+
+          if [ ! -f response.txt ]; then
+            echo "HTTP server did not become ready."
+            exit 1
+          fi
+
+          echo "===== HTTP response ====="
+          cat response.txt
+
+          if ! grep -q "Bye, World!" response.txt; then
+            echo "Unexpected HTTP response."
+            exit 1
+          fi
+
+          echo "HTTP response validated successfully."
+
+          kill "$KRAFT_PID" 2>/dev/null || true
+          wait "$KRAFT_PID" 2>/dev/null || true
