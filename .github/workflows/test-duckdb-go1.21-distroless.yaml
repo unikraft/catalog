@@ -1,0 +1,95 @@
+name: Test DuckDB Go 1.21 Distroless
+
+on:
+  push:
+    paths:
+      - "examples/duckdb-go1.21-distroless/**"
+      - ".github/workflows/test-duckdb-go1.21-distroless.yaml"
+  pull_request:
+    paths:
+      - "examples/duckdb-go1.21-distroless/**"
+      - ".github/workflows/test-duckdb-go1.21-distroless.yaml"
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install KraftKit
+        run: |
+          curl -sSfL https://get.kraftkit.sh \
+            | sudo DEBIAN_FRONTEND=noninteractive sh -s -- -y
+
+      - name: Build Unikernel
+        working-directory: examples/duckdb-go1.21-distroless
+        run: |
+          kraft build --plat qemu --arch x86_64 .
+
+      - name: Measure RootFS Size
+        working-directory: examples/duckdb-go1.21-distroless
+        run: |
+          du -sh .unikraft/build/ || true
+          find .unikraft/build/ \
+            -type f \( -name "*.img" -o -name "*.elf" \) \
+            -exec du -h {} + || true
+
+      - name: Run Trivy Vulnerability Scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: fs
+          scan-ref: examples/duckdb-go1.21-distroless
+          format: table
+          exit-code: 0
+          severity: CRITICAL,HIGH
+
+      - name: Install QEMU
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qemu-system-x86
+          sudo chmod 666 /dev/kvm || true
+
+      - name: Run and Validate DuckDB
+        working-directory: examples/duckdb-go1.21-distroless
+        run: |
+          set -euxo pipefail
+
+          kraft run \
+            --rm \
+            --plat qemu \
+            --arch x86_64 \
+            -M 512M \
+            -p 8080:8080 \
+            . > kraft.log 2>&1 &
+
+          KRAFT_PID=$!
+
+          for i in $(seq 1 60); do
+            if curl -fsS http://127.0.0.1:8080 > response.txt 2>/dev/null; then
+              break
+            fi
+
+            if ! kill -0 "$KRAFT_PID" 2>/dev/null; then
+              cat kraft.log
+              exit 1
+            fi
+
+            sleep 1
+          done
+
+          test -s response.txt
+          cat response.txt
+
+          grep -F "42" response.txt
+          grep -F "John" response.txt
+
+          kill "$KRAFT_PID" 2>/dev/null || true
+
+      - name: Show Kraft log
+        if: always()
+        working-directory: examples/duckdb-go1.21-distroless
+        run: |
+          cat kraft.log || true
