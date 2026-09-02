@@ -1,0 +1,7 @@
+# Pending upstream Debian fix for libssl3 DoS
+# This example isn't concerned with OpenSSL QUIC servers
+CVE-2026-14456 exp:2026-11-30
+
+# Phantom base image packages not fully removed by pip upgrade
+GHSA-6v7p-g79w-8964
+CVE-2025-47273
