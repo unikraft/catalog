@@ -1,0 +1,117 @@
+name: Test Rust HTTP Server Distroless
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "examples/httpserver-rust1.75-distroless/**"
+      - ".github/workflows/test-httpserver-rust-distroless.yml"
+  pull_request:
+    paths:
+      - "examples/httpserver-rust1.75-distroless/**"
+      - ".github/workflows/test-httpserver-rust-distroless.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-benchmark-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout repository
+        # v7.0.1
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+
+      - name: Install KraftKit (Version Pinned & Verified)
+        env:
+          KRAFT_VERSION: "0.12.15"
+        run: |
+          set -euo pipefail
+
+          wget -q "https://github.com/unikraft/kraftkit/releases/download/v${KRAFT_VERSION}/kraft_${KRAFT_VERSION}_linux_amd64.tar.gz"
+          wget -q "https://github.com/unikraft/kraftkit/releases/download/v${KRAFT_VERSION}/kraftkit_${KRAFT_VERSION}_checksums.txt"
+
+          grep " kraft_${KRAFT_VERSION}_linux_amd64.tar.gz\$" "kraftkit_${KRAFT_VERSION}_checksums.txt" | sha256sum -c -
+
+          tar -xzf "kraft_${KRAFT_VERSION}_linux_amd64.tar.gz"
+          chmod +x kraft
+          sudo install -o root -g root -m 0755 kraft /usr/local/bin/kraft
+          kraft version
+
+      - name: Build Unikernel
+        working-directory: examples/httpserver-rust1.75-distroless
+        run: kraft build --plat qemu --arch x86_64 .
+
+      - name: Measure RootFS Size
+        working-directory: examples/httpserver-rust1.75-distroless
+        run: |
+          set -euo pipefail
+
+          mapfile -t cpio_files < <(find .unikraft/build/ -type f -name "*.cpio")
+          if [ "${#cpio_files[@]}" -eq 0 ]; then
+            echo "No .cpio artifacts found under .unikraft/build/" >&2
+            exit 1
+          fi
+
+          du -h "${cpio_files[@]}"
+
+      - name: Build Distroless rootfs for Trivy
+        working-directory: examples/httpserver-rust1.75-distroless
+        run: docker build --pull -t httpserver-rust1.75-distroless:ci .
+
+      - name: Run Trivy Vulnerability Scanner
+        # v0.36.0
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25
+        with:
+          scan-type: "image"
+          scan-ref: "httpserver-rust1.75-distroless:ci"
+          format: "table"
+          exit-code: "1"
+          severity: "CRITICAL,HIGH"
+          trivyignores: "examples/httpserver-rust1.75-distroless/.trivyignore"
+
+      - name: Install QEMU and Grant Permissions
+        run: |
+          set -euo pipefail
+
+          sudo apt-get update
+          sudo apt-get install -y qemu-system-x86
+
+          if [ -e /dev/kvm ]; then
+            sudo chown "$(id -u):$(id -g)" /dev/kvm
+            sudo chmod 660 /dev/kvm
+          fi
+
+      - name: Run Unikernel in Background
+        working-directory: examples/httpserver-rust1.75-distroless
+        run: kraft run -d --plat qemu --arch x86_64 -M 128M -p 8080:8080 --name httpserver-test .
+
+      - name: Test Network Connectivity
+        run: |
+          set -euo pipefail
+
+          for i in $(seq 1 15); do
+            if curl -s --max-time 2 http://127.0.0.1:8080/ | grep -q "Bye, World!"; then
+              echo "Server responded correctly."
+              exit 0
+            fi
+            sleep 1
+          done
+
+          echo "Server did not respond as expected within 15s" >&2
+          exit 1
+
+      - name: Dump Unikernel Logs on Failure
+        if: failure()
+        working-directory: examples/httpserver-rust1.75-distroless
+        run: kraft ps -a; kraft logs httpserver-test || true
+
+      - name: Cleanup
+        if: always()
+        run: kraft rm --force httpserver-test || true
