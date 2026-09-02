@@ -1,0 +1,151 @@
+name: Test Skipper 0.18 Base Distroless
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "examples/skipper0.18-base-distroless/**"
+      - ".github/workflows/test-skipper0.18-base-distroless.yaml"
+  pull_request:
+    paths:
+      - "examples/skipper0.18-base-distroless/**"
+      - ".github/workflows/test-skipper0.18-base-distroless.yaml"
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install KraftKit
+        run: |
+          curl -sSfL https://get.kraftkit.sh | \
+            sudo DEBIAN_FRONTEND=noninteractive sh -s -- -y
+
+      - name: Build Unikernel
+        working-directory: examples/skipper0.18-base-distroless
+        run: |
+          kraft build --plat qemu --arch x86_64 .
+
+      - name: Measure rootfs size
+        working-directory: examples/skipper0.18-base-distroless
+        run: |
+          echo "Build directory:"
+          du -sh .unikraft/build/ || true
+
+          echo "Image/rootfs files:"
+          find .unikraft/build/ -type f \
+            \( -name "*.img" -o -name "*.cpio" \) \
+            -exec du -h {} + || true
+
+      - name: Scan for vulnerabilities
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: fs
+          scan-ref: examples/skipper0.18-base-distroless
+          format: table
+          exit-code: "0"
+          severity: CRITICAL,HIGH
+
+      - name: Install QEMU
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qemu-system-x86
+
+      - name: Enable KVM
+        run: |
+          sudo chmod 666 /dev/kvm
+
+      - name: Inspect build artifacts
+        working-directory: examples/skipper0.18-base-distroless
+        run: |
+          echo "===== All .unikraft files ====="
+          find .unikraft -type f -ls
+
+          echo "===== Kernel candidates ====="
+          find .unikraft -type f \
+            ! -name "*.cpio" \
+            ! -name "*.img" \
+            -exec file {} \;
+
+      - name: Run Unikernel and validate HTTP response
+        working-directory: examples/skipper0.18-base-distroless
+        run: |
+          set -e
+
+          echo "Starting Unikernel..."
+
+          kraft run \
+            --rm \
+            -p 9090:9090 \
+            --plat qemu \
+            --arch x86_64 \
+            -M 512M \
+            . > kraft.log 2>&1 &
+
+          KRAFT_PID=$!
+
+          echo "Waiting for Skipper HTTP server..."
+
+          for i in {1..90}; do
+            if ! kill -0 "$KRAFT_PID" 2>/dev/null; then
+              echo "Kraft process exited unexpectedly."
+              echo "===== Kraft log ====="
+              cat kraft.log
+              exit 1
+            fi
+
+            if curl -fsS http://127.0.0.1:9090 > response.txt 2>/dev/null; then
+              echo "Skipper HTTP server is ready."
+              break
+            fi
+
+            sleep 2
+          done
+
+          echo "===== Kraft log ====="
+          cat kraft.log
+
+          echo "===== HTTP response ====="
+          cat response.txt 2>/dev/null || true
+
+          if [ ! -f response.txt ]; then
+            echo "Skipper HTTP server did not become ready."
+            exit 1
+          fi
+
+          if ! grep -q "Bye, World!" response.txt; then
+            echo "Unexpected HTTP response."
+            cat response.txt
+            exit 1
+          fi
+
+          echo "Root route validated successfully."
+
+          echo "===== Testing 404 route ====="
+
+          HTTP_STATUS=$(curl -sS \
+            -o not-found.txt \
+            -w "%{http_code}" \
+            http://127.0.0.1:9090/test)
+
+          echo "HTTP status: $HTTP_STATUS"
+          echo "HTTP response:"
+          cat not-found.txt
+
+          if [ "$HTTP_STATUS" != "404" ]; then
+            echo "Unexpected HTTP status for /test."
+            exit 1
+          fi
+
+          if ! grep -q "No route entry" not-found.txt; then
+            echo "Unexpected HTTP response for /test."
+            exit 1
+          fi
+
+          echo "404 route validated successfully."
+
+          kill "$KRAFT_PID" 2>/dev/null || true
+          wait "$KRAFT_PID" 2>/dev/null || true
