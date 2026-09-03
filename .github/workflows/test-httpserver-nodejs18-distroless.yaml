@@ -1,0 +1,89 @@
+name: Test Node.js 18 HTTP Server Distroless
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "examples/httpserver-nodejs18-base-distroless/**"
+      - ".github/workflows/test-httpserver-nodejs18-distroless.yaml"
+  pull_request:
+    paths:
+      - "examples/httpserver-nodejs18-base-distroless/**"
+      - ".github/workflows/test-httpserver-nodejs18-distroless.yaml"
+
+jobs:
+  build-benchmark-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install KraftKit
+        run: curl -sSfL https://get.kraftkit.sh | sudo DEBIAN_FRONTEND=noninteractive sh -s -- -y
+
+      - name: Build Unikernel
+        working-directory: examples/httpserver-nodejs18-base-distroless
+        run: kraft build --plat qemu --arch x86_64 .
+
+      - name: Measure RootFS Size
+        working-directory: examples/httpserver-nodejs18-base-distroless
+        run: |
+          du -sh .unikraft/build/ || true
+          find .unikraft/build/ -type f -name "*.img" -exec du -h {} + || true
+
+      - name: Run Trivy Vulnerability Scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: "fs"
+          scan-ref: "examples/httpserver-nodejs18-base-distroless"
+          format: "table"
+          exit-code: "0"
+          severity: "CRITICAL,HIGH"
+
+      - name: Install QEMU and Grant Permissions
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qemu-system-x86
+          sudo chmod 666 /dev/kvm
+
+      - name: Run and Validate Output
+        working-directory: examples/httpserver-nodejs18-base-distroless
+        run: |
+          kraft run --rm -p 8080:8080 --plat qemu --arch x86_64 -M 512M > kraft.log 2>&1 &
+          KRAFT_PID=$!
+
+          echo "Waiting for HTTP server..."
+
+          for i in {1..30}; do
+            if curl -fsS http://localhost:8080 > response.txt 2>/dev/null; then
+              break
+            fi
+
+            if ! kill -0 $KRAFT_PID 2>/dev/null; then
+              echo "Kraft process exited unexpectedly."
+              cat kraft.log
+              exit 1
+            fi
+
+            sleep 2
+          done
+
+          cat kraft.log
+
+          if [ ! -f response.txt ]; then
+            echo "HTTP server did not become available."
+            exit 1
+          fi
+
+          if ! grep -q "Bye, World!" response.txt; then
+            echo "Unexpected HTTP response:"
+            cat response.txt
+            exit 1
+          fi
+
+          echo "HTTP response validated successfully:"
+          cat response.txt
+
+          kill $KRAFT_PID 2>/dev/null || true
+          wait $KRAFT_PID 2>/dev/null || true
