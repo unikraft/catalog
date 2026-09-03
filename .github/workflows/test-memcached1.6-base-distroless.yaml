@@ -1,0 +1,221 @@
+name: Test Memcached 1.6 Base Distroless
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "examples/memcached1.6-base-distroless/**"
+      - ".github/workflows/test-memcached1.6-base-distroless.yaml"
+  pull_request:
+    paths:
+      - "examples/memcached1.6-base-distroless/**"
+      - ".github/workflows/test-memcached1.6-base-distroless.yaml"
+
+jobs:
+  build-test:
+    name: Build and test Memcached 1.6 Base Distroless
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          set -eux
+
+          sudo apt-get update
+          sudo apt-get install -y \
+            curl \
+            ca-certificates \
+            netcat-openbsd \
+            qemu-system-x86 \
+            qemu-utils
+
+      - name: Install KraftKit
+        run: |
+          set -eux
+
+          curl -sSfL https://get.kraftkit.sh | \
+            sudo DEBIAN_FRONTEND=noninteractive sh -s -- -y
+
+      - name: Verify KraftKit
+        run: |
+          set -eux
+
+          command -v kraft
+          kraft version
+
+      - name: Build Unikernel
+        working-directory: examples/memcached1.6-base-distroless
+        run: |
+          set -eux
+
+          kraft build \
+            --plat qemu \
+            --arch x86_64 \
+            .
+
+      - name: Measure rootfs size
+        working-directory: examples/memcached1.6-base-distroless
+        run: |
+          echo "===== Build directory ====="
+          du -sh .unikraft/build/ || true
+
+          echo "===== Image/rootfs files ====="
+          find .unikraft/build/ -type f \
+            \( -name "*.img" -o -name "*.cpio" \) \
+            -exec du -h {} + || true
+
+      - name: Scan for vulnerabilities
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: fs
+          scan-ref: examples/memcached1.6-base-distroless
+          format: table
+          exit-code: "0"
+          severity: CRITICAL,HIGH
+
+      - name: Inspect build artifacts
+        working-directory: examples/memcached1.6-base-distroless
+        run: |
+          set -eux
+
+          echo "===== .unikraft/build ====="
+          find .unikraft/build -maxdepth 3 -type f -print | sort
+
+          echo "===== Build directory size ====="
+          du -sh .unikraft/build
+
+      - name: Enable KVM
+        run: |
+          set -eux
+
+          sudo chmod 666 /dev/kvm
+
+      - name: Run Unikernel and test Memcached
+        working-directory: examples/memcached1.6-base-distroless
+        run: |
+          set -e
+
+          rm -f kraft.log
+
+          echo "===== Kraft version ====="
+          kraft version
+
+          echo "===== Starting Memcached Unikernel ====="
+
+          kraft run \
+            --rm \
+            -p 11211:11211 \
+            --plat qemu \
+            --arch x86_64 \
+            -M 256M \
+            . > kraft.log 2>&1 &
+
+          KRAFT_PID=$!
+
+          cleanup() {
+            echo "===== Stopping Unikraft ====="
+
+            if kill -0 "$KRAFT_PID" 2>/dev/null; then
+              kill "$KRAFT_PID" 2>/dev/null || true
+              sleep 2
+            fi
+
+            wait "$KRAFT_PID" 2>/dev/null || true
+          }
+
+          trap cleanup EXIT
+
+          echo "===== Waiting for Memcached ====="
+
+          VERSION_OUTPUT=""
+
+          for i in $(seq 1 90); do
+            if ! kill -0 "$KRAFT_PID" 2>/dev/null; then
+              echo "ERROR: Unikraft exited before Memcached became ready."
+              echo "===== Kraft log ====="
+              cat kraft.log || true
+              exit 1
+            fi
+
+            VERSION_OUTPUT="$(
+              printf 'version\r\n' |
+                nc -w 3 127.0.0.1 11211 2>/dev/null || true
+            )"
+
+            if echo "$VERSION_OUTPUT" | tr -d '\r' | grep -Fq "VERSION 1.6.23"; then
+              echo "Memcached is ready."
+              break
+            fi
+
+            sleep 1
+          done
+
+          echo "===== Kraft log ====="
+          cat kraft.log || true
+
+          echo "===== Memcached version ====="
+          printf '%s\n' "$VERSION_OUTPUT"
+
+          VERSION_CLEAN="$(
+            printf '%s\n' "$VERSION_OUTPUT" |
+              tr -d '\r'
+          )"
+
+          if ! printf '%s\n' "$VERSION_CLEAN" | grep -Fq "VERSION 1.6.23"; then
+            echo "ERROR: Memcached did not return the expected version."
+            echo "Expected: VERSION 1.6.23"
+            echo "Received:"
+            printf '%s\n' "$VERSION_CLEAN"
+            exit 1
+          fi
+
+          echo "Memcached version validated successfully."
+
+          echo "===== Memcached functional test ====="
+
+          RESPONSE="$(
+            printf 'set test 0 0 5\r\nhello\r\nget test\r\nquit\r\n' |
+              nc -w 5 127.0.0.1 11211
+          )"
+
+          printf '%s\n' "$RESPONSE"
+
+          echo "===== Normalized Memcached response ====="
+
+          RESPONSE_CLEAN="$(
+            printf '%s\n' "$RESPONSE" |
+              tr -d '\r'
+          )"
+
+          printf '%s\n' "$RESPONSE_CLEAN"
+
+          echo "===== Validating Memcached response ====="
+
+          if ! printf '%s\n' "$RESPONSE_CLEAN" | grep -Fxq "STORED"; then
+            echo "ERROR: Missing STORED response."
+            exit 1
+          fi
+
+          if ! printf '%s\n' "$RESPONSE_CLEAN" | grep -Fxq "VALUE test 0 5"; then
+            echo "ERROR: Missing VALUE response."
+            exit 1
+          fi
+
+          if ! printf '%s\n' "$RESPONSE_CLEAN" | grep -Fxq "hello"; then
+            echo "ERROR: Missing stored value."
+            exit 1
+          fi
+
+          if ! printf '%s\n' "$RESPONSE_CLEAN" | grep -Fxq "END"; then
+            echo "ERROR: Missing END response."
+            exit 1
+          fi
+
+          echo "Memcached set/get test passed."
+
+          echo "========================================="
+          echo " Memcached 1.6.23 test PASSED"
+          echo "========================================="
