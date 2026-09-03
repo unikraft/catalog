@@ -1,0 +1,100 @@
+name: Test NodeJS 18 HTTP Server Distroless
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "examples/httpserver-nodejs18-distroless/**"
+      - ".github/workflows/test-httpserver-nodejs18-distroless.yml"
+  pull_request:
+    paths:
+      - "examples/httpserver-nodejs18-distroless/**"
+      - ".github/workflows/test-httpserver-nodejs18-distroless.yml"
+
+jobs:
+  build-benchmark-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install KraftKit
+        run: curl -sSfL https://get.kraftkit.sh | sudo DEBIAN_FRONTEND=noninteractive sh -s -- -y
+
+      - name: Build Unikernel
+        working-directory: examples/httpserver-nodejs18-distroless
+        run: kraft build --plat qemu --arch x86_64 .
+
+      - name: Measure RootFS Size
+        working-directory: examples/httpserver-nodejs18-distroless
+        run: |
+          du -sh .unikraft/build/ || true
+          find .unikraft/build/ -type f -name "*.img" -exec du -h {} + || true
+
+      - name: Run Trivy Vulnerability Scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: "fs"
+          scan-ref: "examples/httpserver-nodejs18-distroless"
+          format: "table"
+          exit-code: "0"
+          severity: "CRITICAL,HIGH"
+
+      - name: Install QEMU and Grant Permissions
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qemu-system-x86
+          sudo chmod 666 /dev/kvm
+
+      - name: Start Unikernel
+        working-directory: examples/httpserver-nodejs18-distroless
+        run: |
+          kraft run \
+            --rm \
+            -M 512M \
+            --plat qemu \
+            --arch x86_64 \
+            -p 8080:8080 \
+            . > kraft-run.log 2>&1 &
+
+          echo $! > kraft.pid
+
+      - name: Wait for HTTP Server
+        working-directory: examples/httpserver-nodejs18-distroless
+        run: |
+          for i in $(seq 1 45); do
+            if curl -fsS http://127.0.0.1:8080 > response.txt; then
+              echo "HTTP server is ready."
+              break
+            fi
+
+            if [ "$i" -eq 45 ]; then
+              echo "HTTP server did not become ready."
+              cat kraft-run.log || true
+              exit 1
+            fi
+
+            sleep 2
+          done
+
+      - name: Validate HTTP Response
+        working-directory: examples/httpserver-nodejs18-distroless
+        run: |
+          cat response.txt
+          grep -Fxq "Bye, World!" response.txt
+
+      - name: Show Unikernel Logs
+        if: always()
+        working-directory: examples/httpserver-nodejs18-distroless
+        run: |
+          cat kraft-run.log || true
+
+      - name: Stop Unikernel
+        if: always()
+        working-directory: examples/httpserver-nodejs18-distroless
+        run: |
+          if [ -f kraft.pid ]; then
+            kill "$(cat kraft.pid)" 2>/dev/null || true
+          fi
+          kraft ps || true
