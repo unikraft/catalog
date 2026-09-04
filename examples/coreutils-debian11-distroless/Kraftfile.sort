@@ -1,0 +1,10 @@
+spec: v0.6
+
+name: sort-distroless
+
+rootfs: ./Dockerfile
+
+cmd: ["/usr/bin/sort", "/test-files/uniq_example.txt"]
+
+runtime: base:latest
+

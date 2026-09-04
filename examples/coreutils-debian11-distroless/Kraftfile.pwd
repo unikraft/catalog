@@ -1,0 +1,10 @@
+spec: v0.6
+
+name: pwd-distroless
+
+rootfs: ./Dockerfile
+
+cmd: ["/usr/bin/pwd"]
+
+runtime: base:latest
+

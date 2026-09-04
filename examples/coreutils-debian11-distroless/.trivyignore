@@ -1,0 +1,4 @@
+# Pending upstream Debian fix for libssl3 DoS
+# This example isn't concerned with OpenSSL QUIC servers
+CVE-2026-14456 exp:2026-11-30
+

@@ -1,0 +1,10 @@
+spec: v0.6
+
+name: uniq-distroless
+
+rootfs: ./Dockerfile
+
+cmd: ["/usr/bin/uniq", "/test-files/uniq_example.txt"]
+
+runtime: base:latest
+
