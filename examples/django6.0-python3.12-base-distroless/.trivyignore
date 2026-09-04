@@ -1,0 +1,13 @@
+# Pending upstream Debian fix for libssl3 DoS
+# This example isn't concerned with OpenSSL QUIC servers
+CVE-2026-14456 exp:2026-11-30
+
+# Django 6.0 specific vulnerabilities.
+# Safe to ignore as this example is a rudimentary HTTP server demonstrator
+# without a database backend (mitigating SQL Injections) and runs on a Linux unikernel
+# (mitigating Windows-specific DoS).
+CVE-2026-1207
+CVE-2026-1287
+CVE-2026-25673
+CVE-2026-33034
+CVE-2026-3902
