@@ -1,4 +1,5 @@
 import sqlite3
+import threading
 from flask import Flask, render_template, request, url_for, flash, redirect
 from werkzeug.exceptions import abort
 
@@ -89,4 +90,6 @@ def delete(id):
 
 
 if __name__ == '__main__':
+    # Give Python 3.14's request worker threads a larger stack on Unikraft.
+    threading.stack_size(512 * 1024)
     app.run(host='0.0.0.0', port=8080)
