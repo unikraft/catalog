@@ -30,18 +30,20 @@ jobs:
       run: curl -sSfL https://get.kraftkit.sh | sudo sh -s -- -y
 
     - name: Build and run Flask example
-      env:
-        KRAFTKIT_NO_CHECK_UPDATES: true
-        KRAFTKIT_NO_PROMPT: true
       run: |
         set -euo pipefail
         cd examples/flask3.1-python3.14-sqlite3-base
-        kraft build --plat qemu --arch x86_64
-        kraft run --rm -M 1024M -p 8080:8080 --plat qemu --arch x86_64 . > /tmp/kraft-flask.log 2>&1 &
+        kraft --no-prompt --no-check-updates build --plat qemu --arch x86_64
+        kraft --no-prompt --no-check-updates run --rm -M 1024M -p 8080:8080 --plat qemu --arch x86_64 . > /tmp/kraft-flask.log 2>&1 &
         kraft_pid=$!
         trap 'kill "$kraft_pid" 2>/dev/null || true' EXIT
 
         for attempt in $(seq 1 120); do
+          if ! kill -0 "$kraft_pid" 2>/dev/null; then
+            echo "KraftKit exited before the Flask example became ready."
+            cat /tmp/kraft-flask.log
+            exit 1
+          fi
           if curl --fail --silent http://127.0.0.1:8080/ --output /dev/null; then
             echo "Flask example returned HTTP 200."
             exit 0
