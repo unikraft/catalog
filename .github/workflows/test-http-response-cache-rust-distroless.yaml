@@ -1,0 +1,95 @@
+name: Test Rust HTTP Response Cache Distroless
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "examples/http-response-cache-rust-distroless/**"
+      - ".github/workflows/test-http-response-cache-rust-distroless.yaml"
+  pull_request:
+    paths:
+      - "examples/http-response-cache-rust-distroless/**"
+
+jobs:
+  build-benchmark-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install KraftKit
+        run: curl -sSfL https://get.kraftkit.sh | sudo DEBIAN_FRONTEND=noninteractive sh -s -- -y
+
+      - name: Build Unikernel
+        working-directory: examples/http-response-cache-rust-distroless
+        run: kraft build --plat qemu --arch x86_64 .
+
+      - name: Measure RootFS Size
+        working-directory: examples/http-response-cache-rust-distroless
+        run: |
+          du -sh .unikraft/build/ || true
+          find .unikraft/build/ -type f -name "*.img" -exec du -h {} + || true
+
+      - name: Run Trivy Vulnerability Scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: "fs"
+          scan-ref: "examples/http-response-cache-rust-distroless"
+          format: "table"
+          exit-code: "0"
+          severity: "CRITICAL,HIGH"
+
+      - name: Build Docker Image
+        working-directory: examples/http-response-cache-rust-distroless
+        run: docker build -t http-response-cache-rust-distroless .
+
+      - name: Run Docker Container
+        run: |
+          docker run -d \
+            --name http-response-cache \
+            -p 8080:8080 \
+            http-response-cache-rust-distroless
+
+      - name: Validate HTTP Cache
+        run: |
+          for i in $(seq 1 30); do
+            if curl --silent --fail http://127.0.0.1:8080/hello > response-1.txt; then
+              break
+            fi
+            sleep 1
+          done
+
+          grep -q "CACHE MISS: Generated response for /hello" response-1.txt
+
+          curl --silent --fail \
+            http://127.0.0.1:8080/hello > response-2.txt
+
+          grep -q "CACHE HIT: Generated response for /hello" response-2.txt
+
+          curl --silent --fail \
+            http://127.0.0.1:8080/world > response-3.txt
+
+          grep -q "CACHE MISS: Generated response for /world" response-3.txt
+
+          curl --silent --fail \
+            http://127.0.0.1:8080/world > response-4.txt
+
+          grep -q "CACHE HIT: Generated response for /world" response-4.txt
+
+          STATUS=$(curl \
+            --silent \
+            --output post-response.txt \
+            --write-out "%{http_code}" \
+            --request POST \
+            http://127.0.0.1:8080/hello)
+
+          test "$STATUS" = "405"
+
+          grep -q "Method Not Allowed" post-response.txt
+
+          echo "HTTP response cache tests passed."
+
+      - name: Cleanup
+        if: always()
+        run: docker rm -f http-response-cache || true

@@ -1,0 +1,9 @@
+spec: v0.6
+
+name: http-response-cache
+
+runtime: base:latest
+
+rootfs: ./Dockerfile
+
+cmd: ["/usr/bin/http-response-cache"]
