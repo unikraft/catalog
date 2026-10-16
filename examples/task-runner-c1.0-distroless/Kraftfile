@@ -1,0 +1,10 @@
+
+spec: v0.6
+
+name: task-runner
+
+runtime: base:latest
+
+rootfs: ./Dockerfile
+
+cmd: ["/usr/bin/task-runner"]
