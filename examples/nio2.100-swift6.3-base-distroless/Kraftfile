@@ -1,0 +1,10 @@
+spec: v0.6
+
+name: nio2.100-swift6.3-base-distroless
+
+runtime: base:latest
+
+rootfs: ./Dockerfile
+
+cmd: ["/server"]
+
