@@ -1,0 +1,10 @@
+spec: v0.6
+
+name: httpserver-csharp9-native-base-distroless
+
+runtime: base:latest
+
+rootfs: ./Dockerfile
+
+cmd: ["/app"]
+
