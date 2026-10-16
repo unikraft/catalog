@@ -1,0 +1,17 @@
+spec: v0.6
+
+name: traefik
+
+runtime: unikraft.org/base:latest
+
+rootfs: ./Dockerfile
+
+ports:
+  - "8080:80"
+  - "8081:8080"
+
+cmd: 
+  - "/usr/local/bin/traefik"
+  - "--api.insecure=true"
+  - "--providers.file.filename=/etc/traefik/dynamic.yml"
+  - "--providers.file.watch=false"

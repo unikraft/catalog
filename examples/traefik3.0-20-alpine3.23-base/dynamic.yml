@@ -1,0 +1,12 @@
+http:
+  routers:
+    
+    whoami-router:
+      rule: "Host(`whoami.localhost`)"
+      service: "whoami-service"
+  
+  services:
+    whoami-service:
+      loadBalancer:
+        servers:
+          - url: "http://172.17.0.1:8000"
