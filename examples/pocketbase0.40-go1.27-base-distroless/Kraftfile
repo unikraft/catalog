@@ -1,0 +1,10 @@
+spec: v0.6
+
+name: pocketbase0.40-go1.27-base-distroless
+
+runtime: base:latest
+
+rootfs: ./Dockerfile
+
+cmd: ["/server", "serve", "--http=0.0.0.0:8080", "--dir=/pb_data"]
+
