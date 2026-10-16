@@ -2,7 +2,8 @@ spec: v0.6
 
 name: helloworld
 
-unikraft: stable
+unikraft:
+  version: stable
 
 targets:
 - qemu/x86_64
