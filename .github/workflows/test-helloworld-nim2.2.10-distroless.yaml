@@ -1,0 +1,225 @@
+name: Test helloworld-nim2.2.10-distroless
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "examples/helloworld-nim2.2.10-distroless/**"
+      - ".github/workflows/test-helloworld-nim2.2.10-distroless.yaml"
+  pull_request:
+    paths:
+      - "examples/helloworld-nim2.2.10-distroless/**"
+      - ".github/workflows/test-helloworld-nim2.2.10-distroless.yaml"
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-test:
+    name: Build and test Nim 2.2.10 Hello World
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Show runner information
+        run: |
+          echo "Runner:"
+          uname -a
+          echo
+          echo "Architecture:"
+          uname -m
+          echo
+          echo "Kernel:"
+          uname -r
+          echo
+          echo "Working directory:"
+          pwd
+
+      - name: Show example files
+        working-directory: examples/helloworld-nim2.2.10-distroless
+        run: |
+          echo "Example directory:"
+          pwd
+          echo
+          echo "Files:"
+          find . -maxdepth 3 -type f -print | sort
+
+      - name: Validate Dockerfile
+        working-directory: examples/helloworld-nim2.2.10-distroless
+        run: |
+          test -f Dockerfile
+          test -f Kraftfile
+          test -f README.md
+          test -f src/main.nim
+
+          grep -Fq "FROM nim:2.2.10 AS builder" Dockerfile
+          grep -Fq -- "--passC:-fPIE" Dockerfile
+          grep -Fq -- "--passL:-static-pie" Dockerfile
+          grep -Fq "FROM scratch" Dockerfile
+          grep -Fq "COPY --from=builder /out/hello /usr/bin/hello" Dockerfile
+
+      - name: Validate Kraftfile
+        working-directory: examples/helloworld-nim2.2.10-distroless
+        run: |
+          grep -Fq "spec: v0.6" Kraftfile
+          grep -Fq "runtime: base:latest" Kraftfile
+          grep -Fq "rootfs: ./Dockerfile" Kraftfile
+          grep -Fq 'cmd: ["/usr/bin/hello"]' Kraftfile
+
+      - name: Validate Nim source
+        working-directory: examples/helloworld-nim2.2.10-distroless
+        run: |
+          grep -Fxq 'echo "Hello, World!"' src/main.nim
+
+      - name: Install KraftKit
+        run: |
+          curl --proto '=https' --tlsv1.2 -sSfL \
+            https://get.kraftkit.sh | \
+            sudo DEBIAN_FRONTEND=noninteractive sh -s -- -y
+
+      - name: Show KraftKit version
+        run: |
+          kraft version
+
+      - name: Build Unikernel
+        working-directory: examples/helloworld-nim2.2.10-distroless
+        run: |
+          kraft build \
+            --plat qemu \
+            --arch x86_64 \
+            .
+
+      - name: Verify Unikraft build output
+        working-directory: examples/helloworld-nim2.2.10-distroless
+        run: |
+          test -f .unikraft/build/initramfs-x86_64.cpio
+
+          echo "Initramfs:"
+          ls -lh .unikraft/build/initramfs-x86_64.cpio
+
+      - name: Measure rootfs size
+        working-directory: examples/helloworld-nim2.2.10-distroless
+        run: |
+          ROOTFS=".unikraft/build/initramfs-x86_64.cpio"
+
+          SIZE_BYTES=$(stat -c%s "$ROOTFS")
+          SIZE_KB=$(( (SIZE_BYTES + 1023) / 1024 ))
+
+          echo "Rootfs size: ${SIZE_BYTES} bytes"
+          echo "Rootfs size: ${SIZE_KB} KB"
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: fs
+          scan-ref: examples/helloworld-nim2.2.10-distroless
+          format: table
+          exit-code: 0
+          severity: CRITICAL,HIGH
+          ignore-unfixed: true
+
+      - name: Install QEMU
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qemu-system-x86
+
+      - name: Show QEMU version
+        run: |
+          qemu-system-x86_64 --version
+
+      - name: Check KVM device
+        run: |
+          if [ -e /dev/kvm ]; then
+            echo "/dev/kvm is available"
+            ls -l /dev/kvm
+          else
+            echo "/dev/kvm is not available"
+            echo "KraftKit will use hardware emulation through QEMU."
+          fi
+
+      - name: Grant KVM permissions when available
+        run: |
+          if [ -e /dev/kvm ]; then
+            sudo chmod 666 /dev/kvm
+            ls -l /dev/kvm
+          fi
+
+      - name: Run Nim application
+        working-directory: examples/helloworld-nim2.2.10-distroless
+        run: |
+          set -o pipefail
+
+          kraft run \
+            --rm \
+            --plat qemu \
+            --arch x86_64 \
+            -M 128M \
+            . 2>&1 | tee kraft-run.log
+
+      - name: Validate Nim application output
+        working-directory: examples/helloworld-nim2.2.10-distroless
+        run: |
+          test -f kraft-run.log
+
+          grep -Fq "Hello, World!" kraft-run.log
+
+      - name: Validate no ELF loader error
+        working-directory: examples/helloworld-nim2.2.10-distroless
+        run: |
+          if grep -Fq "ELF executable is not position-independent" kraft-run.log; then
+            echo "ERROR: Unikraft rejected the Nim executable as non-PIE."
+            exit 1
+          fi
+
+          if grep -Fq "Exec format error" kraft-run.log; then
+            echo "ERROR: Unikraft reported an executable format error."
+            exit 1
+          fi
+
+      - name: Display runtime log
+        if: always()
+        working-directory: examples/helloworld-nim2.2.10-distroless
+        run: |
+          echo "===== Kraft run output ====="
+          if [ -f kraft-run.log ]; then
+            cat kraft-run.log
+          else
+            echo "No kraft-run.log was produced."
+          fi
+
+      - name: Upload runtime log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: helloworld-nim2.2.10-distroless-runtime-log
+          path: examples/helloworld-nim2.2.10-distroless/kraft-run.log
+          if-no-files-found: ignore
+
+      - name: Final validation summary
+        if: success()
+        run: |
+          echo "=============================================="
+          echo "Nim 2.2.10 Hello World validation succeeded."
+          echo "=============================================="
+          echo
+          echo "Validated:"
+          echo "  - Repository files"
+          echo "  - Dockerfile"
+          echo "  - Kraftfile"
+          echo "  - Nim source"
+          echo "  - Nim 2.2.10 builder image"
+          echo "  - PIE compiler flags"
+          echo "  - Static PIE linker flags"
+          echo "  - Unikraft build"
+          echo "  - Rootfs generation"
+          echo "  - Trivy filesystem scan"
+          echo "  - QEMU installation"
+          echo "  - Unikraft runtime"
+          echo "  - Hello, World! output"
+          echo "  - ELF loader error detection"
