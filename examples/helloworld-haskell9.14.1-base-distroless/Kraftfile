@@ -1,0 +1,9 @@
+spec: v0.6
+
+name: helloworld-haskell9.14.1-base-distroless
+
+runtime: base:latest
+
+rootfs: ./Dockerfile
+
+cmd: ["/app/Main"]
