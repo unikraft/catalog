@@ -1,0 +1,10 @@
+spec: v0.6
+
+name: wazero1.12-go1.27-base-distroless
+
+runtime: base:latest
+
+rootfs: ./Dockerfile
+
+cmd: ["/runner"]
+
