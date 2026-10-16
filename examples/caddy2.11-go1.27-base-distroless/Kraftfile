@@ -1,0 +1,10 @@
+spec: v0.6
+
+name: caddy2.11-go1.27-base-distroless
+
+runtime: base:latest
+
+rootfs: ./Dockerfile
+
+cmd: ["/usr/bin/caddy", "run", "--config", "/etc/caddy/Caddyfile", "--adapter", "caddyfile"]
+
