@@ -1,0 +1,10 @@
+spec: v0.6
+
+name: fiber3.5-go1.27-base-distroless
+
+runtime: base:latest
+
+rootfs: ./Dockerfile
+
+cmd: ["/server"]
+
