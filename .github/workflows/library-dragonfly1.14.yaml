@@ -58,9 +58,59 @@ jobs:
         path: ${{ github.workspace }}/.kraftkit/oci/digests
         if-no-files-found: error
 
+  test:
+    needs: [ build ]
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+        - plat: qemu
+          arch: x86_64
+        - plat: fc
+          arch: x86_64
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install KraftKit
+      run: |
+        curl -sS https://get.kraftkit.sh | sh
+        echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+    - name: Test Dragonfly functionality
+      if: matrix.plat == 'qemu'
+      run: |
+        echo "Install redis-tools to test connection"
+        sudo apt-get update
+        sudo apt-get install -y redis-tools
+
+        echo "Prepare image on the new server..."
+        kraft build --plat ${{ matrix.plat }} --arch ${{ matrix.arch }}
+
+        echo "Start Dragonfly Unikernel in background"
+        kraft run --rm --plat ${{ matrix.plat }} --arch ${{ matrix.arch }} -M 512M -p 6379:6379 &
+        KRAFT_PID=$!
+
+        echo "Wait 5 seconds for system boot..."
+        sleep 5
+
+        echo "Send PING to Dragonfly on port 6379"
+        if redis-cli -h 127.0.0.1 -p 6379 ping | grep -q "PONG"; then
+          echo "SUCCESS: Dragonfly answered with PONG"
+          kill $KRAFT_PID
+          exit 0
+        else
+          echo "ERROR: Dragonfly did not answer"
+          kill $KRAFT_PID
+          exit 1
+        fi
+      working-directory: library/dragonfly/1.14
+
   push:
     if: ${{ github.event_name == 'push' || github.event_name == 'schedule' }}
-    needs: [ build ]
+    needs: [ test ]
     runs-on: ubuntu-latest
 
     steps:

@@ -8,11 +8,11 @@ cmd: ["/usr/bin/redis-server", "/etc/redis/redis.conf"]
 
 template:
   source: https://github.com/unikraft/app-elfloader.git
-  version: staging
+  version: stable
 
 unikraft:
   source: https://github.com/unikraft/unikraft.git
-  version: staging
+  version: stable
   kconfig:
     # Configurations options for app-elfloader
     # (they can't be part of the template atm)
@@ -117,7 +117,7 @@ unikraft:
 libraries:
   lwip:
     source: https://github.com/unikraft/lib-lwip.git
-    version: staging
+    version: stable
     kconfig:
       CONFIG_LWIP_LOOPIF: 'y'
       CONFIG_LWIP_UKNETDEV: 'y'
@@ -139,7 +139,7 @@ libraries:
       CONFIG_LWIP_ICMP: 'y'
   libelf:
     source: https://github.com/unikraft/lib-libelf.git
-    version: staging
+    version: stable
 
 targets:
 - fc/x86_64
